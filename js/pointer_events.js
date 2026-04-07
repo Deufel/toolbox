@@ -1,4 +1,4 @@
-// 🔘 Btn States 1.0.0 — add class="btn" to buttons
+// 🔘 Pointer Events 1.0.1 — add class="btn" to buttons
 // Drives hover/active/disabled via Pointer API — no :hover/:active quirks
 if (!window.btnStates) {
     const SEL = ['.btn']           // ← add selectors here
