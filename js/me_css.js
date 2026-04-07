@@ -1,4 +1,5 @@
-// 🌘 CSS Scope Inline 1.1.0 — use `me` in <style> to scope to parent element
+// h/t https://github.com/gnat/css-scope-inline
+// ME_CSS 1.0.0 — use `me` in <style> to scope to parent element
 // Rewrites `me` → unique class, isolating component styles without shadow DOM
 if (!window.cssScope) {
     const SEL = 'me'
