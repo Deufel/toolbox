@@ -3,7 +3,7 @@
 ```
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/js/btn_states.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/js/pointer_events.js"></script>
 ```
 
 ```html
