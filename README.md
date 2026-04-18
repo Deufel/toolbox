@@ -7,6 +7,6 @@
 ```
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/css/style.css"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/css/style.css">
 ```
 
