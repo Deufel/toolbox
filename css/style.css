@@ -907,44 +907,52 @@
         --hue: 25
     }
 
-    /* highlight.css
-    * Colors for highlight.js token types using only the toolbox's own knobs.
-    * Every rule sets --hue-shift (hue offset from --cfg-hue) and --contrast
-    * (text strength). The toolbox's core.color layer does the rest.
-    */
-
-    /* Python */
-    ::highlight(python-keyword)    { --hue-shift:  65; --contrast: 1.0; }  /* violet */
-    ::highlight(python-string)     { --hue-shift: -75; --contrast: 0.9; }  /* green  */
-    ::highlight(python-comment)    {                   --contrast: 0.5; }  /* muted  */
-    ::highlight(python-number)     { --hue-shift:-185; --contrast: 0.9; }  /* amber  */
-    ::highlight(python-decorator)  { --hue-shift:-135; --contrast: 0.9; }  /* gold   */
-    ::highlight(python-function)   { --hue-shift:  20; --contrast: 1.0; }  /* blue   */
-    ::highlight(python-class)      { --hue-shift: -20; --contrast: 1.0; }  /* teal   */
-    ::highlight(python-builtin)    { --hue-shift:  90; --contrast: 0.8; }  /* magenta*/
-    ::highlight(python-operator)   {                   --contrast: 0.7; }
-    ::highlight(python-punctuation){                   --contrast: 0.6; }
-
-    /* CSS */
-    ::highlight(css-comment)       {                   --contrast: 0.5; }
-    ::highlight(css-string)        { --hue-shift: -75; --contrast: 0.9; }
-    ::highlight(css-atrule)        { --hue-shift:  65; --contrast: 1.0; }
-    ::highlight(css-var-name)      { --hue-shift:-135; --contrast: 0.9; }
-    ::highlight(css-unit)          { --hue-shift:  90; --contrast: 0.8; }
-    ::highlight(css-number)        { --hue-shift:-185; --contrast: 0.9; }
-    ::highlight(css-property)      { --hue-shift:  20; --contrast: 1.0; }
-    ::highlight(css-selector)      { --hue-shift: -20; --contrast: 1.0; }
-    ::highlight(css-punctuation)   {                   --contrast: 0.6; }
-
-    /* HTML */
-    ::highlight(html-comment)      {                   --contrast: 0.5; }
-    ::highlight(html-doctype)      {                   --contrast: 0.5; }
-    ::highlight(html-entity)       { --hue-shift:-185; --contrast: 0.9; }
-    ::highlight(html-value)        { --hue-shift: -75; --contrast: 0.9; }
-    ::highlight(html-tag)          { --hue-shift:  20; --contrast: 1.0; }
-    ::highlight(html-attribute)    { --hue-shift:-135; --contrast: 0.9; }
-    ::highlight(html-bracket)      {                   --contrast: 0.6; }
-
+  /* highlight.css
+  * Colors for highlight.js token types using the toolbox color engine.
+  *
+  * Every rule needs three things:
+  *   --color: 1            activates the color formula (non-zero → compute a hue color)
+  *   --hue-shift: N        rotates the hue off --cfg-hue
+  *   --contrast: N         picks text strength (0..1)
+  *   background-color:     must be transparent, otherwise the color formula
+  *                         also paints a background on the highlight pseudo
+  *
+  * Muted tokens (comments, operators, punctuation) only tweak --contrast and
+  * leave --color alone — they inherit the surrounding text color and just dim.
+  */
+  
+  /* Python */
+  ::highlight(python-keyword)     { --color: 1; --hue-shift:  65; --contrast: 1.0; background-color: transparent; }  /* violet  */
+  ::highlight(python-string)      { --color: 1; --hue-shift: -75; --contrast: 0.9; background-color: transparent; }  /* green   */
+  ::highlight(python-comment)     {                              --contrast: 0.5; background-color: transparent; }  /* muted   */
+  ::highlight(python-number)      { --color: 1; --hue-shift:-185; --contrast: 0.9; background-color: transparent; }  /* amber   */
+  ::highlight(python-decorator)   { --color: 1; --hue-shift:-135; --contrast: 0.9; background-color: transparent; }  /* gold    */
+  ::highlight(python-function)    { --color: 1; --hue-shift:  20; --contrast: 1.0; background-color: transparent; }  /* blue    */
+  ::highlight(python-class)       { --color: 1; --hue-shift: -20; --contrast: 1.0; background-color: transparent; }  /* teal    */
+  ::highlight(python-builtin)     { --color: 1; --hue-shift:  90; --contrast: 0.8; background-color: transparent; }  /* magenta */
+  ::highlight(python-operator)    {                              --contrast: 0.7; background-color: transparent; }
+  ::highlight(python-punctuation) {                              --contrast: 0.6; background-color: transparent; }
+  
+  /* CSS */
+  ::highlight(css-comment)        {                              --contrast: 0.5; background-color: transparent; }
+  ::highlight(css-string)         { --color: 1; --hue-shift: -75; --contrast: 0.9; background-color: transparent; }
+  ::highlight(css-atrule)         { --color: 1; --hue-shift:  65; --contrast: 1.0; background-color: transparent; }
+  ::highlight(css-var-name)       { --color: 1; --hue-shift:-135; --contrast: 0.9; background-color: transparent; }
+  ::highlight(css-unit)           { --color: 1; --hue-shift:  90; --contrast: 0.8; background-color: transparent; }
+  ::highlight(css-number)         { --color: 1; --hue-shift:-185; --contrast: 0.9; background-color: transparent; }
+  ::highlight(css-property)       { --color: 1; --hue-shift:  20; --contrast: 1.0; background-color: transparent; }
+  ::highlight(css-selector)       { --color: 1; --hue-shift: -20; --contrast: 1.0; background-color: transparent; }
+  ::highlight(css-punctuation)    {                              --contrast: 0.6; background-color: transparent; }
+  
+  /* HTML */
+  ::highlight(html-comment)       {                              --contrast: 0.5; background-color: transparent; }
+  ::highlight(html-doctype)       {                              --contrast: 0.5; background-color: transparent; }
+  ::highlight(html-entity)        { --color: 1; --hue-shift:-185; --contrast: 0.9; background-color: transparent; }
+  ::highlight(html-value)         { --color: 1; --hue-shift: -75; --contrast: 0.9; background-color: transparent; }
+  ::highlight(html-tag)           { --color: 1; --hue-shift:  20; --contrast: 1.0; background-color: transparent; }
+  ::highlight(html-attribute)     { --color: 1; --hue-shift:-135; --contrast: 0.9; background-color: transparent; }
+  ::highlight(html-bracket)       {                              --contrast: 0.6; background-color: transparent; }
+  
 
 }
 
