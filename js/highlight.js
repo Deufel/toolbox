@@ -6,7 +6,8 @@
  * Usage — opt-in per block via a language class or data attribute:
  *   <pre class="css"><code>a { color: red; }</code></pre>
  *   <pre class="html"><code>&lt;div&gt;...&lt;/div&gt;</code></pre>
- *   <pre data-highlight="css">...</pre>
+ *   <pre class="python">def f(x): return x</pre>
+ *   <pre data-highlight="python">...</pre>
  *
  * Register additional languages:
  *   import { register, highlightAll } from './highlight.js';
@@ -18,8 +19,9 @@
  *   highlightAll();
  *
  * Style via the ::highlight() pseudo-element:
- *   ::highlight(css-property) { color: teal; }
- *   ::highlight(html-tag)     { color: crimson; }
+ *   ::highlight(python-keyword) { color: crimson; }
+ *   ::highlight(python-string)  { color: seagreen; }
+ *   ::highlight(python-comment) { color: gray; font-style: italic; }
  */
 
 // ─── Token definitions ───────────────────────────────────────────────────
@@ -49,11 +51,64 @@ const HTML = [
   ['html-bracket',   /<\/?|\/?>/g],
 ];
 
+// Python keywords from `keyword.kwlist`. True/False/None included (they're
+// keywords, not identifiers). Ordered by specificity isn't a concern here —
+// a single alternation regex matches them all with word boundaries.
+const PY_KEYWORDS =
+  'False|None|True|and|as|assert|async|await|break|class|continue|def|del|'
+  + 'elif|else|except|finally|for|from|global|if|import|in|is|lambda|'
+  + 'nonlocal|not|or|pass|raise|return|try|while|with|yield|match|case';
+
+// Common builtins worth highlighting. Not exhaustive — just the ones you'd
+// actually use often enough that flat color helps scan.
+const PY_BUILTINS =
+  'abs|all|any|ascii|bin|bool|bytearray|bytes|callable|chr|classmethod|'
+  + 'compile|complex|delattr|dict|dir|divmod|enumerate|eval|exec|filter|'
+  + 'float|format|frozenset|getattr|globals|hasattr|hash|help|hex|id|input|'
+  + 'int|isinstance|issubclass|iter|len|list|locals|map|max|memoryview|min|'
+  + 'next|object|oct|open|ord|pow|print|property|range|repr|reversed|round|'
+  + 'set|setattr|slice|sorted|staticmethod|str|sum|super|tuple|type|vars|zip|'
+  + 'self|cls';
+
+const PYTHON = [
+  // Strings FIRST so their contents don't get mistaken for code.
+  // Triple-quoted (including f-string variants) must come before single.
+  ['python-string',    /(?:[fFrRbB]{1,2})?(?:"""[\s\S]*?"""|'''[\s\S]*?''')/g],
+  ['python-string',    /(?:[fFrRbB]{1,2})?(?:"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')/g],
+
+  // Comments next — they swallow anything up to newline.
+  ['python-comment',   /#[^\n]*/g],
+
+  // Decorators (before function-name so @app.function isn't caught as a func).
+  ['python-decorator', /@[\w.]+/g],
+
+  // Function and class name in their def — the identifier immediately after.
+  ['python-function',  /(?<=\bdef\s+)[a-zA-Z_]\w*/g],
+  ['python-class',     /(?<=\bclass\s+)[a-zA-Z_]\w*/g],
+
+  // Keywords as whole words.
+  ['python-keyword',   new RegExp(`\\b(?:${PY_KEYWORDS})\\b`, 'g')],
+
+  // Builtins — only if not already consumed as a keyword (overlap skips them).
+  ['python-builtin',   new RegExp(`\\b(?:${PY_BUILTINS})\\b`, 'g')],
+
+  // Numbers. Handles ints, floats, scientific, hex/oct/bin prefixes,
+  // underscore separators (1_000_000). Kept simple, not spec-perfect.
+  ['python-number',    /\b(?:0[xX][\da-fA-F_]+|0[oO][0-7_]+|0[bB][01_]+|\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d+)?)\b/g],
+
+  // Operators worth colorizing. Matches individual/combined operator chars.
+  ['python-operator',  /->|:=|==|!=|<=|>=|\*\*|\/\/|<<|>>|[+\-*\/%@<>=&|^~]/g],
+
+  // Punctuation — brackets and separators.
+  ['python-punctuation', /[{}()[\],;]/g],
+];
+
 // ─── Registry ────────────────────────────────────────────────────────────
 
 const languages = new Map([
-  ['css',  CSS],
-  ['html', HTML],
+  ['css',    CSS],
+  ['html',   HTML],
+  ['python', PYTHON],
 ]);
 
 /** Register a new language. Tokens must be in most-specific-first order. */

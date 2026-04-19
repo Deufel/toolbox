@@ -906,6 +906,46 @@
     .dgr {
         --hue: 25
     }
+
+    /* highlight.css
+    * Colors for highlight.js token types using only the toolbox's own knobs.
+    * Every rule sets --hue-shift (hue offset from --cfg-hue) and --contrast
+    * (text strength). The toolbox's core.color layer does the rest.
+    */
+
+    /* Python */
+    ::highlight(python-keyword)    { --hue-shift:  65; --contrast: 1.0; }  /* violet */
+    ::highlight(python-string)     { --hue-shift: -75; --contrast: 0.9; }  /* green  */
+    ::highlight(python-comment)    {                   --contrast: 0.5; }  /* muted  */
+    ::highlight(python-number)     { --hue-shift:-185; --contrast: 0.9; }  /* amber  */
+    ::highlight(python-decorator)  { --hue-shift:-135; --contrast: 0.9; }  /* gold   */
+    ::highlight(python-function)   { --hue-shift:  20; --contrast: 1.0; }  /* blue   */
+    ::highlight(python-class)      { --hue-shift: -20; --contrast: 1.0; }  /* teal   */
+    ::highlight(python-builtin)    { --hue-shift:  90; --contrast: 0.8; }  /* magenta*/
+    ::highlight(python-operator)   {                   --contrast: 0.7; }
+    ::highlight(python-punctuation){                   --contrast: 0.6; }
+
+    /* CSS */
+    ::highlight(css-comment)       {                   --contrast: 0.5; }
+    ::highlight(css-string)        { --hue-shift: -75; --contrast: 0.9; }
+    ::highlight(css-atrule)        { --hue-shift:  65; --contrast: 1.0; }
+    ::highlight(css-var-name)      { --hue-shift:-135; --contrast: 0.9; }
+    ::highlight(css-unit)          { --hue-shift:  90; --contrast: 0.8; }
+    ::highlight(css-number)        { --hue-shift:-185; --contrast: 0.9; }
+    ::highlight(css-property)      { --hue-shift:  20; --contrast: 1.0; }
+    ::highlight(css-selector)      { --hue-shift: -20; --contrast: 1.0; }
+    ::highlight(css-punctuation)   {                   --contrast: 0.6; }
+
+    /* HTML */
+    ::highlight(html-comment)      {                   --contrast: 0.5; }
+    ::highlight(html-doctype)      {                   --contrast: 0.5; }
+    ::highlight(html-entity)       { --hue-shift:-185; --contrast: 0.9; }
+    ::highlight(html-value)        { --hue-shift: -75; --contrast: 0.9; }
+    ::highlight(html-tag)          { --hue-shift:  20; --contrast: 1.0; }
+    ::highlight(html-attribute)    { --hue-shift:-135; --contrast: 0.9; }
+    ::highlight(html-bracket)      {                   --contrast: 0.6; }
+
+
 }
 
 
