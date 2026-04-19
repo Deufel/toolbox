@@ -908,51 +908,53 @@
     }
 
   /* highlight.css
-  * Colors for highlight.js token types using the toolbox color engine.
+  * Syntax highlight colors using OKLCH relative to --cfg-hue.
   *
-  * Every rule needs three things:
-  *   --color: 1            activates the color formula (non-zero → compute a hue color)
-  *   --hue-shift: N        rotates the hue off --cfg-hue
-  *   --contrast: N         picks text strength (0..1)
-  *   background-color:     must be transparent, otherwise the color formula
-  *                         also paints a background on the highlight pseudo
+  * Scheme: warm/cool split
+  *   - Declarative tokens (keyword, function, class, decorator) → warm (+30 to +75°)
+  *   - Data tokens (string, number, builtin) → cool (-30 to -60°)
+  *   - Structural tokens (comment, operator, punctuation) → same as base hue
   *
-  * Muted tokens (comments, operators, punctuation) only tweak --contrast and
-  * leave --color alone — they inherit the surrounding text color and just dim.
+  * Colors derive from var(--bg) on the originating <pre> so they follow the
+  * current theme (lightness) and page hue automatically. Comments use alpha
+  * to dim further without changing lightness.
   */
-  
-  /* Python */
-  ::highlight(python-keyword)     { --color: 1; --hue-shift:  65; --contrast: 1.0; background-color: transparent; }  /* violet  */
-  ::highlight(python-string)      { --color: 1; --hue-shift: -75; --contrast: 0.9; background-color: transparent; }  /* green   */
-  ::highlight(python-comment)     {                              --contrast: 0.5; background-color: transparent; }  /* muted   */
-  ::highlight(python-number)      { --color: 1; --hue-shift:-185; --contrast: 0.9; background-color: transparent; }  /* amber   */
-  ::highlight(python-decorator)   { --color: 1; --hue-shift:-135; --contrast: 0.9; background-color: transparent; }  /* gold    */
-  ::highlight(python-function)    { --color: 1; --hue-shift:  20; --contrast: 1.0; background-color: transparent; }  /* blue    */
-  ::highlight(python-class)       { --color: 1; --hue-shift: -20; --contrast: 1.0; background-color: transparent; }  /* teal    */
-  ::highlight(python-builtin)     { --color: 1; --hue-shift:  90; --contrast: 0.8; background-color: transparent; }  /* magenta */
-  ::highlight(python-operator)    {                              --contrast: 0.7; background-color: transparent; }
-  ::highlight(python-punctuation) {                              --contrast: 0.6; background-color: transparent; }
-  
-  /* CSS */
-  ::highlight(css-comment)        {                              --contrast: 0.5; background-color: transparent; }
-  ::highlight(css-string)         { --color: 1; --hue-shift: -75; --contrast: 0.9; background-color: transparent; }
-  ::highlight(css-atrule)         { --color: 1; --hue-shift:  65; --contrast: 1.0; background-color: transparent; }
-  ::highlight(css-var-name)       { --color: 1; --hue-shift:-135; --contrast: 0.9; background-color: transparent; }
-  ::highlight(css-unit)           { --color: 1; --hue-shift:  90; --contrast: 0.8; background-color: transparent; }
-  ::highlight(css-number)         { --color: 1; --hue-shift:-185; --contrast: 0.9; background-color: transparent; }
-  ::highlight(css-property)       { --color: 1; --hue-shift:  20; --contrast: 1.0; background-color: transparent; }
-  ::highlight(css-selector)       { --color: 1; --hue-shift: -20; --contrast: 1.0; background-color: transparent; }
-  ::highlight(css-punctuation)    {                              --contrast: 0.6; background-color: transparent; }
-  
-  /* HTML */
-  ::highlight(html-comment)       {                              --contrast: 0.5; background-color: transparent; }
-  ::highlight(html-doctype)       {                              --contrast: 0.5; background-color: transparent; }
-  ::highlight(html-entity)        { --color: 1; --hue-shift:-185; --contrast: 0.9; background-color: transparent; }
-  ::highlight(html-value)         { --color: 1; --hue-shift: -75; --contrast: 0.9; background-color: transparent; }
-  ::highlight(html-tag)           { --color: 1; --hue-shift:  20; --contrast: 1.0; background-color: transparent; }
-  ::highlight(html-attribute)     { --color: 1; --hue-shift:-135; --contrast: 0.9; background-color: transparent; }
-  ::highlight(html-bracket)       {                              --contrast: 0.6; background-color: transparent; }
-  
+
+  /* ─── Python ──────────────────────────────────────────────────────────── */
+
+  ::highlight(python-keyword)     { color: oklch(from var(--bg) 70% 0.19 calc(h + 45));  font-weight: 600; }
+  ::highlight(python-string)      { color: oklch(from var(--bg) 70% 0.14 calc(h - 60)); }
+  ::highlight(python-comment)     { color: oklch(from var(--bg) 55% 0.02 h / 0.6); font-style: italic; }
+  ::highlight(python-number)      { color: oklch(from var(--bg) 73% 0.16 calc(h - 45)); }
+  ::highlight(python-decorator)   { color: oklch(from var(--bg) 73% 0.17 calc(h + 60)); }
+  ::highlight(python-function)    { color: oklch(from var(--bg) 70% 0.18 calc(h + 30));  font-weight: 600; }
+  ::highlight(python-class)       { color: oklch(from var(--bg) 70% 0.16 calc(h + 75));  font-weight: 600; }
+  ::highlight(python-builtin)     { color: oklch(from var(--bg) 68% 0.13 calc(h - 30)); }
+  ::highlight(python-operator)    { color: oklch(from var(--bg) 60% 0.03 h); }
+  ::highlight(python-punctuation) { color: oklch(from var(--bg) 55% 0.02 h); }
+
+  /* ─── CSS ─────────────────────────────────────────────────────────────── */
+
+  ::highlight(css-comment)        { color: oklch(from var(--bg) 55% 0.02 h / 0.6); font-style: italic; }
+  ::highlight(css-string)         { color: oklch(from var(--bg) 70% 0.14 calc(h - 60)); }
+  ::highlight(css-atrule)         { color: oklch(from var(--bg) 70% 0.19 calc(h + 45));  font-weight: 600; }
+  ::highlight(css-var-name)       { color: oklch(from var(--bg) 73% 0.17 calc(h + 60)); }
+  ::highlight(css-unit)           { color: oklch(from var(--bg) 68% 0.13 calc(h - 30)); }
+  ::highlight(css-number)         { color: oklch(from var(--bg) 73% 0.16 calc(h - 45)); }
+  ::highlight(css-property)       { color: oklch(from var(--bg) 70% 0.18 calc(h + 30)); }
+  ::highlight(css-selector)       { color: oklch(from var(--bg) 70% 0.16 calc(h + 75));  font-weight: 600; }
+  ::highlight(css-punctuation)    { color: oklch(from var(--bg) 55% 0.02 h); }
+
+  /* ─── HTML ────────────────────────────────────────────────────────────── */
+
+  ::highlight(html-comment)       { color: oklch(from var(--bg) 55% 0.02 h / 0.6); font-style: italic; }
+  ::highlight(html-doctype)       { color: oklch(from var(--bg) 60% 0.03 h / 0.7); font-style: italic; }
+  ::highlight(html-entity)        { color: oklch(from var(--bg) 73% 0.16 calc(h - 45)); }
+  ::highlight(html-value)         { color: oklch(from var(--bg) 70% 0.14 calc(h - 60)); }
+  ::highlight(html-tag)           { color: oklch(from var(--bg) 70% 0.18 calc(h + 30));  font-weight: 600; }
+  ::highlight(html-attribute)     { color: oklch(from var(--bg) 73% 0.17 calc(h + 60)); }
+  ::highlight(html-bracket)       { color: oklch(from var(--bg) 55% 0.02 h); }
+    
 
 }
 
