@@ -402,7 +402,7 @@
                 margin-top: var(--_page-gap)
             }
 
-            & dialog: :backdrop {
+            & dialog::backdrop {
                 background-color:oklch(0 0 0 / 0.7)
             }
         }
@@ -556,7 +556,7 @@
         }
     }
     
-    @layer componenets.simple {
+    @layer componenet.simple {
         :where(button, .btn) {
             --type: -1;
             --contrast: 0.85;
@@ -589,7 +589,7 @@
         }
     }
     
-    @layer{
+    layer componenet.simple {
 
         .card {
             box-shadow: inset 0 1px 0 oklch(from var(--bg) calc(l + 0.1) c h);
@@ -643,12 +643,13 @@
 
     
 
+
     @layer utility.layout {
         :where(.nowrap) { white-space: nowrap; }
         :where(.mobile,.tablet,.desktop) { display: none }
-        @media (width < 768px) { : where(.mobile) { display:revert-layer } }
-        @media (768px <= width < 1024px) { : where(.tablet) { display:revert-layer } }
-        @media (width >= 1024px) { : where(.desktop) { display:revert-layer } }
+        @media (width < 768px) { :where(.mobile) { display:revert-layer } }
+        @media (768px <= width < 1024px) { :where(.tablet) { display:revert-layer } }
+        @media (width >= 1024px) { :where(.desktop) { display:revert-layer } }
 
         @media print { :where(body) { min-height: 0 } } /* does this actualy do anything ? */
     }
