@@ -556,8 +556,8 @@
         }
     }
     
-    @layer componenet.simple {
-        :where(button, .btn) {
+    @layer component.simple{
+        :where(.btn) {
             --type: -1;
             --contrast: 0.85;
 
