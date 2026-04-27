@@ -1,0 +1,104 @@
+/* ============================================================
+   layout-doc.css — layout.doc
+
+   Document/paper layout. A fixed-aspect "piece of paper" centered
+   on a backdrop, with print awareness. Used for resumes, posters,
+   single-page artifacts that need to look the same on screen and
+   in print.
+
+   Opt in via <body class="doc"> with a <article class="paper">
+   child:
+
+     <body class="doc">
+       <article class="paper">
+         ...content...
+       </article>
+     </body>
+
+   Defaults to US Letter portrait. Override --paper-w / --paper-h
+   on the .paper element for other sizes.
+
+   Paper sizing:
+     On screen — scales to fit viewport, preserves aspect ratio.
+     In print  — exact physical size, zero @page margin.
+
+   Type and space inside the paper are paper-relative (cqi units)
+   so screen and print render identically regardless of viewport.
+   ============================================================ */
+
+@layer layout.doc {
+
+    body.doc {
+        margin: 0;
+        min-block-size: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+    }
+
+    /* The paper itself. Default geometry: US Letter portrait. */
+    body.doc .paper,
+    .paper {
+        --paper-w: 8.5in;
+        --paper-h: 11in;
+        --paper-aspect: calc(var(--paper-w) / var(--paper-h));
+
+        aspect-ratio: var(--paper-w) / var(--paper-h);
+
+        /* Fit the smaller of (viewport-height) or (width-derived height).
+           Whichever bound is tighter wins; aspect-ratio handles the other. */
+        block-size: min(
+            calc(100dvh - 2rem),
+            calc((100dvw - 2rem) / var(--paper-aspect))
+        );
+        inline-size: auto;
+
+        border: 1px solid var(--border);
+        border-radius: var(--cfg-radius, 0.5rem);
+        box-shadow: 0 1rem 3rem -1rem oklch(0% 0 0 / 0.4);
+        overflow: hidden;
+
+        /* CQ container — descendants size against paper width via cqi. */
+        container-type: size;
+        container-name: paper;
+
+        /* Paper-relative type & space.
+           Inside the paper, abandon viewport-driven fluidity.
+           Everything dimensional is a fraction of paper width.
+           1cqi @ 8.5in paper = 8.16px → 1.75cqi ≈ 11pt body text. */
+        --cfg-type-min: 1.75cqi;
+        --cfg-type-max: 1.75cqi;       /* lerp collapses → fixed paper-relative */
+        --cfg-space-base: 1cqi;
+    }
+
+    /* The viewport-clamp factor in core.space's --s formula would
+       shrink spacing on narrow viewports — wrong inside a fixed-aspect
+       document where spacing should track the paper. Override the
+       formula for .paper and descendants to drop that factor. */
+    .paper, .paper * {
+        --s: calc(
+            var(--cfg-space-base) *
+            pow(var(--cfg-space-ratio), var(--space)) *
+            var(--cfg-space-scale)
+        );
+    }
+
+    @media print {
+        body.doc {
+            padding: 0;
+            min-block-size: auto;
+            display: block;
+        }
+        @page { size: letter; margin: 0 }
+
+        body.doc .paper,
+        .paper {
+            inline-size: var(--paper-w);
+            block-size: var(--paper-h);
+            aspect-ratio: auto;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+    }
+}

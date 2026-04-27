@@ -1,0 +1,167 @@
+/* ============================================================
+   layout-app.css — layout.app
+
+   Application-shell layout: a 3×3 grid (header / nav · main · aside
+   / footer) with drawer-style nav and aside that collapse to fixed
+   modal drawers below a container-query breakpoint.
+
+   Opt in via <body class="app">. Nothing applies otherwise.
+
+   Drawer markup:
+     <body class="app">
+       <header id="header">...</header>
+       <dialog id="nav" open>...</dialog>     <!-- drawer -->
+       <main   id="main">...</main>
+       <dialog id="aside" open>...</dialog>   <!-- drawer -->
+       <footer id="footer">...</footer>
+     </body>
+
+   Why <dialog> for drawers: gets us free top-layer modal behavior
+   in narrow mode (showModal()) and keyboard accessibility. In wide
+   mode we override its UA styling to make it sit in a grid track.
+   ============================================================ */
+
+@property --cfg-layout-radius   { syntax: "<length>"; inherits: true; initial-value: 4px }
+@property --cfg-layout-page-gap { syntax: "<length>"; inherits: true; initial-value: 6px }
+
+:where(html) {
+    /* These appear when the viewport hits the layout's design width.
+       The clamp(0px, calc(100vi - 100%) * 1e5, ...) trick is a
+       container-query approximation for cases where containers
+       can't be used. Will revisit. */
+    --cfg-layout-radius:   clamp(0px, calc(100vi - 100%) * 1e5, 0.5rem);
+    --cfg-layout-page-gap: clamp(0px, calc(100vi - 100%) * 1e5, 1rem);
+}
+
+@layer layout.app {
+
+    body.app {
+        font: 14px/1.5 ui-sans-serif, system-ui, sans-serif;
+        background: var(--_bg);
+        container: app-shell / inline-size;
+
+        /* Wide layout — 3×3 grid.
+           Columns are `auto 1fr auto` so nav/aside tracks size to
+           their explicit widths, and collapse to zero when those
+           dialogs leave the grid (position: fixed). */
+        display: grid;
+        grid-template:
+            "header header header" auto
+            "nav    main   aside"  1fr
+            "footer footer footer" auto /
+            auto    1fr    auto;
+        gap: 0;
+        height: 100svh;
+        overflow: hidden;  /* body never scrolls; #main does */
+    }
+
+    /* Only #main scrolls; header/footer stay pinned */
+    body.app #main {
+        overflow-y: auto;
+        min-height: 0;     /* critical in grid — lets child scroll */
+    }
+    body.app #header,
+    body.app #footer { min-height: 0 }
+
+    /* ── Grid-mode dialog reset ─────────────────────────────────
+       <dialog> comes with UA styles we need to neutralize so it
+       renders like a plain block in its grid slot. */
+    body.app #nav,
+    body.app #aside {
+        position: static;
+        display: block;            /* overrides dialog's display: none */
+        max-width: none;
+        max-height: none;
+        width: var(--drawer-width, auto);
+        height: auto;
+        margin: 0;
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--cfg-layout-radius);
+        background: var(--_bg);
+        color: inherit;
+        overflow-y: auto;
+    }
+
+    body.app #nav {
+        grid-area: nav;
+        margin-right: var(--cfg-layout-page-gap);
+    }
+    body.app #aside {
+        grid-area: aside;
+        margin-left: var(--cfg-layout-page-gap);
+    }
+
+    body.app #main {
+        grid-area: main;
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--cfg-layout-radius);
+        background: var(--_bg);
+    }
+    body.app #header {
+        grid-area: header;
+        margin-bottom: var(--cfg-layout-page-gap);
+    }
+    body.app #footer {
+        grid-area: footer;
+        margin-top: var(--cfg-layout-page-gap);
+    }
+
+    /* ── Narrow layout ──────────────────────────────────────────
+       Below 1024px container width: nav/aside leave the grid and
+       become fixed modal drawers. Triggered by container query so
+       it works in any context the app shell is embedded in. */
+    @container app-shell (width < 1024px) {
+        body.app #nav,
+        body.app #aside {
+            position: fixed;
+            inset: 0 auto 0 auto;       /* reset all sides; per-drawer below */
+            margin: 0;
+            width: min(85vw, 320px);
+            max-width: 85vw;
+            height: 100svh;
+            border-radius: 0;
+            border: 0;
+            background: var(--_bg);
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
+
+            transition:
+                translate calc(var(--cfg-motion) * 0.25s) ease-out,
+                opacity   calc(var(--cfg-motion) * 0.25s) ease-out,
+                display   calc(var(--cfg-motion) * 0.25s) allow-discrete,
+                overlay   calc(var(--cfg-motion) * 0.25s) allow-discrete;
+            translate: 0 0;
+            opacity: 1;
+        }
+
+        body.app #nav   { left: 0; border-right: 1px solid var(--Border) }
+        body.app #aside { left: auto; right: 0; border-left: 1px solid var(--Border) }
+
+        body.app #nav:not([open])   { display: none; translate: -100% 0; opacity: 0 }
+        body.app #aside:not([open]) { display: none; translate:  100% 0; opacity: 0 }
+
+        @starting-style {
+            body.app #nav[open]   { translate: -100% 0; opacity: 0 }
+            body.app #aside[open] { translate:  100% 0; opacity: 0 }
+        }
+
+        body.app #nav::backdrop,
+        body.app #aside::backdrop {
+            background: oklch(0% 0 0 / 0.5);
+            transition:
+                background-color calc(var(--cfg-motion) * 0.25s) ease-out,
+                display          calc(var(--cfg-motion) * 0.25s) allow-discrete,
+                overlay          calc(var(--cfg-motion) * 0.25s) allow-discrete;
+        }
+        body.app #nav:not([open])::backdrop,
+        body.app #aside:not([open])::backdrop {
+            background: oklch(0% 0 0 / 0);
+        }
+        @starting-style {
+            body.app #nav[open]::backdrop,
+            body.app #aside[open]::backdrop { background: oklch(0% 0 0 / 0) }
+        }
+    }
+}

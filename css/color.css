@@ -1,0 +1,141 @@
+/* ============================================================
+   color.css — core.color
+
+   The color formula. Takes inputs (--bg, --hue, --depth,
+   --fg-contrast, etc.) and computes outputs (--_bg, color,
+   --border, --Border).
+
+   Includes:
+     - @property registrations for the color tokens
+     - the math (:where(*) rule that computes --_bg etc.)
+     - rules that resolve --_bg into actual paint
+     - the .surface depth cascade
+     - SVG color bridging (fill/stroke from --_bg, text from currentColor)
+
+   Does NOT include:
+     - theme blocks (prefers-color-scheme media, [data-ui-theme])
+       → theme.css, since they decide WHICH values, not HOW math runs
+     - semantic hue presets (.suc/.inf/.wrn/.dgr) → theme.css
+   ============================================================ */
+
+@property --cfg-color-hue       { syntax: "<number>";     inherits: true; initial-value: 220 }
+@property --cfg-color-surf-chroma { syntax: "<number>";   inherits: true; initial-value: 0.018 }
+@property --cfg-color-alpha     { syntax: "<number>";     inherits: true; initial-value: 1 }
+@property --cfg-color-muted-l   { syntax: "<percentage>"; inherits: true; initial-value: 90% }
+@property --cfg-color-muted-c   { syntax: "<number>";     inherits: true; initial-value: 0.05 }
+@property --cfg-color-vivid-l   { syntax: "<percentage>"; inherits: true; initial-value: 20% }
+@property --cfg-color-vivid-c   { syntax: "<number>";     inherits: true; initial-value: 0.4 }
+@property --cfg-color-top-l     { syntax: "<number>";     inherits: true; initial-value: 88 }
+@property --cfg-color-base-step { syntax: "<number>";     inherits: true; initial-value: 4 }
+@property --cfg-color-curve-k   { syntax: "<number>";     inherits: true; initial-value: 0.6 }
+@property --cfg-color-surf-mid  { syntax: "<number>";     inherits: true; initial-value: 60.5 }
+@property --cfg-color-surf-rng  { syntax: "<number>";     inherits: true; initial-value: 55 }
+
+@property --depth      { syntax: "<number>"; inherits: false; initial-value: 0 }
+@property --bg         { syntax: "<number>"; inherits: true;  initial-value: -1 }
+@property --hue        { syntax: "*";        inherits: true }
+@property --hue-shift  { syntax: "<number>"; inherits: true;  initial-value: 0 }
+@property --fg-contrast { syntax: "<number>"; inherits: true; initial-value: 1 }
+@property --fg-chroma   { syntax: "<number>"; inherits: true; initial-value: 0 }
+@property --fg-hue      { syntax: "*";        inherits: true }
+@property --l-shift    { syntax: "<number>"; inherits: true;  initial-value: 0 }
+@property --c-shift    { syntax: "<number>"; inherits: true;  initial-value: 0 }
+
+/* Private computed tokens — do NOT assign these from consumer code. */
+@property --_bg     { syntax: "<color>";      inherits: true;  initial-value: oklch(88% 0.018 220) }
+@property --_naive  { syntax: "<number>";     inherits: false; initial-value: 88 }
+@property --_t      { syntax: "<number>";     inherits: false; initial-value: 0.5 }
+@property --_surf-l { syntax: "<percentage>"; inherits: false; initial-value: 88% }
+@property --_c01    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_col-l  { syntax: "<percentage>"; inherits: false; initial-value: 90% }
+@property --_col-c  { syntax: "<number>";     inherits: false; initial-value: 0.1 }
+@property --_k      { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_l      { syntax: "<percentage>"; inherits: false; initial-value: 88% }
+@property --_c      { syntax: "<number>";     inherits: false; initial-value: 0.018 }
+@property --_h      { syntax: "<number>";     inherits: false; initial-value: 220 }
+@property --_dark   { syntax: "<number>";     inherits: false; initial-value: 0 }
+
+@layer core.color {
+    :where(*) {
+        --_naive:  calc(var(--cfg-color-top-l) - var(--depth) * var(--cfg-color-base-step));
+        --_t:      calc((var(--_naive) - var(--cfg-color-surf-mid)) / var(--cfg-color-surf-rng));
+        --_surf-l: calc((var(--_naive) - var(--depth) * var(--cfg-color-base-step) * var(--cfg-color-curve-k) * var(--_t) * var(--_t)) * 1%);
+
+        --_c01:   clamp(0, var(--bg), 1);
+        --_col-l: calc(var(--cfg-color-muted-l) + var(--_c01) * (var(--cfg-color-vivid-l) - var(--cfg-color-muted-l)));
+        --_col-c: calc(var(--cfg-color-muted-c) + var(--_c01) * (var(--cfg-color-vivid-c) - var(--cfg-color-muted-c)));
+
+        --_k: clamp(0, calc(var(--bg) + 1), 1);
+        --_l: calc(var(--_surf-l) * (1 - var(--_k)) + var(--_col-l) * var(--_k));
+        --_c: calc(var(--cfg-color-surf-chroma) * (1 - var(--_k)) + var(--_col-c) * var(--_k));
+        --_h: var(--hue, calc(var(--cfg-color-hue) + var(--hue-shift)));
+
+        /* Theme scalar derived from --cfg-color-top-l: 0 in light, 1 in dark.
+           top-l = 88 (light) → (60-88)/30 = -0.93 → clamped to 0
+           top-l = 33 (dark)  → (60-33)/30 =  0.90 → clamped to 1 */
+        --_dark: clamp(0, calc((60 - var(--cfg-color-top-l)) / 30), 1);
+
+        --_bg: oklch(
+            clamp(4%, calc(var(--_l) + var(--l-shift) * 100%), 97%)
+            calc(var(--_c) + var(--c-shift) * (var(--_l) / 100%))
+            var(--_h)
+            / var(--cfg-color-alpha)
+        );
+
+        /* Borders: theme-driven direction, not bg-driven.
+           (--_dark * 2 - 1) = -1 in light, +1 in dark.
+           --border  is neutral (low chroma).
+           --Border  is colored (~0.13 chroma, slight hue rotation). */
+        --border: oklch(
+            from var(--_bg)
+            calc(l + (var(--_dark) * 2 - 1) * 0.14)
+            calc(c * 0.3)
+            h
+        );
+        --Border: oklch(
+            from var(--_bg)
+            calc(l + (var(--_dark) * 2 - 1) * 0.22)
+            clamp(0.08, calc(c + 0.12), 0.18)
+            calc(h + 8)
+        );
+
+        color: oklch(
+            from var(--_bg)
+            calc(l + (clamp(0, calc((0.5 - l) * 999), 1) - l) * var(--fg-contrast))
+            calc(c * (1 - var(--fg-contrast)) + var(--fg-chroma))
+            var(--fg-hue, h)
+        );
+    }
+
+    /* Default paint: every element gets a transparent --_bg unless it's
+       a surface. The --_k factor makes chromatic --bg values paint
+       themselves; --bg: -1 (default) yields _k=0 → fully transparent. */
+    :where(*) {
+        background-color: oklch(from var(--_bg) l c h / var(--_k));
+    }
+
+    /* Surfaces actually paint. .btn included so buttons get their --_bg
+       even at --bg: -1 (otherwise they'd be transparent). */
+    :where(body, .surface, .btn) {
+        background-color: var(--_bg);
+    }
+
+    /* Auto-nest depth tracking: a .surface containing nested .surfaces
+       gets a higher --depth, which the formula uses to lighten/darken. */
+    .surface:has(.surface)                            { --depth: 1 }
+    .surface:has(.surface .surface)                   { --depth: 2 }
+    .surface:has(.surface .surface .surface)          { --depth: 3 }
+    .surface:has(.surface .surface .surface .surface) { --depth: 4 }
+
+    /* SVG color bridging: descendants paint with the system's resolved
+       colors. Solid shapes use --_bg, lines/strokes use --_bg, text uses
+       currentColor so it picks up the same --fg-contrast/--fg-chroma/
+       --fg-hue formula as HTML text outside the SVG.
+
+       All three rules use :where() to keep specificity at (0,0,0) so
+       cascade order (later wins) decides — text rule is last so it
+       overrides the broad shape rule for text only. */
+    :where(svg) :where(*)                          { fill: var(--_bg); stroke: none }
+    :where(svg) :where(line, polyline, path.stroke) { fill: none; stroke: var(--_bg) }
+    :where(svg) :where(text, tspan)                { fill: currentColor; stroke: none }
+}
