@@ -1,3 +1,5 @@
+    /*version 5 */
+
     @layer  reset.fix,       /* CSS WC Mistakes and artifacts */
         reset.opinion,       /* Project level decisions live here */
         core.color,          /* The Core Color API all color math here. no color set directly after this consume api */
@@ -42,7 +44,7 @@
         :where(abbr[title]) { cursor: help; text-decoration: underline dotted }
         :where(summary) { list-style: none }
         :where(a) { text-decoration: none }
-        :where(input):autofill { box-shadow: inset 0 0 0 1000px var(--bg, transparent) }
+        :where(input):autofill { box-shadow: inset 0 0 0 1000px var(--_bg, transparent) }
         :where(ul,ol): where([role="list"]) { list-style:none; padding: 0 }
         :where([hidden]) { display: none }
     }
@@ -273,7 +275,7 @@
     @layer layout.page {
         body {
             font: 14px/1.5 ui-sans-serif, system-ui, sans-serif;
-            background: var(--bg);
+            background: var(--_bg);
 
             /* The container context that drives the layout switch */
             container: app-shell / inline-size;
@@ -326,7 +328,7 @@
             padding: 1rem;
             border: 1px solid var(--border);
             border-radius: var(--cfg-layout-radius);
-            background: var(--bg);
+            background: var(--_bg);
             color: inherit;
             overflow-y: auto;
         }
@@ -345,7 +347,7 @@
             padding: 1rem;
             border: 1px solid var(--border);
             border-radius: var(--cfg-layout-radius);
-            background: var(--bg);
+            background: var(--_bg);
         }
         #header {
             grid-area: header;
@@ -353,7 +355,7 @@
         }
         #main    {
             grid-area: main;
-            background: var(--bg);
+            background: var(--_bg);
         }
         #footer  {
             grid-area: footer;
@@ -382,7 +384,7 @@
                 height: 100svh;
                 border-radius: 0;
                 border: 0;
-                background: var(--bg);
+                background: var(--_bg);
                 padding: 1.5rem 1rem;
                 overflow-y: auto;
 
@@ -688,13 +690,11 @@
     @layer componet.simple {
 
         .card {
-            box-shadow: inset 0 1px 0 oklch(from var(--bg) calc(l + 0.1) c h);
             border-radius: var(--cfg-radius);
             border: 1px solid var(--border);
         }
 
         .Card {
-            box-shadow: inset 0 1px 0 oklch(from var(--bg) calc(l + 0.1) c h);
             border-radius: var(--cfg-radius);
             border: 1px solid var(--Border);
         }
@@ -767,7 +767,7 @@
         .timeline {
             --tl-height: 1.125rem;
             --tl-radius: calc(var(--cfg-radius) / 2);
-            --tl-tick-color: oklch(from var(--bg) calc(l + 0.05) c h / 0.4);
+            --tl-tick-color: oklch(from var(--_bg) calc(l + 0.05) c h / 0.4);
 
             display: flex;
             flex-direction: column;
@@ -985,7 +985,7 @@
                     inline-size: 0.5em;
                     block-size: 0.5em;
                     border-radius: 50%;
-                    background: oklch(from var(--bg) calc(l - 0.04) calc(c * 0.4) h);
+                    background: oklch(from var(--_bg) calc(l - 0.04) calc(c * 0.4) h);
                 }
             }
             .prof-dots[data-level="1"] > i:nth-child(-n+1),
@@ -1151,9 +1151,9 @@
                 resize: none;
                 font-family: var(--font-body);
 
-                /* Caret tinted off the current --bg, --color: 0.4 equivalent.
+                /* Caret tinted off the current --_bg, --color: 0.4 equivalent.
                    Stays hue-aware with the rest of the system. */
-                caret-color: oklch(from var(--bg) 65% 0.18 h);
+                caret-color: oklch(from var(--_bg) 65% 0.18 h);
 
                 &::placeholder {
                     --contrast: 0.45;
@@ -1172,7 +1172,7 @@
                for a FAB-anchored popup. */
             &.popover {
                 --depth: 1;
-                background: var(--bg);
+                background: var(--_bg);
                 border: 1px solid var(--border);
 
                 /* Fixed, intentional width — not driven by content */
@@ -1207,10 +1207,10 @@
         max-height: 80vh;
         overflow: auto;
 
-        background: var(--bg);
+        background: var(--_bg);
         color: inherit;                          /* let --contrast cascade do its job */
         border-radius: var(--cfg-radius);
-        box-shadow: 0 8px 24px oklch(from var(--bg) 10% 0.05 h / 0.3);
+        box-shadow: 0 8px 24px oklch(from var(--_bg) 10% 0.05 h / 0.3);
         padding: var(--s);
 
         opacity: 1;
