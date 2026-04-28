@@ -11,6 +11,6 @@
 ```
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@master/css/style.css">
 ```
 
