@@ -442,7 +442,9 @@
            (icons via `fill="currentColor"` or `stroke="currentColor"`,
            designer SVGs with hardcoded fills, charts with `fill="none"` lines,
            etc.) participates in the system's auto-contrast and theme. */
-        :where(svg) { color: currentColor }
+       /* :where(svg) { color: currentColor } */
+        :where(svg:not([fill="none"]))           { fill:   currentColor }
+        :where(svg[stroke]:not([stroke="none"])) { stroke: currentColor }
     }
     
 
