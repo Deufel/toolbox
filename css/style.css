@@ -260,6 +260,13 @@
                     calc(c * 0.3)
                     h
                 );
+
+                --accent: oklch(
+                    from var(--_bg)
+                    calc(l + (var(--_dark) * 2 - 1) * 0.22)
+                    clamp(0.08, calc(c + 0.12), 0.18)
+                    calc(h + 8)
+                );
                 --Border: oklch(
                     from var(--_bg)
                     calc(l + (var(--_dark) * 2 - 1) * 0.22)
@@ -267,12 +274,16 @@
                     calc(h + 8)
                 );
 
-                color: oklch(
+                --color: oklch(
                     from var(--_bg)
                     calc(l + (clamp(0, calc((0.5 - l) * 999), 1) - l) * var(--fg-contrast))
                     calc(c * (1 - var(--fg-contrast)) + var(--fg-chroma))
                     var(--fg-hue, h)
                 );
+
+                border-color: var(--border);
+                color: var(--color);
+                accent-color: var(--accent)
             }
 
             /* Default paint: every element gets a transparent --_bg unless it's
@@ -283,9 +294,6 @@
 
             :where(*:not(svg, svg *)) {
                 background-color: oklch(from var(--_bg) l c h / var(--_k));
-            }
-            :where(svg)) {
-                background-color: var(--_bg);
             }
 
             /* Surfaces actually paint. .btn included so buttons get their --_bg
@@ -301,14 +309,6 @@
             .surface:has(.surface .surface .surface)          { --depth: 3 }
             .surface:has(.surface .surface .surface .surface) { --depth: 4 }
 
-            /* SVG color bridging: SVG elements inherit `color` from the formula
-               above. This single rule ensures any descendant using `currentColor`
-               (icons via `fill="currentColor"` or `stroke="currentColor"`,
-               designer SVGs with hardcoded fills, charts with `fill="none"` lines,
-               etc.) participates in the system's auto-contrast and theme. */
-           /* :where(svg) { color: currentColor } */
-            :where(svg:not([fill="none"]))           { fill:   currentColor }
-            :where(svg[stroke]:not([stroke="none"])) { stroke: currentColor }
         }
 
     
