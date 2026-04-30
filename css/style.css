@@ -277,9 +277,15 @@
 
             /* Default paint: every element gets a transparent --_bg unless it's
                a surface. The --_k factor makes chromatic --bg values paint
-               themselves; --bg: -1 (default) yields _k=0 → fully transparent. */
-            :where(*) {
+               themselves; --bg: -1 (default) yields _k=0 → fully transparent.
+            NOTE SVGS can not do the transparency trick so exclude them
+            */
+
+            :where(*:not(svg, svg *)) {
                 background-color: oklch(from var(--_bg) l c h / var(--_k));
+            }
+            :where(svg)) {
+                background-color: var(--_bg);
             }
 
             /* Surfaces actually paint. .btn included so buttons get their --_bg
