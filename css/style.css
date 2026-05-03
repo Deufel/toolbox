@@ -1,30 +1,90 @@
-    /* ============================================================
-       toolbox / style.css
-
-       Single entry point. Declares the cascade-layer order, then
-       imports each module. Modules contribute @property declarations
-       at the top of their files (outside layers) and rules inside
-       their assigned @layer block.
-
-       See LAYERS.md for what each layer means and what belongs.
-       ============================================================ */
 
     @layer
-        reset.fix,
-        reset.opinion,
-        core.color,
-        core.type,
-        core.space,
-        theme,
-        layout.app,
-        layout.doc,
-        layout.composition,
-        component.base,
-        component.simple,
-        component.complex,
-        utility.layout,
-        utility.exceptions,
-        utility.important;
+      reset.fix,
+      reset.opinion,
+      core.color,
+      core.type,
+      core.space,
+      theme,
+      layout.app,
+      layout.doc,
+      layout.composition,
+      component.base,
+      component.simple,
+      component.complex,
+      utility.layout,
+      utility.exceptions,
+      utility.important;
+
+    
+    /* ════════════════════════════════════════════════════════════════
+       @property declarations
+       These must live outside @layer (CSS spec requirement).
+       ════════════════════════════════════════════════════════════ */
+
+    /* Color */
+    @property --bg         { syntax: "<number>"; inherits: true; initial-value: -1 }
+    @property --fg         { syntax: "<number>"; inherits: true; initial-value: -1 }
+    @property --hue        { syntax: "<number>"; inherits: true; initial-value: 220 }
+    @property --hue-lock   { syntax: "*";        inherits: true }
+    @property --hue-shift  { syntax: "<number>"; inherits: true; initial-value: 0 }
+    @property --depth      { syntax: "<number>"; inherits: false; initial-value: 0 }
+
+    @property --cfg-color-muted-l     { syntax: "<percentage>"; inherits: true; initial-value: 96% }
+    @property --cfg-color-muted-c     { syntax: "<number>";     inherits: true; initial-value: 0.025 }
+    @property --cfg-color-vivid-l     { syntax: "<percentage>"; inherits: true; initial-value: 35% }
+    @property --cfg-color-vivid-c     { syntax: "<number>";     inherits: true; initial-value: 0.18 }
+    @property --cfg-color-surf-chroma { syntax: "<number>";     inherits: true; initial-value: 0.008 }
+    @property --cfg-fg-tint           { syntax: "<number>";     inherits: true; initial-value: 0.012 }
+
+    @property --cfg-color-top-l     { syntax: "<number>"; inherits: true; initial-value: 88 }
+    @property --cfg-color-base-step { syntax: "<number>"; inherits: true; initial-value: 4 }
+    @property --cfg-color-curve-k   { syntax: "<number>"; inherits: true; initial-value: 0.6 }
+    @property --cfg-color-surf-mid  { syntax: "<number>"; inherits: true; initial-value: 60.5 }
+    @property --cfg-color-surf-rng  { syntax: "<number>"; inherits: true; initial-value: 55 }
+    @property --cfg-color-alpha     { syntax: "<number>"; inherits: true; initial-value: 1 }
+
+    @property --_bg        { syntax: "<color>";      inherits: true;  initial-value: oklch(88% 0.018 220) }
+    @property --_naive     { syntax: "<number>";     inherits: false; initial-value: 88 }
+    @property --_t         { syntax: "<number>";     inherits: false; initial-value: 0.5 }
+    @property --_surf-l    { syntax: "<percentage>"; inherits: false; initial-value: 88% }
+    @property --_c01       { syntax: "<number>";     inherits: false; initial-value: 0 }
+    @property --_col-l     { syntax: "<percentage>"; inherits: false; initial-value: 90% }
+    @property --_col-c     { syntax: "<number>";     inherits: false; initial-value: 0.1 }
+    @property --_k         { syntax: "<number>";     inherits: false; initial-value: 0 }
+    @property --_l         { syntax: "<percentage>"; inherits: false; initial-value: 88% }
+    @property --_c         { syntax: "<number>";     inherits: false; initial-value: 0.018 }
+    @property --_h         { syntax: "<number>";     inherits: false; initial-value: 220 }
+    @property --_dark      { syntax: "<number>";     inherits: false; initial-value: 0 }
+    @property --_fg-pos    { syntax: "<number>";     inherits: false; initial-value: 0 }
+    @property --_fg-neg    { syntax: "<number>";     inherits: false; initial-value: 1 }
+    @property --_fg-l      { syntax: "<percentage>"; inherits: false; initial-value: 4% }
+    @property --_fg-c      { syntax: "<number>";     inherits: false; initial-value: 0.02 }
+    @property --_fg-onpos  { syntax: "<number>";     inherits: false; initial-value: 0 }
+    @property --_fg-pole   { syntax: "<percentage>"; inherits: false; initial-value: 4% }
+    @property --_fg-ramp-l { syntax: "<percentage>"; inherits: false; initial-value: 90% }
+    @property --_fg-ramp-c { syntax: "<number>";     inherits: false; initial-value: 0.05 }
+    @property --_surf-dark { syntax: "<number>";     inherits: false; initial-value: 0 }
+
+    /* State shift hooks — applied per-element. See @layer theme. */
+    @property --l-shift { syntax: "<number>"; inherits: false; initial-value: 0 }
+    @property --c-shift { syntax: "<number>"; inherits: false; initial-value: 0 }
+
+    /* Global theme config — radius, motion. Values must be absolute. */
+    @property --cfg-radius { syntax: "<length>"; inherits: true; initial-value: 6px }
+    @property --cfg-motion { syntax: "<number>"; inherits: true; initial-value: 1 }
+
+    /* Type */
+    @property --cfg-fluid-min-vp    { syntax: "<length>"; inherits: true; initial-value: 320px }
+    @property --cfg-fluid-max-vp    { syntax: "<length>"; inherits: true; initial-value: 1280px }
+    @property --cfg-type-scale      { syntax: "<number>"; inherits: true; initial-value: 1 }
+    @property --cfg-type-min-ratio  { syntax: "<number>"; inherits: true; initial-value: 1.2 }
+    @property --cfg-type-max-ratio  { syntax: "<number>"; inherits: true; initial-value: 1.28 }
+    @property --type                { syntax: "<number>"; inherits: false; initial-value: 0 }
+
+    /* Layout */
+    @property --gap { syntax: "<length>"; inherits: true; initial-value: 8px }
+
     
     /* ============================================================
        reset.css — reset.fix + reset.opinion
@@ -161,386 +221,355 @@
             padding: 0;
         }
 
-        :where([hidden]) {
-            display: none;
-        }
+
     }
     
-    /* ============================================================
-           color.css — core.color
+    /* ════════════════════════════════════════════════════════════════
+       core.color — the color formula
+       Single layer, single job: take inputs (--bg, --hue, --depth,
+       etc.), compute outputs (--_bg, color, --border, --Border).
+       Includes the rules that resolve --_bg into actual paint and the
+       surface depth cascade. Theme blocks live in @layer theme, not here.
+       ════════════════════════════════════════════════════════════ */
+    @layer core.color {
+      :root {
+        --hue: 38;
+        --cfg-color-muted-l: 96%;
+        --cfg-color-muted-c: 0.025;
+        --cfg-color-vivid-l: 35%;
+        --cfg-color-vivid-c: 0.180;
+        --cfg-color-surf-chroma: 0.005;
+        --cfg-fg-tint: 0.012;
+      }
 
-           The color formula. Takes inputs (--bg, --hue, --depth,
-           --fg-contrast, etc.) and computes outputs (--_bg, color,
-           --border, --Border).
+      :where(*) {
+        --_h: var(--hue-lock, calc(var(--hue) + var(--hue-shift)));
+        --_naive:  calc(var(--cfg-color-top-l) - var(--depth) * var(--cfg-color-base-step));
+        --_t:      calc((var(--_naive) - var(--cfg-color-surf-mid)) / var(--cfg-color-surf-rng));
+        --_surf-l: calc((var(--_naive) - var(--depth) * var(--cfg-color-base-step) * var(--cfg-color-curve-k) * var(--_t) * var(--_t)) * 1%);
+        --_c01:   clamp(0, var(--bg), 1);
+        --_col-l: calc(var(--cfg-color-muted-l) + var(--_c01) * (var(--cfg-color-vivid-l) - var(--cfg-color-muted-l)));
+        --_col-c: calc(var(--cfg-color-muted-c) + var(--_c01) * (var(--cfg-color-vivid-c) - var(--cfg-color-muted-c)));
+        --_k: clamp(0, calc(var(--bg) + 1), 1);
+        --_l: calc(var(--_surf-l) * (1 - var(--_k)) + var(--_col-l) * var(--_k) + var(--l-shift) * 100%);
+        --_c: calc(var(--cfg-color-surf-chroma) * (1 - var(--_k)) + var(--_col-c) * var(--_k) + var(--c-shift));
+        --_dark: clamp(0, calc((60 - var(--cfg-color-top-l)) / 30), 1);
 
-           Includes:
-             - @property registrations for the color tokens
-             - the math (:where(*) rule that computes --_bg etc.)
-             - rules that resolve --_bg into actual paint
-             - the .surface depth cascade
-             - SVG color bridging (fill/stroke from --_bg, text from currentColor)
+        --_bg: oklch(clamp(4%, var(--_l), 97%) var(--_c) var(--_h) / var(--cfg-color-alpha));
 
-           Does NOT include:
-             - theme blocks (prefers-color-scheme media, [data-ui-theme])
-               → theme.css, since they decide WHICH values, not HOW math runs
-             - semantic hue presets (.suc/.inf/.wrn/.dgr) → theme.css
-           ============================================================ */
+        --_fg-pos: clamp(0, var(--fg), 1);
+        --_fg-neg: clamp(0, calc(-1 * var(--fg)), 1);
+        --_surf-dark: clamp(0, calc((50% - var(--_l)) / 1% * 20), 1);
+        --_fg-pole: calc(4% * (1 - var(--_surf-dark)) + 97% * var(--_surf-dark));
+        --_fg-ramp-l: calc(var(--cfg-color-muted-l) + var(--_fg-pos) * (var(--cfg-color-vivid-l) - var(--cfg-color-muted-l)));
+        --_fg-ramp-c: calc(var(--cfg-color-muted-c) + var(--_fg-pos) * (var(--cfg-color-vivid-c) - var(--cfg-color-muted-c)));
+        --_fg-onpos: clamp(0, calc(var(--_fg-pos) * 1000000), 1);
 
-        @property --cfg-color-hue       { syntax: "<number>";     inherits: true; initial-value: 220 }
-        @property --cfg-color-surf-chroma { syntax: "<number>";   inherits: true; initial-value: 0.018 }
-        @property --cfg-color-alpha     { syntax: "<number>";     inherits: true; initial-value: 1 }
-        @property --cfg-color-muted-l   { syntax: "<percentage>"; inherits: true; initial-value: 90% }
-        @property --cfg-color-muted-c   { syntax: "<number>";     inherits: true; initial-value: 0.05 }
-        @property --cfg-color-vivid-l   { syntax: "<percentage>"; inherits: true; initial-value: 20% }
-        @property --cfg-color-vivid-c   { syntax: "<number>";     inherits: true; initial-value: 0.4 }
-        @property --cfg-color-top-l     { syntax: "<number>";     inherits: true; initial-value: 88 }
-        @property --cfg-color-base-step { syntax: "<number>";     inherits: true; initial-value: 4 }
-        @property --cfg-color-curve-k   { syntax: "<number>";     inherits: true; initial-value: 0.6 }
-        @property --cfg-color-surf-mid  { syntax: "<number>";     inherits: true; initial-value: 60.5 }
-        @property --cfg-color-surf-rng  { syntax: "<number>";     inherits: true; initial-value: 55 }
+        --_fg-l: calc(
+          (clamp(4%, var(--_l), 97%) * (1 - var(--_fg-neg)) + var(--_fg-pole) * var(--_fg-neg)) * (1 - var(--_fg-onpos))
+          + var(--_fg-ramp-l) * var(--_fg-onpos)
+        );
+        --_fg-c: calc(
+          (var(--_c) * (1 - var(--_fg-neg)) + var(--cfg-fg-tint) * var(--_fg-neg)) * (1 - var(--_fg-onpos))
+          + var(--_fg-ramp-c) * var(--_fg-onpos)
+        );
 
-        @property --depth      { syntax: "<number>"; inherits: false; initial-value: 0 }
-        @property --bg         { syntax: "<number>"; inherits: true;  initial-value: -1 }
-        @property --hue        { syntax: "*";        inherits: true }
-        @property --hue-shift  { syntax: "<number>"; inherits: true;  initial-value: 0 }
-        @property --fg-contrast { syntax: "<number>"; inherits: true; initial-value: 1 }
-        @property --fg-chroma   { syntax: "<number>"; inherits: true; initial-value: 0 }
-        @property --fg-hue      { syntax: "*";        inherits: true }
-        @property --l-shift    { syntax: "<number>"; inherits: true;  initial-value: 0 }
-        @property --c-shift    { syntax: "<number>"; inherits: true;  initial-value: 0 }
+        color: oklch(clamp(4%, var(--_fg-l), 97%) var(--_fg-c) var(--_h) / 1);
 
-        /* Private computed tokens — do NOT assign these from consumer code. */
-        @property --_bg     { syntax: "<color>";      inherits: true;  initial-value: oklch(88% 0.018 220) }
-        @property --_naive  { syntax: "<number>";     inherits: false; initial-value: 88 }
-        @property --_t      { syntax: "<number>";     inherits: false; initial-value: 0.5 }
-        @property --_surf-l { syntax: "<percentage>"; inherits: false; initial-value: 88% }
-        @property --_c01    { syntax: "<number>";     inherits: false; initial-value: 0 }
-        @property --_col-l  { syntax: "<percentage>"; inherits: false; initial-value: 90% }
-        @property --_col-c  { syntax: "<number>";     inherits: false; initial-value: 0.1 }
-        @property --_k      { syntax: "<number>";     inherits: false; initial-value: 0 }
-        @property --_l      { syntax: "<percentage>"; inherits: false; initial-value: 88% }
-        @property --_c      { syntax: "<number>";     inherits: false; initial-value: 0.018 }
-        @property --_h      { syntax: "<number>";     inherits: false; initial-value: 220 }
-        @property --_dark   { syntax: "<number>";     inherits: false; initial-value: 0 }
+        --border: oklch(from var(--_bg) calc(l + (var(--_dark) * 2 - 1) * 0.14) calc(c * 0.3) h);
+        --Border: oklch(from var(--_bg) calc(l + (var(--_dark) * 2 - 1) * 0.22) clamp(0.08, calc(c + 0.12), 0.18) calc(h + 8));
+      }
 
-        @layer core.color {
-            :where(*) {
-                --_naive:  calc(var(--cfg-color-top-l) - var(--depth) * var(--cfg-color-base-step));
-                --_t:      calc((var(--_naive) - var(--cfg-color-surf-mid)) / var(--cfg-color-surf-rng));
-                --_surf-l: calc((var(--_naive) - var(--depth) * var(--cfg-color-base-step) * var(--cfg-color-curve-k) * var(--_t) * var(--_t)) * 1%);
+      :where(*) { background-color: oklch(from var(--_bg) l c h / var(--_k)) }
+      :where(body, .surface) { background-color: var(--_bg) }
+      .surface:has(.surface)                   { --depth: 1 }
+      .surface:has(.surface .surface)          { --depth: 2 }
+      .surface:has(.surface .surface .surface) { --depth: 3 }
 
-                --_c01:   clamp(0, var(--bg), 1);
-                --_col-l: calc(var(--cfg-color-muted-l) + var(--_c01) * (var(--cfg-color-vivid-l) - var(--cfg-color-muted-l)));
-                --_col-c: calc(var(--cfg-color-muted-c) + var(--_c01) * (var(--cfg-color-vivid-c) - var(--cfg-color-muted-c)));
-
-                --_k: clamp(0, calc(var(--bg) + 1), 1);
-                --_l: calc(var(--_surf-l) * (1 - var(--_k)) + var(--_col-l) * var(--_k));
-                --_c: calc(var(--cfg-color-surf-chroma) * (1 - var(--_k)) + var(--_col-c) * var(--_k));
-                --_h: var(--hue, calc(var(--cfg-color-hue) + var(--hue-shift)));
-
-                /* Theme scalar derived from --cfg-color-top-l: 0 in light, 1 in dark.
-                   top-l = 88 (light) → (60-88)/30 = -0.93 → clamped to 0
-                   top-l = 33 (dark)  → (60-33)/30 =  0.90 → clamped to 1 */
-                --_dark: clamp(0, calc((60 - var(--cfg-color-top-l)) / 30), 1);
-
-                --_bg: oklch(
-                    clamp(4%, calc(var(--_l) + var(--l-shift) * 100%), 97%)
-                    calc(var(--_c) + var(--c-shift) * (var(--_l) / 100%))
-                    var(--_h)
-                    / var(--cfg-color-alpha)
-                );
-
-                /* Borders: theme-driven direction, not bg-driven.
-                   (--_dark * 2 - 1) = -1 in light, +1 in dark.
-                   --border  is neutral (low chroma).
-                   --Border  is colored (~0.13 chroma, slight hue rotation). */
-                --border: oklch(
-                    from var(--_bg)
-                    calc(l + (var(--_dark) * 2 - 1) * 0.14)
-                    calc(c * 0.3)
-                    h
-                );
-
-                --accent: oklch(
-                    from var(--_bg)
-                    calc(l + (var(--_dark) * 2 - 1) * 0.22)
-                    clamp(0.08, calc(c + 0.12), 0.18)
-                    calc(h + 8)
-                );
-                --Border: oklch(
-                    from var(--_bg)
-                    calc(l + (var(--_dark) * 2 - 1) * 0.22)
-                    clamp(0.08, calc(c + 0.12), 0.18)
-                    calc(h + 8)
-                );
-
-                --color: oklch(
-                    from var(--_bg)
-                    calc(l + (clamp(0, calc((0.5 - l) * 999), 1) - l) * var(--fg-contrast))
-                    calc(c * (1 - var(--fg-contrast)) + var(--fg-chroma))
-                    var(--fg-hue, h)
-                );
-
-                border-color: var(--border);
-                color: var(--color);
-                accent-color: var(--accent)
-            }
-
-            /* Default paint: every element gets a transparent --_bg unless it's
-               a surface. The --_k factor makes chromatic --bg values paint
-               themselves; --bg: -1 (default) yields _k=0 → fully transparent.
-            NOTE SVGS can not do the transparency trick so exclude them
-            */
-
-            :where(*:not(svg, svg *)) {
-                background-color: oklch(from var(--_bg) l c h / var(--_k));
-            }
-
-            /* Surfaces actually paint. .btn included so buttons get their --_bg
-               even at --bg: -1 (otherwise they'd be transparent). */
-            :where(body, .surface, .btn) {
-                background-color: var(--_bg);
-            }
-
-            /* Auto-nest depth tracking: a .surface containing nested .surfaces
-               gets a higher --depth, which the formula uses to lighten/darken. */
-            .surface:has(.surface)                            { --depth: 1 }
-            .surface:has(.surface .surface)                   { --depth: 2 }
-            .surface:has(.surface .surface .surface)          { --depth: 3 }
-            .surface:has(.surface .surface .surface .surface) { --depth: 4 }
-
-        }
-
-    
-         /* ============================================
-           CORE.SPACE
-
-           NOTE: @property initial-values for <length> MUST be
-           computationally independent — no rem, em, %, vw, etc.
-           Use px in @property, then set the "real" default in a rule.
-           ============================================ */
-
-        @property --space { syntax: "<number>"; inherits: false; initial-value: 0 }
-        @property --s     { syntax: "<length>"; inherits: false; initial-value: 0px }
-
-        @property --cfg-space-base  { syntax: "<length>"; inherits: true; initial-value: 8px }
-        @property --cfg-space-ratio { syntax: "<number>"; inherits: true; initial-value: 1.5 }
-        @property --cfg-space-scale { syntax: "<number>"; inherits: true; initial-value: 1 }
-
-        /* Real defaults (rem-based) set here, not in @property */
-        :where(html) {
-            --cfg-space-base: 0.5rem;
-        }
-
-        :where(*) {
-            --s: calc(
-                var(--cfg-space-base) *
-                pow(var(--cfg-space-ratio), var(--space)) *
-                clamp(0.75, 100vi / 80rem, 1) *
-                var(--cfg-space-scale)
-            );
-        }
-
-        :where(.m)  { margin:  var(--s) }
-        :where(.p)  { padding: var(--s) }
-        :where(.mx) { margin-inline:  var(--s) }
-        :where(.my) { margin-block:   var(--s) }
-        :where(.px) { padding-inline: var(--s) }
-        :where(.py) { padding-block:  var(--s) }
-
-        [data-ui-space="sm"] { --cfg-space-scale: 0.875 }
-        [data-ui-space="md"] { --cfg-space-scale: 1 }
-        [data-ui-space="lg"] { --cfg-space-scale: 1.2 }
-    
-
-    /* ============================================================
-       type.css — core.type
-
-       Fluid type formula. Computes font-size by interpolating between
-       --cfg-type-min and --cfg-type-max as the viewport width crosses
-       from --cfg-fluid-min-vp to --cfg-fluid-max-vp.
-
-       Each element opts in to a step on the type ratio via --type
-       (default 0). Values like --type: 1 step up by the ratio,
-       --type: -1 step down.
-
-       Letter-spacing and line-height are also derived from --type so
-       larger type gets tighter spacing automatically.
-       ============================================================ */
-
-    @property --cfg-fluid-min-vp    { syntax: "<length>"; inherits: true; initial-value: 320px }
-    @property --cfg-fluid-max-vp    { syntax: "<length>"; inherits: true; initial-value: 1280px }
-    @property --cfg-type-scale      { syntax: "<number>"; inherits: true; initial-value: 1 }
-    @property --cfg-type-min-ratio  { syntax: "<number>"; inherits: true; initial-value: 1.2 }
-    @property --cfg-type-max-ratio  { syntax: "<number>"; inherits: true; initial-value: 1.28 }
-
-    @property --type { syntax: "<number>"; inherits: false; initial-value: 0 }
-
-    :root {
-        --cfg-type-min: 0.85rem;
-        --cfg-type-max: 1.0625rem;
+      /* SVG color bridge — translates the same outputs to fill/stroke */
+      :where(svg) { color: currentColor }
+      :where(svg) :where(*) { fill: currentColor; stroke: none }
+      :where(svg) :where(line, polyline, .stroke) { fill: none; stroke: currentColor }
     }
 
+    
+    /* ════════════════════════════════════════════════════════════════
+       core.type — the fluid type formula
+       --cfg-type-min/max plus the viewport-clamped font-size, with
+       derived line-height and letter-spacing.
+       ════════════════════════════════════════════════════════════ */
     @layer core.type {
-        :where(*) {
-            --_t-min: calc(var(--cfg-type-min) * pow(var(--cfg-type-min-ratio), var(--type)));
-            --_t-max: calc(var(--cfg-type-max) * pow(var(--cfg-type-max-ratio), var(--type)));
-
-            font-size: calc(
-                clamp(
-                    var(--_t-min),
-                    calc(
-                        var(--_t-min) +
-                        (var(--_t-max) - var(--_t-min)) *
-                        (100vi - var(--cfg-fluid-min-vp)) /
-                        (var(--cfg-fluid-max-vp) - var(--cfg-fluid-min-vp))
-                    ),
-                    var(--_t-max)
-                ) * var(--cfg-type-scale)
-            );
-
-            letter-spacing: calc(0.01em - var(--type) * 0.01em);
-            line-height: calc(1.5 - var(--type) * 0.075);
-        }
+      :root {
+        --cfg-type-min: 0.8rem;
+        --cfg-type-max: 1rem;
+      }
+      :where(*) {
+        --_t-min: calc(var(--cfg-type-min) * pow(var(--cfg-type-min-ratio), var(--type)));
+        --_t-max: calc(var(--cfg-type-max) * pow(var(--cfg-type-max-ratio), var(--type)));
+        font-size: calc(
+          clamp(
+            var(--_t-min),
+            calc(var(--_t-min) + (var(--_t-max) - var(--_t-min)) * (100vi - var(--cfg-fluid-min-vp)) / (var(--cfg-fluid-max-vp) - var(--cfg-fluid-min-vp))),
+            var(--_t-max)
+          ) * var(--cfg-type-scale)
+        );
+        letter-spacing: clamp(-0.04em, calc(0.01em - var(--type) * 0.012em), 0.04em);
+        line-height:    clamp(1.1, calc(1.5 - var(--type) * 0.075), 1.6);
+      }
     }
     
-    /* ============================================================
-       theme.css — theme
-
-       Project-wide visual decisions. The "vibe" of the page lives
-       here. Anything you'd change to swap moods without touching
-       component logic.
-
-       Includes:
-         - light/dark theme value blocks
-         - semantic hue presets (.suc, .inf, .wrn, .dgr)
-         - state classes (.hover, .active, .disabled)
-         - selection and focus visuals
-         - decoration helpers (.shadow, .glow)
-         - density and motion presets
-         - font family declarations
-       ============================================================ */
-
-    @property --cfg-radius { syntax: "<length>"; inherits: true; initial-value: 8px }
-    @property --cfg-motion { syntax: "<number>"; inherits: true; initial-value: 1 }
-
-    :root {
-        --font-heading: "Iowan Old Style", "Palatino Linotype", "URW Palladio L", P052, serif;
-        --font-body:    Avenir, Montserrat, Corbel, "URW Gothic", source-sans-pro, sans-serif;
-        --font-mono:    ui-monospace, "SF Mono", Monaco, Menlo, Consolas, monospace;
-        --font-kbd:     "Courier New", "Nimbus Mono PS", monospace;
-    }
-
+    /* ════════════════════════════════════════════════════════════════
+       theme — project-level visual decisions
+       The "vibe" of the page. Theme blocks (light/dark), state classes
+       that nudge the color formula, font families, etc.
+       State classes are uniform across all components.
+       ════════════════════════════════════════════════════════════ */
     @layer theme {
+      /* ── Light/dark theme values ──────────────────────────────
+         The MATH lives in core.color. These rules only set which
+         VALUES the math operates on for each theme.
 
-        /* ── Light/dark theme values ──────────────────────────────
-           The MATH lives in core.color. These rules only set which
-           VALUES the math operates on for each theme. */
-        @media (prefers-color-scheme: dark) {
-            :root:not([data-ui-theme="light"]):not([data-ui-theme="dark"]),
-            [data-ui-theme="system"] {
-                --cfg-color-top-l: 33;
-                --cfg-color-base-step: 2.5;
-                --cfg-color-surf-chroma: 0.010;
-                --cfg-color-surf-mid: 33.5;
-                --cfg-color-surf-rng: 27.5;
-            }
-        }
-        @media (prefers-color-scheme: light) {
-            [data-ui-theme="system"] {
-                --cfg-color-top-l: 88;
-                --cfg-color-base-step: 4;
-                --cfg-color-surf-chroma: 0.018;
-                --cfg-color-surf-mid: 60.5;
-                --cfg-color-surf-rng: 55;
-            }
-        }
-        [data-ui-theme="light"] {
-            --cfg-color-top-l: 88;
-            --cfg-color-base-step: 4;
-            --cfg-color-curve-k: 0.6;
-            --cfg-color-surf-chroma: 0.018;
-            --cfg-color-surf-mid: 60.5;
-            --cfg-color-surf-rng: 55;
-        }
-        [data-ui-theme="dark"] {
-            --cfg-color-top-l: 33;
-            --cfg-color-base-step: 2.5;
-            --cfg-color-curve-k: 0.6;
-            --cfg-color-surf-chroma: 0.010;
-            --cfg-color-surf-mid: 33.5;
-            --cfg-color-surf-rng: 27.5;
-        }
+         Default behavior: when no data-ui-theme attribute is set
+         (or it's "system"), follow the OS preference via
+         prefers-color-scheme. Explicit attributes override. */
 
-        /* ── Semantic hue presets ─────────────────────────────────
-           Fixed-hue overrides for success/info/warning/danger.
-           Compose with --bg to choose how vivid. */
-        .suc { --hue: 145 }
-        .inf { --hue: 240 }
-        .wrn { --hue: 75 }
-        .dgr { --hue: 25 }
-
-        /* ── State classes ────────────────────────────────────────
-           These look like component logic but are project-wide
-           visual deltas to the color formula. The pointer-events
-           script toggles these classes uniformly across components,
-           which is why they live in theme — consistent state
-           appearance is a theme-level concern, not per-component. */
-        .hover {
-            --l-shift: 0.04;
-            --c-shift: 0.02;
-            --fg-contrast: calc(var(--fg-contrast, 1) + 0.15);
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-ui-theme="light"]):not([data-ui-theme="dark"]),
+        [data-ui-theme="system"] {
+          --cfg-color-top-l: 33;
+          --cfg-color-base-step: 2.5;
+          --cfg-color-curve-k: 0.6;
+          --cfg-color-surf-chroma: 0.010;
+          --cfg-color-surf-mid: 33.5;
+          --cfg-color-surf-rng: 27.5;
         }
-        .active {
-            --l-shift: -0.04;
-            --c-shift: -0.10;
-            --fg-contrast: max(calc(var(--fg-contrast, 1) - 0.2), 0.4);
+      }
+      @media (prefers-color-scheme: light) {
+        [data-ui-theme="system"] {
+          --cfg-color-top-l: 88;
+          --cfg-color-base-step: 4;
+          --cfg-color-curve-k: 0.6;
+          --cfg-color-surf-chroma: 0.018;
+          --cfg-color-surf-mid: 60.5;
+          --cfg-color-surf-rng: 55;
         }
-        .disabled {
-            cursor: not-allowed;
-            opacity: 0.45;
-        }
+      }
+      [data-ui-theme="light"] {
+        --cfg-color-top-l: 88;
+        --cfg-color-base-step: 4;
+        --cfg-color-curve-k: 0.6;
+        --cfg-color-surf-chroma: 0.018;
+        --cfg-color-surf-mid: 60.5;
+        --cfg-color-surf-rng: 55;
+      }
+      [data-ui-theme="dark"] {
+        --cfg-color-top-l: 33;
+        --cfg-color-base-step: 2.5;
+        --cfg-color-curve-k: 0.6;
+        --cfg-color-surf-chroma: 0.010;
+        --cfg-color-surf-mid: 33.5;
+        --cfg-color-surf-rng: 27.5;
+      }
 
-        /* ── Selection and focus ──────────────────────────────────
-           Visuals only; the JS for focus management is elsewhere. */
-        ::selection    { background: var(--Border); color: var(--_bg) }
-        :focus-visible { outline: 2px solid var(--Border); outline-offset: 2px }
 
-        /* ── Decoration filters ───────────────────────────────────
-           Vibe helpers. .shadow gives a hue-aware drop shadow,
-           .glow gives a hue-aware halo. Both respond to current --_bg. */
-        .shadow { filter: drop-shadow(0 6px 12px oklch(from var(--_bg) 20% 0.08 h / 0.4)) }
-        .glow   { filter: drop-shadow(0 0 12px oklch(from var(--_bg) 70% 0.20 h / 0.6)) }
+      /* ── State classes ────────────────────────────────────────
+         Uniform across every component. The pointer helper adds
+         these via JS; CSS reacts through the formula. */
+      .hover    { --l-shift: 0.04;  --c-shift: 0.02 }
+      .active   { --l-shift: -0.04; --c-shift: -0.10 }
+      .disabled { --fg: -0.35; cursor: not-allowed }
 
-        /* ── Autofill overlay ─────────────────────────────────────
-           Browsers paint their own background on autofilled inputs.
-           Override with our --_bg so it stays themed.
-           (Was in reset.opinion in v1.x; moved here because it
-           consumes a core token, which reset.opinion forbids.) */
-        :where(input):autofill {
-            box-shadow: inset 0 0 0 1000px var(--_bg, transparent);
-        }
 
-        /* ── Motion presets ───────────────────────────────────────
-           --cfg-motion is consumed by transition-duration calcs in
-           components. 0 disables motion; "debug" slows everything 10×. */
-        @media (prefers-reduced-motion: reduce) {
-            :root { --cfg-motion: 0 }
-        }
-        [data-ui-motion="off"]   { --cfg-motion: 0 }
-        [data-ui-motion="on"]    { --cfg-motion: 1 }
-        [data-ui-motion="debug"] { --cfg-motion: 10 }
+      /* ── Motion presets ───────────────────────────────────────
+         --cfg-motion is a multiplier consumed by transition-duration
+         calcs throughout the system. 0 disables motion; "debug" slows
+         everything 10× for inspection. The OS/browser preference
+         (prefers-reduced-motion: reduce) is sovereign — it overrides
+         any explicit button choice. The button is for users who don't
+         have that preference set. */
+      [data-ui-motion="off"]   { --cfg-motion: 0 }
+      [data-ui-motion="on"]    { --cfg-motion: 1 }
+      [data-ui-motion="debug"] { --cfg-motion: 10 }
+      @media (prefers-reduced-motion: reduce) {
+        :root, [data-ui-motion] { --cfg-motion: 0 }
+      }
 
-        /* ── Density presets ──────────────────────────────────────
-           Bump or reduce overall type+space scale in one switch. */
-        [data-ui-size="sm"] { --cfg-type-scale: 0.875; --cfg-space-scale: 0.875 }
-        [data-ui-size="md"] { --cfg-type-scale: 1;     --cfg-space-scale: 1 }
-        [data-ui-size="lg"] { --cfg-type-scale: 1.25;  --cfg-space-scale: 1.1 }
+      /* Timer-hand rotation reflects current motion state. The natural
+         hand position in the SVG points at 1:30 (-45° from horizontal).
+         Rotation values transform that to: 12 (off), 3 (on), 9 (debug).
+         The transition uses --cfg-motion itself so when motion is off,
+         the hand snaps; when debug, it sweeps slowly. */
+      /* Timer-hand transition. The actual rotation comes from a
+         monotonically-increasing signal counter on the SVG line —
+         each click advances clockwise without wraparound concerns.
+         Duration ties to --cfg-motion: snappy in 'on', slow in
+         'debug', instant in 'off'. */
+      .timer-hand {
+        transform-box: view-box;
+        transform-origin: 12px 14px;
+        transition: rotate calc(var(--cfg-motion) * 0.25s) ease-out;
+      }
 
-        /* Spacing-only density overrides (decouples space scale from type). */
-        [data-ui-space="sm"] { --cfg-space-scale: 0.875 }
-        [data-ui-space="md"] { --cfg-space-scale: 1 }
-        [data-ui-space="lg"] { --cfg-space-scale: 1.2 }
+
+      /* ── Type size presets ────────────────────────────────────
+         Drive type via the --cfg-type-scale multiplier rather than
+         resetting the base range. One value to reason about, one
+         value to animate. Transition is tied to --cfg-motion so it
+         respects the motion preset. */
+      body {
+        transition: --cfg-type-scale calc(var(--cfg-motion) * 0.2s) ease-out;
+      }
+      [data-ui-type="sm"] { --cfg-type-scale: 0.875 }
+      [data-ui-type="md"] { --cfg-type-scale: 1     }
+      [data-ui-type="lg"] { --cfg-type-scale: 1.125 }
+
+
+      /* ── Scrollbars ───────────────────────────────────────────
+         Track invisible (transparent over the surface). Thumb is
+         the chromatic foreground at --fg: 0.5 — same color the fg
+         formula would produce if an element had --fg: 0.5. We can't
+         literally set --fg here (it would tint text on every element),
+         so the formula is reproduced inline against the current
+         surface (--_bg) and page hue (--_h). */
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: oklch(from var(--_bg)
+          calc(var(--cfg-color-muted-l) + 0.5 * (var(--cfg-color-vivid-l) - var(--cfg-color-muted-l)))
+          calc(var(--cfg-color-muted-c) + 0.5 * (var(--cfg-color-vivid-c) - var(--cfg-color-muted-c)))
+          var(--_h)
+        ) transparent;
+      }
+      ::-webkit-scrollbar { inline-size: 8px; block-size: 8px }
+      ::-webkit-scrollbar-track { background: transparent }
+      ::-webkit-scrollbar-thumb {
+        background: oklch(from var(--_bg)
+          calc(var(--cfg-color-muted-l) + 0.5 * (var(--cfg-color-vivid-l) - var(--cfg-color-muted-l)))
+          calc(var(--cfg-color-muted-c) + 0.5 * (var(--cfg-color-vivid-c) - var(--cfg-color-muted-c)))
+          var(--_h)
+        );
+        border-radius: 999px;
+      }
+
+
+      /* ── Syntax highlighting ──────────────────────────────────
+         Live code tokens at --fg: 0.5 (mid-vivid chromatic) — the
+         only chromatic value safe in both light and dark themes.
+         Differentiated by --hue-shift in 12° steps within ±36° of
+         the page hue. Tight tonal palette stays cohesive with the
+         brand.
+
+         Comments use negative --fg (contrast ink), the proper
+         mode for dim text — theme-safe across light/dark via the
+         formula's contrast branch.
+
+         The CSS Custom Highlight API only supports color,
+         background-color, text-decoration, text-shadow on
+         ::highlight(). Differentiation here is color only. */
+      ::highlight(css-comment),
+      ::highlight(html-comment),
+      ::highlight(python-comment),
+      ::highlight(javascript-comment)    { --fg: -0.4; --hue-shift:   0 }
+
+      ::highlight(css-string),
+      ::highlight(html-value),
+      ::highlight(python-string),
+      ::highlight(javascript-string)     { --fg: 0.5; --hue-shift: -36 }
+
+      ::highlight(css-number),
+      ::highlight(css-unit),
+      ::highlight(python-number),
+      ::highlight(javascript-number)     { --fg: 0.5; --hue-shift: -24 }
+
+      ::highlight(css-punctuation),
+      ::highlight(html-bracket),
+      ::highlight(python-operator),
+      ::highlight(python-punctuation),
+      ::highlight(javascript-operator),
+      ::highlight(javascript-punctuation) { --fg: 0.5; --hue-shift: -12 }
+
+      ::highlight(css-property),
+      ::highlight(css-var-name),
+      ::highlight(css-selector),
+      ::highlight(html-tag),
+      ::highlight(html-attribute),
+      ::highlight(html-doctype),
+      ::highlight(html-entity)           { --fg: 0.5; --hue-shift:  12 }
+
+      ::highlight(python-function),
+      ::highlight(python-class),
+      ::highlight(python-builtin),
+      ::highlight(javascript-function),
+      ::highlight(javascript-class),
+      ::highlight(javascript-builtin)    { --fg: 0.5; --hue-shift:  24 }
+
+      ::highlight(css-atrule),
+      ::highlight(python-keyword),
+      ::highlight(python-decorator),
+      ::highlight(javascript-keyword),
+      ::highlight(javascript-decorator)  { --fg: 0.5; --hue-shift:  36 }
+
+      /* Comments — contrast-ink (negative fg) branch of the formula.
+         Theme-safe: dark text on light surfaces, light text on dark
+         surfaces. Hue-shift adds a faint chromatic tint via
+         --cfg-fg-tint. */
+      ::highlight(css-comment),
+      ::highlight(html-comment),
+      ::highlight(python-comment),
+      ::highlight(javascript-comment) {
+        color: oklch(from var(--_bg)
+          calc(
+            l * (1 - clamp(0, -1 * var(--fg), 1))
+            + (4% * clamp(0, calc((50% - l) / 1% * 20), 1)
+               + 97% * (1 - clamp(0, calc((50% - l) / 1% * 20), 1)))
+              * clamp(0, -1 * var(--fg), 1)
+          )
+          calc(c * (1 - clamp(0, -1 * var(--fg), 1)) + var(--cfg-fg-tint) * clamp(0, -1 * var(--fg), 1))
+          calc(h + var(--hue-shift))
+        );
+      }
+
+      /* Live code tokens — chromatic ramp (positive fg) branch.
+         --fg: 0.5 sits at mid-vivid: visible against both light
+         and dark surfaces. Hue shifts ±12° to ±36° spread the
+         categories around the page hue without leaving the family. */
+      ::highlight(css-string),
+      ::highlight(css-atrule),
+      ::highlight(css-var-name),
+      ::highlight(css-unit),
+      ::highlight(css-number),
+      ::highlight(css-property),
+      ::highlight(css-selector),
+      ::highlight(css-punctuation),
+      ::highlight(html-doctype),
+      ::highlight(html-entity),
+      ::highlight(html-value),
+      ::highlight(html-tag),
+      ::highlight(html-attribute),
+      ::highlight(html-bracket),
+      ::highlight(python-string),
+      ::highlight(python-decorator),
+      ::highlight(python-function),
+      ::highlight(python-class),
+      ::highlight(python-keyword),
+      ::highlight(python-builtin),
+      ::highlight(python-number),
+      ::highlight(python-operator),
+      ::highlight(python-punctuation),
+      ::highlight(javascript-string),
+      ::highlight(javascript-decorator),
+      ::highlight(javascript-function),
+      ::highlight(javascript-class),
+      ::highlight(javascript-keyword),
+      ::highlight(javascript-builtin),
+      ::highlight(javascript-number),
+      ::highlight(javascript-operator),
+      ::highlight(javascript-punctuation) {
+        color: oklch(from var(--_bg)
+          calc(var(--cfg-color-muted-l) + var(--fg) * (var(--cfg-color-vivid-l) - var(--cfg-color-muted-l)))
+          calc(var(--cfg-color-muted-c) + var(--fg) * (var(--cfg-color-vivid-c) - var(--cfg-color-muted-c)))
+          calc(var(--_h) + var(--hue-shift))
+        );
+      }
     }
     
     /* ============================================================
@@ -834,174 +863,134 @@
         }
     }
     
-    /* ============================================================
-       layout-compose.css — layout.composition
-
-       Stateless layout primitives. Each class arranges children with
-       no opinion about what the children are. Composes with anything.
-
-       Conventions:
-         gap: var(--s, fallback) — falls back if no space context.
-         --_col, --_flank — per-instance overrides for sizing.
-       ============================================================ */
+    /* ════════════════════════════════════════════════════════════════
+       layout.composition — stateless layout primitives
+       ════════════════════════════════════════════════════════════ */
 
     @layer layout.composition {
+      .column { display: flex; flex-direction: column; gap: var(--gap) }
+      .row    { display: flex; flex-direction: row; flex-wrap: wrap; gap: var(--gap); align-items: center }
 
-        .stack {
-            display: flex;
-            flex-direction: column;
-            gap: var(--s, 0.75rem);
+      .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--gap);
+      }
+
+      .spread {
+        display: flex; flex-direction: row; flex-wrap: wrap;
+        justify-content: space-between; align-items: center; gap: var(--gap);
+      }
+      .spread-column {
+        display: flex; flex-direction: column;
+        justify-content: space-between; gap: var(--gap);
+      }
+
+      .lcr {
+        display: grid; grid-template-columns: 1fr auto 1fr;
+        align-items: center; gap: var(--gap);
+
+        & > :first-child  { justify-self: start }
+        & > :nth-child(2) { justify-self: center }
+        & > :last-child   { justify-self: end }
+      }
+
+      .tmb {
+        display: grid; grid-template-rows: 1fr auto 1fr;
+        justify-items: center; gap: var(--gap);
+
+        & > :first-child  { align-self: start }
+        & > :nth-child(2) { align-self: center }
+        & > :last-child   { align-self: end }
+      }
+
+      /* ── .flank — leading/trailing fixed, the other grows ──── */
+      .flank, .flank-start, .flank-end {
+        display: flex; flex-direction: row; align-items: center; gap: var(--gap);
+      }
+      .flank, .flank-start {
+        & > :first-child { flex: 0 0 auto }
+        & > :last-child  { flex: 1 1 auto; min-inline-size: 0 }
+      }
+      .flank-end {
+        & > :first-child { flex: 1 1 auto; min-inline-size: 0 }
+        & > :last-child  { flex: 0 0 auto }
+      }
+
+      .frame {
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+
+        & > * { inline-size: 100%; block-size: 100%; object-fit: cover }
+      }
+
+      .grid {
+        display: grid; gap: var(--gap);
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min, 16rem)), 1fr));
+      }
+
+      .stack {
+        display: grid;
+        grid-template-areas: "stack";
+
+        & > * { grid-area: stack }
+      }
+
+      /* ── .hud ─────────────────────────────────────────────────
+         A .stack with 9 directional anchor slots. Children are
+         full-bleed over a single cell, sized to content, anchored
+         by justify-self / align-self. Siblings are geometrically
+         independent — a giant ↖ panel cannot push a centered •
+         child off-axis.
+
+         Container is hit-test transparent (pointer-events: none);
+         children opt back in. Decorative children (e.g. a centered
+         reticle whose bounding box exceeds its visual) should set
+         pointer-events: none again to avoid blocking passthrough.
+
+         Slots: ↖ ↑ ↗ / ← • → / ↙ ↓ ↘
+         ──────────────────────────────────────────────────────── */
+      .hud {
+        display: grid;
+        grid-template-areas: "hud";
+        height: 100%;
+        pointer-events: none;
+
+        & > * {
+          grid-area: hud;
+          justify-self: center;
+          align-self: center;
+          pointer-events: auto;
         }
 
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--s, 0.5rem);
-        }
+        & > .↖ { justify-self: start;  align-self: start  }
+        & > .↑ { justify-self: center; align-self: start  }
+        & > .↗ { justify-self: end;    align-self: start  }
+        & > .← { justify-self: start;  align-self: center }
+        & > .• { justify-self: center; align-self: center }
+        & > .→ { justify-self: end;    align-self: center }
+        & > .↙ { justify-self: start;  align-self: end    }
+        & > .↓ { justify-self: center; align-self: end    }
+        & > .↘ { justify-self: end;    align-self: end    }
 
-        .split {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: var(--s, 0.5rem);
-        }
-
-        .cluster {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: var(--s, 0.5rem);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(var(--_col, 15rem), 1fr));
-            gap: var(--s, 1rem);
-        }
-
-        /* .flank — first child stays its natural size (or --_flank);
-                    last child takes the remaining space. */
-        .flank {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--s, 1rem);
-        }
-        .flank > :first-child { flex: 1   1 var(--_flank, auto) }
-        .flank > :last-child  { flex: 999 1 0 }
-
-        /* .flank-end — mirrored: first child takes remaining,
-                        last child stays its natural size (or --_flank). */
-        .flank-end {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--s, 1rem);
-        }
-        .flank-end > :first-child { flex: 999 1 0 }
-        .flank-end > :last-child  { flex: 1   1 var(--_flank, auto) }
-
-        /* Spans the full width of a parent .grid. */
-        .span { grid-column: 1 / -1 }
-
-        /* Wrap controls. */
-        .wrap   { flex-wrap: wrap }
-        .nowrap { flex-wrap: nowrap }
-
-        /* Right-align an element within a flex/grid context. */
-        .right {
-            margin-inline-start: auto;
-            text-align: end;
-        }
-
-        /* Floating action button row, anchored bottom-right. Uses --s
-           for inset and gap so it respects the active space scale. */
-        .fab-row {
-            position: fixed;
-            inset-block-end: var(--s, 1rem);
-            inset-inline-end: var(--s, 1rem);
-            display: flex;
-            gap: var(--s, 0.5rem);
-        }
-
-        /* ── Directional grid overlap helpers ────────────────────
-           Place children in fixed corner/edge slots of a 2×2 or 3×3
-           grid. Useful for badges, tooltips, overlays. */
-        .grid-2x2,
-        .grid-3x3,
-        .grid-overlap {
-            display: grid;
-            height: 100%;
-        }
-        .grid-2x2     { grid-template: 1fr 1fr     / 1fr 1fr     }
-        .grid-3x3     { grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr }
-        .grid-overlap { grid-template: 1fr / 1fr }
-        .grid-overlap > * { grid-area: 1/1/-1/-1 }
-
-        .↖ { grid-area: 1/1;  justify-self: start;  align-self: start  }
-        .↗ { grid-area: 1/-2; justify-self: end;    align-self: start  }
-        .↙ { grid-area: -2/1; justify-self: start;  align-self: end    }
-        .↘ { grid-area: -2/-2;justify-self: end;    align-self: end    }
-
-        .grid-3x3     > .↑, .grid-overlap > .↑ { grid-area: 1/2;  justify-self: center; align-self: start  }
-        .grid-3x3     > .←, .grid-overlap > .← { grid-area: 2/1;  justify-self: start;  align-self: center }
-        .grid-3x3     > .→, .grid-overlap > .→ { grid-area: 2/-2; justify-self: end;    align-self: center }
-        .grid-3x3     > .↓, .grid-overlap > .↓ { grid-area: -2/2; justify-self: center; align-self: end    }
+        /* When .column or .row groups multiple items into one slot,
+           mirror the slot's horizontal anchor on the inner cross-axis
+           so grouped chips don't flag-fly. */
+        & > .↖.column, & > .←.column, & > .↙.column { align-items: flex-start }
+        & > .↑.column, & > .•.column, & > .↓.column { align-items: center }
+        & > .↗.column, & > .→.column, & > .↘.column { align-items: flex-end }
+      }
     }
+
     
     /* ============================================================
        component-base.css — component.base
 
-       Default styling for unclassed HTML elements. Applies via tag
-       selectors so consumers get reasonable typography by default.
-
-       Each rule sets --type, --contrast, font-family — the formula
-       does the rest. No class selectors here; class versions of
-       these (.badge etc.) live in component.simple.
+       Default styling for unclassed HTML elements.
        ============================================================ */
 
     @layer component.base {
-        h1 { --type: 2; font-family: var(--font-heading) }
-        /* h2-h6 inherit defaults via type ratio steps; consumers can
-           override per-context with --type. Adjust here if the project
-           wants explicit step values for every heading. */
-
-        p {
-            --fg-contrast: 1;
-            font-family: var(--font-body);
-        }
-
-        small {
-            --type: -1.5;
-            --fg-contrast: 0.6;
-            font-family: var(--font-body);
-            text-transform: uppercase;
-        }
-
-        code {
-            --type: -0.5;
-            --fg-contrast: 0.8;
-            font-family: var(--font-mono);
-        }
-
-        pre {
-            --type: -0.5;
-            --fg-contrast: 0.75;
-            font-family: var(--font-mono);
-        }
-
-        figcaption {
-            --type: -0.5;
-            --fg-contrast: 0.7;
-        }
-
-        blockquote { --fg-contrast: 0.75 }
-        address    { --fg-contrast: 0.75 }
-        cite       { --fg-contrast: 0.7  }
-        mark       { --fg-contrast: 1    }
-
-        :where(hr) {
-            border-color: var(--border);
-        }
+      /* (filled in as the system grows) */
     }
     
     /* ============================================================
@@ -1016,110 +1005,145 @@
 
     @layer component.simple {
 
-        /* ── Badge ────────────────────────────────────────────────
-           Inline pill, smaller than text. Use for counts, status
-           indicators, etc. */
-        :where(.badge) {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.15em 0.6em;
-            border-radius: 99px;
-        }
+      /* ── .tap — behavior marker ─────────────────────────────────
+         Pointer helper adds .hover / .active / .disabled to any
+         element with .tap (or .btn). Use .tap for things that need
+         pointer states but aren't visual buttons — tabs, nav links,
+         steppers. The state visuals themselves live in @layer theme. */
+      .tap {
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .tap:focus-visible {
+        outline: 2px solid var(--Border);
+        outline-offset: 2px;
+      }
 
-        /* ── Tag ──────────────────────────────────────────────────
-           Pill chip, slightly larger than .badge, with a quiet border.
-           Use for skill tags, categories, filterable items. */
-        .tag {
-            --type: -2;
-            display: inline-flex;
-            align-items: center;
-            padding-inline: 0.6em;
-            padding-block: 0.15em;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            white-space: nowrap;
-        }
 
-        /* ── Card ─────────────────────────────────────────────────
-           Bordered container. .card uses the quiet --border;
-           .Card uses the louder --Border for stronger emphasis. */
-        .card {
-            border-radius: var(--cfg-radius);
-            border: 1px solid var(--border);
-        }
-        .Card {
-            border-radius: var(--cfg-radius);
-            border: 1px solid var(--Border);
-        }
+      /* ── .btn — unified button ──────────────────────────────────
+         One class, no variants. Auto-detects shape via :has():
+           text only        → min-width 12ch, normal padding
+           icon + text      → tighter left padding, icon breathing room
+           icon only        → square, no min-width
+         Color/intensity per-instance via --bg and --hue-lock.
+         Sizing via --type. Padding in em scales with the type. */
+      :where(.btn) {
+        --type: -1;
 
-        /* ── Button ───────────────────────────────────────────────
-           Touch-friendly, icon-aware, type-scaled. State (.hover,
-           .active, .disabled) lives in theme.css and applies via
-           the pointer-events script. */
-        :where(.btn) {
-            --type: -1;
-            --fg-contrast: 0.85;
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
 
-            -webkit-tap-highlight-color: transparent;
-            min-width: 12ch;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5em;
-            padding: 0.35em 1em;
-            margin: 5px;
-            border: 1px solid var(--border);
-            border-radius: var(--cfg-radius);
-            font-family: var(--font-mono);
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color, color, border-color;
-            transition-duration: calc(var(--cfg-motion) * 0.12s);
-            transition-timing-function: ease-out;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5em;
+        min-inline-size: 12ch;
+        padding: 0.4em 1em;
+        border: 1px solid var(--border);
+        border-radius: var(--cfg-radius);
+        font: inherit;
+        font-weight: 600;
+        line-height: 1;
 
-            /* SVG sizing — text-only buttons miss this; combo and
-               icon-only both hit it. Keeps icons proportional to
-               current --type instead of hardcoded px. */
-            & > svg {
-                inline-size: 1.25em;
-                block-size: 1.25em;
-                pointer-events: none;
-                flex-shrink: 0;
-            }
+        transition: background-color, color, border-color;
+        transition-duration: calc(var(--cfg-motion) * 0.12s);
+        transition-timing-function: ease-out;
+      }
+      .btn:focus-visible {
+        outline: 2px solid var(--Border);
+        outline-offset: 2px;
+      }
+      .btn > svg {
+        inline-size: 1.25em;
+        block-size: 1.25em;
+        pointer-events: none;
+        flex-shrink: 0;
+      }
+      .btn:has(> svg):not(:has(> svg:only-child)) {
+        padding-inline-start: 0.75em;
+      }
+      .btn:has(> svg:only-child) {
+        min-inline-size: unset;
+        padding: 0.4em;
+        block-size: calc(2.5 * 1em);
+        aspect-ratio: 1;
+      }
+      @media (pointer: coarse) {
+        .btn { min-block-size: 44px; padding-block: 0.6em }
+        .btn:has(> svg:only-child) { block-size: 48px; inline-size: 48px }
+        .btn:has(> svg):not(:has(> svg:only-child)) { padding-inline: 1em 1.25em }
+      }
 
-            /* Combo (icon + text): tighten left padding for icon
-               breathing room without pushing label off-center.
-               gap: 0.5em (inherited) handles icon↔text spacing. */
-            &:has(> svg):not(:has(> svg:only-child)) {
-                padding-inline-start: 0.75em;
-            }
 
-            /* Icon-only: square, no min-width. */
-            &:has(> svg:only-child) {
-                min-width: unset;
-                padding: 0.25em;
-                block-size: calc(2.5 * 1em);
-                aspect-ratio: 1;
-            }
+      /* ── .vr — vertical rule for flex/inline rows ──────────────
+         Sized in em so it scales with parent's font. */
+      .vr {
+        inline-size: 1px;
+        block-size: 1.5em;
+        background: var(--border);
+        flex-shrink: 0;
+      }
 
-            /* Touch-device overrides. pointer: coarse catches
-               phones/tablets regardless of viewport width — more
-               reliable than width media queries for input mode. */
-            @media (pointer: coarse) {
-                min-block-size: 44px;
-                padding-block: 0.6em;
 
-                &:has(> svg:only-child) {
-                    /* 48px keeps us above 44px even at small --type. */
-                    block-size: 48px;
-                    inline-size: 48px;
-                }
-                &:has(> svg):not(:has(> svg:only-child)) {
-                    padding-inline: 1em 1.25em;
-                }
-            }
-        }
+      /* ── .tab-bar — connected underline tab strip ──────────────
+         Top-level nav pattern. The bar itself has no border — its
+         container provides the bottom edge. The active item shows a
+         2px accent border that reads as the tab indicator.
+
+         Each tab carries a data-label attr matching its visible text;
+         a hidden ::before pseudo with that label at font-weight 600
+         defines the cell width. The visible text (in a <span>) stacks
+         in the same grid cell. Result: switching the active tab to
+         bold doesn't widen its cell — width is always the bold width,
+         so no layout shift on tab change.
+
+         Mark the active item with aria-current="page" (for nav links)
+         or aria-pressed="true" (for toggle buttons). Both selectors
+         are styled. */
+      .tab-bar {
+        display: inline-flex;
+        align-self: end;
+        align-items: end;
+      }
+      :where(.tab-bar > *) {
+        --type: -1;
+        --fg: -0.5;
+        font: inherit;
+        text-decoration: none;
+        background: transparent;
+        border: 0;
+        padding: 0.5rem 0.9rem;
+        border-block-end: 2px solid transparent;
+        cursor: pointer;
+        display: inline-grid;
+        place-items: center;
+        transition: color, border-color;
+        transition-duration: calc(var(--cfg-motion) * 0.12s);
+        transition-timing-function: ease-out;
+      }
+      /* Hidden bold ghost reserves the cell width. */
+      :where(.tab-bar > *)::before {
+        content: attr(data-label);
+        grid-area: 1 / 1;
+        font-weight: 600;
+        visibility: hidden;
+      }
+      /* Visible label stacks in the same cell. */
+      :where(.tab-bar > * > span) {
+        grid-area: 1 / 1;
+      }
+      .tab-bar > [aria-current="page"],
+      .tab-bar > [aria-pressed="true"] {
+        --fg: 0.5;
+        border-block-end-color: currentColor;
+        font-weight: 600;
+      }
+
+
+
+
 
         /* ── Popover ──────────────────────────────────────────────
            Anchor-positioned popup. Uses CSS anchor positioning APIs
