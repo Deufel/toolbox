@@ -584,62 +584,57 @@
         }
     }
     
-      /* ============================================================
-         Drawer
-         Two classes: .drawer + one of .top .right .bottom .left
-         Two hosts: <dialog> (modal) or [popover] (non-modal).
-         ============================================================ */
-      @layer component.complex {
-
+    @layer component.complex {
         .drawer {
-          position: fixed;
-          inset: auto;
-          margin: 0;
-          padding: 1rem;
-          max-block-size: none;
-          max-inline-size: none;
-          background: oklch(98% 0 0);
-          border: 0;
-          transition:
-            translate 250ms ease-out,
-            opacity   250ms ease-out,
-            display   250ms allow-discrete,
-            overlay   250ms allow-discrete;
-          translate: 0 0;
-          opacity: 1;
+            --_dur: calc(var(--cfg-motion) * 0.25s);
+
+            position: fixed;
+            inset: auto;
+            margin: 0;
+            max-block-size: none;
+            max-inline-size: none;
+            transition:
+                translate var(--_dur) ease-out,
+                opacity   var(--_dur) ease-out,
+                display   var(--_dur) allow-discrete,
+                overlay   var(--_dur) allow-discrete;
+            translate: 0 0;
+            opacity: 1;
+
+            &:not(:is([open], :popover-open)) {
+                opacity: 0;
+                translate: var(--_translate-closed);
+            }
+            @starting-style {
+                &:is([open], :popover-open) {
+                    opacity: 0;
+                    translate: var(--_translate-closed);
+                }
+            }
+
+            &.left   { --_translate-closed: -100% 0; inset: 0 auto 0 0; inline-size: min(85vw, 320px); block-size: 100svh; }
+            &.right  { --_translate-closed:  100% 0; inset: 0 0 0 auto; inline-size: min(85vw, 320px); block-size: 100svh; }
+            &.top    { --_translate-closed: 0 -100%; inset: 0 0 auto 0; inline-size: 100vw; block-size: min(85svh, 240px); }
+            &.bottom { --_translate-closed: 0  100%; inset: auto 0 0 0; inline-size: 100vw; block-size: min(85svh, 240px); }
         }
 
-        .drawer.left   { inset: 0 auto 0 0; inline-size: min(85vw, 320px); block-size: 100svh; border-inline-end:   1px solid oklch(85% 0 0); }
-        .drawer.right  { inset: 0 0 0 auto; inline-size: min(85vw, 320px); block-size: 100svh; border-inline-start: 1px solid oklch(85% 0 0); }
-        .drawer.top    { inset: 0 0 auto 0; inline-size: 100vw; block-size: min(85svh, 240px); border-block-end:    1px solid oklch(85% 0 0); }
-        .drawer.bottom { inset: auto 0 0 0; inline-size: 100vw; block-size: min(85svh, 240px); border-block-start:  1px solid oklch(85% 0 0); }
+        dialog.drawer {
+            --_dur: calc(var(--cfg-motion) * 0.25s);
+            --_dim: oklch(0% 0 0 / 0.5);
 
-        .drawer:not(:is([open], :popover-open)) { opacity: 0; }
-        .drawer.left:not(:is([open], :popover-open))   { translate: -100% 0; }
-        .drawer.right:not(:is([open], :popover-open))  { translate:  100% 0; }
-        .drawer.top:not(:is([open], :popover-open))    { translate: 0 -100%; }
-        .drawer.bottom:not(:is([open], :popover-open)) { translate: 0  100%; }
-
-        @starting-style {
-          .drawer.left:is([open], :popover-open)   { translate: -100% 0; opacity: 0; }
-          .drawer.right:is([open], :popover-open)  { translate:  100% 0; opacity: 0; }
-          .drawer.top:is([open], :popover-open)    { translate: 0 -100%; opacity: 0; }
-          .drawer.bottom:is([open], :popover-open) { translate: 0  100%; opacity: 0; }
+            &::backdrop {
+                background: var(--_dim);
+                transition:
+                    background-color var(--_dur) ease-out,
+                    display          var(--_dur) allow-discrete,
+                    overlay          var(--_dur) allow-discrete;
+            }
+            &:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
+            @starting-style {
+                &[open]::backdrop { background: oklch(0% 0 0 / 0); }
+            }
         }
-
-        dialog.drawer::backdrop {
-          background: oklch(0% 0 0 / 0.5);
-          transition:
-            background-color 250ms ease-out,
-            display          250ms allow-discrete,
-            overlay          250ms allow-discrete;
-        }
-        dialog.drawer:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
-        @starting-style {
-          dialog.drawer[open]::backdrop { background: oklch(0% 0 0 / 0); }
-        }
-      }
-
+    }
     
     /* ════════════════════════════════════════════════════════════════
        layout.composition — stateless layout primitives
@@ -771,248 +766,184 @@
       /* (filled in as the system grows) */
     }
     
-    /* ============================================================
-       component-simple.css — component.simple
-
-       Generic small components keyed by class. Each composes with
-       the color/type/space systems and works in any context.
-
-       "Simple" means: small in scope, doesn't assume surrounding
-       structure, generic enough to use in any project.
-       ============================================================ */
-
     @layer component.simple {
-
-      /* ── .tap — behavior marker ─────────────────────────────────
-         Pointer helper adds .hover / .active / .disabled to any
-         element with .tap (or .btn). Use .tap for things that need
-         pointer states but aren't visual buttons — tabs, nav links,
-         steppers. The state visuals themselves live in @layer theme. */
-      .tap {
-        cursor: pointer;
-        user-select: none;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .tap:focus-visible {
-        outline: 2px solid var(--Border);
-        outline-offset: 2px;
-      }
-
-
-      /* ── .btn — unified button ──────────────────────────────────
-         One class, no variants. Auto-detects shape via :has():
-           text only        → min-width 12ch, normal padding
-           icon + text      → tighter left padding, icon breathing room
-           icon only        → square, no min-width
-         Color/intensity per-instance via --bg and --hue-lock.
-         Sizing via --type. Padding in em scales with the type. */
-      :where(.btn) {
-        --type: -1;
-
-        cursor: pointer;
-        user-select: none;
-        -webkit-tap-highlight-color: transparent;
-
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5em;
-        min-inline-size: 12ch;
-        padding: 0.4em 1em;
-        border: 1px solid var(--border);
-        border-radius: var(--cfg-radius);
-        font: inherit;
-        font-weight: 600;
-        line-height: 1;
-
-        transition: background-color, color, border-color;
-        transition-duration: calc(var(--cfg-motion) * 0.12s);
-        transition-timing-function: ease-out;
-      }
-      .btn:focus-visible {
-        outline: 2px solid var(--Border);
-        outline-offset: 2px;
-      }
-      .btn > svg {
-        inline-size: 1.25em;
-        block-size: 1.25em;
-        pointer-events: none;
-        flex-shrink: 0;
-      }
-      .btn:has(> svg):not(:has(> svg:only-child)) {
-        padding-inline-start: 0.75em;
-      }
-      .btn:has(> svg:only-child) {
-        min-inline-size: unset;
-        padding: 0.4em;
-        block-size: calc(2.5 * 1em);
-        aspect-ratio: 1;
-      }
-      @media (pointer: coarse) {
-        .btn { min-block-size: 44px; padding-block: 0.6em }
-        .btn:has(> svg:only-child) { block-size: 48px; inline-size: 48px }
-        .btn:has(> svg):not(:has(> svg:only-child)) { padding-inline: 1em 1.25em }
-      }
-
-
-      /* ── .vr — vertical rule for flex/inline rows ──────────────
-         Sized in em so it scales with parent's font. */
-      .vr {
-        inline-size: 1px;
-        block-size: 1.5em;
-        background: var(--border);
-        flex-shrink: 0;
-      }
-
-
-      /* ── .tab-bar — connected underline tab strip ──────────────
-         Top-level nav pattern. The bar itself has no border — its
-         container provides the bottom edge. The active item shows a
-         2px accent border that reads as the tab indicator.
-
-         Each tab carries a data-label attr matching its visible text;
-         a hidden ::before pseudo with that label at font-weight 600
-         defines the cell width. The visible text (in a <span>) stacks
-         in the same grid cell. Result: switching the active tab to
-         bold doesn't widen its cell — width is always the bold width,
-         so no layout shift on tab change.
-
-         Mark the active item with aria-current="page" (for nav links)
-         or aria-pressed="true" (for toggle buttons). Both selectors
-         are styled. */
-      .tab-bar {
-        display: inline-flex;
-        align-self: end;
-        align-items: end;
-      }
-      :where(.tab-bar > *) {
-        --type: -1;
-        --fg: -0.5;
-        font: inherit;
-        text-decoration: none;
-        background: transparent;
-        border: 0;
-        padding: 0.5rem 0.9rem;
-        border-block-end: 2px solid transparent;
-        cursor: pointer;
-        display: inline-grid;
-        place-items: center;
-        transition: color, border-color;
-        transition-duration: calc(var(--cfg-motion) * 0.12s);
-        transition-timing-function: ease-out;
-      }
-      /* Hidden bold ghost reserves the cell width. */
-      :where(.tab-bar > *)::before {
-        content: attr(data-label);
-        grid-area: 1 / 1;
-        font-weight: 600;
-        visibility: hidden;
-      }
-      /* Visible label stacks in the same cell. */
-      :where(.tab-bar > * > span) {
-        grid-area: 1 / 1;
-      }
-      .tab-bar > [aria-current="page"],
-      .tab-bar > [aria-pressed="true"] {
-        --fg: 0.5;
-        border-block-end-color: currentColor;
-        font-weight: 600;
-      }
-
-
-
-
-
-        /* ── Popover ──────────────────────────────────────────────
-           Anchor-positioned popup. Uses CSS anchor positioning APIs
-           (Chrome 125+). Falls back to manual placement via class
-           modifier if anchor unsupported. */
-        [popover].popover {
-            position: fixed;
-            inset: auto;
+        :where(hr) {
+            block-size: 1px;
+            inline-size: 100%;
             margin: 0;
-            border: 1px solid var(--border);
-            min-width: clamp(10rem, 40vw, 18rem);
-            max-width: min(90vw, 24rem);
-            max-height: 80vh;
-            overflow: auto;
+            background: var(--border);
+            border: 0;
 
-            background: var(--_bg);
-            color: inherit;
-            border-radius: var(--cfg-radius);
-            box-shadow: 0 8px 24px oklch(from var(--_bg) 10% 0.05 h / 0.3);
-            padding: var(--s);
-
-            opacity: 1;
-            transform: scale(1);
-            position-area: block-start inline-end;
-            position-try-order: most-block-size;
-            position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-            position-visibility: anchors-visible;
-
-            transition:
-                opacity   calc(var(--cfg-motion) * 0.18s) ease-out,
-                transform calc(var(--cfg-motion) * 0.18s) ease-out,
-                display   calc(var(--cfg-motion) * 0.18s) allow-discrete,
-                overlay   calc(var(--cfg-motion) * 0.18s) allow-discrete;
+            &.vr {
+                inline-size: 1px;
+                block-size: 1.5em;
+                flex-shrink: 0;
+            }
         }
-
-        [popover].popover:not(:popover-open) {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-
-        /* Manual placement modifiers. */
-        [popover].popover.below-start { position-area: block-end inline-start }
-        [popover].popover.below-end   { position-area: block-end inline-end   }
-        [popover].popover.above-start { position-area: block-start inline-start }
-        [popover].popover.above-end   { position-area: block-start inline-end   }
     }
     
-    /* ============================================================
-       component-complex.css — component.complex
+    @layer component.simple {
+        :where(.tab-bar) {
+            display: inline-flex;
+            align-self: end;
+            align-items: end;
 
-       Generic complex components — modal dialogs, calendars, data
-       tables, etc. Same purity rule as component.simple: anything
-       project-specific (timeline, sidebar, role cards, etc.) lives
-       in app code as me {} blocks, NOT here.
+            & > * {
+                --type: -1;
+                --fg: -0.5;
+                font: inherit;
+                text-decoration: none;
+                background: transparent;
+                border: 0;
+                padding: 0.5rem 0.9rem;
+                border-block-end: 2px solid transparent;
+                cursor: pointer;
+                display: inline-grid;
+                place-items: center;
+                transition: color, border-color;
+                transition-duration: calc(var(--cfg-motion) * 0.12s);
+                transition-timing-function: ease-out;
 
-       Was previously crowded with resume-specific components in
-       v1.x. Those have been extracted.
-       ============================================================ */
+                /* Hidden bold ghost reserves the cell width so weight
+                   changes on activation don't shift layout. */
+                &::before {
+                    content: attr(data-label);
+                    grid-area: 1 / 1;
+                    font-weight: 600;
+                    visibility: hidden;
+                }
+                /* Visible label stacks in the same cell as the ghost. */
+                & > span {
+                    grid-area: 1 / 1;
+                }
+                &[aria-current="page"],
+                &[aria-pressed="true"] {
+                    --fg: 0.5;
+                    border-block-end-color: currentColor;
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+    
+    @layer component.simple {
+        :where(.chip) {
+            --type: -1;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4ch;
+            padding: 0.25em 0.85em;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            font: inherit;
+            line-height: 1;
 
-    @layer component.complex {
+            & .btn {
+                min-inline-size: unset;
+                block-size: 1.25em;
+                inline-size: 1.25em;
+                aspect-ratio: 1;
+                padding: 0;
+                border: 0;
+                background: transparent;
+                font-weight: 400;
+                margin-inline-end: -0.35em;
 
-        /* ── Modal dialog ─────────────────────────────────────────
-           Pure modal, anchored to top-layer. .modal opt-in so plain
-           <dialog> (used as in-flow drawers by layout.app) doesn't
-           inherit modal styling. */
-        :where(dialog.modal) {
+                & > svg {
+                    inline-size: 1em;
+                    block-size: 1em;
+                }
+            }
+        }
+    }
+    
+    @layer component.simple {
+        :where(.tag) {
+            --type: -1;
+            --fg: -0.6;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4ch;
+            padding: 0.25em 0.7em;
+            border: 1px solid var(--border);
+            border-radius: 0.4em;
+            font: inherit;
+            font-weight: 600;
+            line-height: 1;
+            transition: background-color, color, border-color, translate;
+            transition-duration: calc(var(--cfg-motion) * 0.08s);
+            transition-timing-function: ease-out;
+
+            &[aria-pressed="true"] {
+                --bg: 0.3;
+                --fg: 0.9;
+                border-color: var(--Border);
+            }
+            &.active { translate: 0 1px }
+            &.disabled { --fg: -0.35 }
+            &:focus-visible {
+                outline: 2px solid var(--Border);
+                outline-offset: 2px;
+            }
+        }
+    }
+    
+    @layer component.simple {
+        :where(.btn) {
+            --type: -1;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5em;
+            min-inline-size: 12ch;
+            padding: 0.4em 1em;
             border: 1px solid var(--border);
             border-radius: var(--cfg-radius);
-            padding: 0;
-            max-width: min(90vw, 32rem);
-            max-height: 85vh;
-            overflow: auto;
-            opacity: 1;
-            transform: translateY(0);
-            transition:
-                opacity   calc(var(--cfg-motion) * 0.25s) ease-out,
-                transform calc(var(--cfg-motion) * 0.25s) ease-out,
-                display   calc(var(--cfg-motion) * 0.25s) allow-discrete,
-                overlay   calc(var(--cfg-motion) * 0.25s) allow-discrete;
+            font: inherit;
+            font-weight: 600;
+            line-height: 1;
+            transition: background-color, color, border-color, translate;
+            transition-duration: calc(var(--cfg-motion) * 0.08s);
+            transition-timing-function: ease-out;
 
-            &:not([open]) {
-                opacity: 0;
-                transform: translateY(calc(var(--cfg-motion) * 0.5rem));
+            &.active {
+                translate: 0 1px;
+                --fg: -0.6;
             }
-
-            @starting-style {
-                opacity: 0;
-                transform: translateY(calc(var(--cfg-motion) * -0.5rem));
+            &:focus-visible {
+                outline: 2px solid var(--Border);
+                outline-offset: 2px;
             }
+            & > svg {
+                inline-size: 1.25em;
+                block-size: 1.25em;
+                pointer-events: none;
+                flex-shrink: 0;
+            }
+            /* Icon-only auto-detection: a button with no accessible text content
+               must carry aria-label, so we use that as the signal. Pure :has(> svg)
+               would also match icon+text buttons because text nodes don't break
+               :only-child. */
+            &[aria-label]:has(> svg) {
+                min-inline-size: unset;
+                padding: 0.4em;
+                aspect-ratio: 1;
+            }
+        }
+    }
+    
+    @layer component.simple {
+        :where(.tap) {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
 
-            &::backdrop { background: transparent }
+            &.hover, &.active { background-color: var(--_bg) }
         }
     }
     
@@ -1065,19 +996,6 @@
         /* No-print: hide an element when printing. */
         @media print {
             :where(.np) { display: none !important }
-        }
-    }
-    
-    .surface {  --depth: 1
-        .well { --depth: 0}
-        .surface {  --depth: 2
-            .well { --depth: 1}
-            .surface {  --depth: 3
-                .well { --depth: 2}
-                .surface {  --depth: 4
-                    .well { --depth: 3}
-                }
-            }
         }
     }
     
