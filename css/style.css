@@ -4,10 +4,8 @@
       reset.opinion,
       core.color,
       core.type,
-      core.space,
       theme,
       layout.app,
-      layout.doc,
       layout.composition,
       component.base,
       component.simple,
@@ -285,11 +283,6 @@
       .surface:has(.surface)                   { --depth: 1 }
       .surface:has(.surface .surface)          { --depth: 2 }
       .surface:has(.surface .surface .surface) { --depth: 3 }
-
-      /* SVG color bridge — translates the same outputs to fill/stroke */
-      :where(svg) { color: currentColor }
-      :where(svg) :where(*) { fill: currentColor; stroke: none }
-      :where(svg) :where(line, polyline, .stroke) { fill: none; stroke: currentColor }
     }
 
     
@@ -572,296 +565,81 @@
       }
     }
     
-    /* ============================================================
-       layout-app.css — layout.app
-
-       Application-shell layout: a 3×3 grid (header / nav · main · aside
-       / footer) with drawer-style nav and aside that collapse to fixed
-       modal drawers below a container-query breakpoint.
-
-       Opt in via <body class="app">. Nothing applies otherwise.
-
-       Drawer markup:
-         <body class="app">
-           <header id="header">...</header>
-           <dialog id="nav" open>...</dialog>     <!-- drawer -->
-           <main   id="main">...</main>
-           <dialog id="aside" open>...</dialog>   <!-- drawer -->
-           <footer id="footer">...</footer>
-         </body>
-
-       Why <dialog> for drawers: gets us free top-layer modal behavior
-       in narrow mode (showModal()) and keyboard accessibility. In wide
-       mode we override its UA styling to make it sit in a grid track.
-       ============================================================ */
-
-    @property --cfg-layout-radius   { syntax: "<length>"; inherits: true; initial-value: 4px }
-    @property --cfg-layout-page-gap { syntax: "<length>"; inherits: true; initial-value: 6px }
-
-    :where(html) {
-        /* These appear when the viewport hits the layout's design width.
-           The clamp(0px, calc(100vi - 100%) * 1e5, ...) trick is a
-           container-query approximation for cases where containers
-           can't be used. Will revisit. */
-        --cfg-layout-radius:   clamp(0px, calc(100vi - 100%) * 1e5, 0.5rem);
-        --cfg-layout-page-gap: clamp(0px, calc(100vi - 100%) * 1e5, 1rem);
-    }
-
     @layer layout.app {
-
         body.app {
-            font: 14px/1.5 ui-sans-serif, system-ui, sans-serif;
-            background: var(--_bg);
-            container: app-shell / inline-size;
-
-            /* Wide layout — 3×3 grid.
-               Columns are `auto 1fr auto` so nav/aside tracks size to
-               their explicit widths, and collapse to zero when those
-               dialogs leave the grid (position: fixed). */
             display: grid;
             grid-template:
-                "header header header" auto
-                "nav    main   aside"  1fr
-                "footer footer footer" auto /
-                auto    1fr    auto;
-            gap: 0;
+                "h h h" auto
+                "n m a" 1fr
+                "f f f" auto /
+                auto 1fr auto;
             height: 100svh;
-            overflow: hidden;  /* body never scrolls; #main does */
-        }
+            overflow: hidden;
 
-        /* Only #main scrolls; header/footer stay pinned */
-        body.app #main {
-            overflow-y: auto;
-            min-height: 0;     /* critical in grid — lets child scroll */
-        }
-        body.app #header,
-        body.app #footer { min-height: 0 }
-
-        /* ── Grid-mode dialog reset ─────────────────────────────────
-           <dialog> comes with UA styles we need to neutralize so it
-           renders like a plain block in its grid slot. */
-        body.app #nav,
-        body.app #aside {
-            position: static;
-            display: block;            /* overrides dialog's display: none */
-            max-width: none;
-            max-height: none;
-            width: var(--drawer-width, auto);
-            height: auto;
-            margin: 0;
-            padding: 1rem;
-            border: 1px solid var(--border);
-            border-radius: var(--cfg-layout-radius);
-            background: var(--_bg);
-            color: inherit;
-            overflow-y: auto;
-        }
-
-        body.app #nav {
-            grid-area: nav;
-            margin-right: var(--cfg-layout-page-gap);
-        }
-        body.app #aside {
-            grid-area: aside;
-            margin-left: var(--cfg-layout-page-gap);
-        }
-
-        body.app #main {
-            grid-area: main;
-            padding: 1rem;
-            border: 1px solid var(--border);
-            border-radius: var(--cfg-layout-radius);
-            background: var(--_bg);
-        }
-        body.app #header {
-            grid-area: header;
-            margin-bottom: var(--cfg-layout-page-gap);
-        }
-        body.app #footer {
-            grid-area: footer;
-            margin-top: var(--cfg-layout-page-gap);
-        }
-
-        /* ── Narrow layout ──────────────────────────────────────────
-           Below 1024px container width: nav/aside leave the grid and
-           become fixed modal drawers. Triggered by container query so
-           it works in any context the app shell is embedded in. */
-        @container app-shell (width < 1024px) {
-            body.app #nav,
-            body.app #aside {
-                position: fixed;
-                inset: 0 auto 0 auto;       /* reset all sides; per-drawer below */
-                margin: 0;
-                width: min(85vw, 320px);
-                max-width: 85vw;
-                height: 100svh;
-                border-radius: 0;
-                border: 0;
-                background: var(--_bg);
-                padding: 1.5rem 1rem;
-                overflow-y: auto;
-
-                transition:
-                    translate calc(var(--cfg-motion) * 0.25s) ease-out,
-                    opacity   calc(var(--cfg-motion) * 0.25s) ease-out,
-                    display   calc(var(--cfg-motion) * 0.25s) allow-discrete,
-                    overlay   calc(var(--cfg-motion) * 0.25s) allow-discrete;
-                translate: 0 0;
-                opacity: 1;
-            }
-
-            body.app #nav   { left: 0; border-right: 1px solid var(--Border) }
-            body.app #aside { left: auto; right: 0; border-left: 1px solid var(--Border) }
-
-            body.app #nav:not([open])   { display: none; translate: -100% 0; opacity: 0 }
-            body.app #aside:not([open]) { display: none; translate:  100% 0; opacity: 0 }
-
-            @starting-style {
-                body.app #nav[open]   { translate: -100% 0; opacity: 0 }
-                body.app #aside[open] { translate:  100% 0; opacity: 0 }
-            }
-
-            body.app #nav::backdrop,
-            body.app #aside::backdrop {
-                background: oklch(0% 0 0 / 0.5);
-                transition:
-                    background-color calc(var(--cfg-motion) * 0.25s) ease-out,
-                    display          calc(var(--cfg-motion) * 0.25s) allow-discrete,
-                    overlay          calc(var(--cfg-motion) * 0.25s) allow-discrete;
-            }
-            body.app #nav:not([open])::backdrop,
-            body.app #aside:not([open])::backdrop {
-                background: oklch(0% 0 0 / 0);
-            }
-            @starting-style {
-                body.app #nav[open]::backdrop,
-                body.app #aside[open]::backdrop { background: oklch(0% 0 0 / 0) }
-            }
+            > #header { grid-area: h; }
+            > #footer { grid-area: f; }
+            > #nav    { grid-area: n; overflow-y: auto; scrollbar-gutter: stable; }
+            > #main   { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+            > #aside  { grid-area: a; overflow-y: auto; scrollbar-gutter: stable; }
         }
     }
     
-    /* ============================================================
-       layout-doc.css — layout.doc
+      /* ============================================================
+         Drawer
+         Two classes: .drawer + one of .top .right .bottom .left
+         Two hosts: <dialog> (modal) or [popover] (non-modal).
+         ============================================================ */
+      @layer component.complex {
 
-       Document/paper layout. A fixed-aspect "piece of paper" centered
-       on a backdrop, with print awareness. Used for resumes, posters,
-       single-page artifacts that need to look the same on screen and
-       in print.
-
-       Opt in via <body class="doc"> with a <article class="paper">
-       child:
-
-         <body class="doc">
-           <article class="paper">
-             ...content...
-           </article>
-         </body>
-
-       Defaults to US Letter portrait. Override --paper-w / --paper-h
-       on the .paper element for other sizes.
-
-       Paper sizing:
-         On screen — scales to fit viewport, preserves aspect ratio.
-         In print  — exact physical size, zero @page margin.
-
-       Type and space inside the paper are paper-relative (cqi units)
-       so screen and print render identically regardless of viewport.
-       ============================================================ */
-
-    @layer layout.doc {
-
-        body.doc {
-            margin: 0;
-            min-block-size: 100dvh;
-            display: grid;
-            place-items: center;
-            padding: 1rem;
+        .drawer {
+          position: fixed;
+          inset: auto;
+          margin: 0;
+          padding: 1rem;
+          max-block-size: none;
+          max-inline-size: none;
+          background: oklch(98% 0 0);
+          border: 0;
+          transition:
+            translate 250ms ease-out,
+            opacity   250ms ease-out,
+            display   250ms allow-discrete,
+            overlay   250ms allow-discrete;
+          translate: 0 0;
+          opacity: 1;
         }
 
-        /* The paper itself. Default geometry: US Letter portrait. */
-        body.doc .paper,
-        .paper {
-            --paper-w: 8.5in;
-            --paper-h: 11in;
-            --paper-aspect: calc(var(--paper-w) / var(--paper-h));
+        .drawer.left   { inset: 0 auto 0 0; inline-size: min(85vw, 320px); block-size: 100svh; border-inline-end:   1px solid oklch(85% 0 0); }
+        .drawer.right  { inset: 0 0 0 auto; inline-size: min(85vw, 320px); block-size: 100svh; border-inline-start: 1px solid oklch(85% 0 0); }
+        .drawer.top    { inset: 0 0 auto 0; inline-size: 100vw; block-size: min(85svh, 240px); border-block-end:    1px solid oklch(85% 0 0); }
+        .drawer.bottom { inset: auto 0 0 0; inline-size: 100vw; block-size: min(85svh, 240px); border-block-start:  1px solid oklch(85% 0 0); }
 
-            /* aspect-ratio doesn't accept the `<num> / <num>` slash form
-               with var() on either side — only literal numbers. Use the
-               single-number form via the precomputed --paper-aspect. */
-            aspect-ratio: var(--paper-aspect);
+        .drawer:not(:is([open], :popover-open)) { opacity: 0; }
+        .drawer.left:not(:is([open], :popover-open))   { translate: -100% 0; }
+        .drawer.right:not(:is([open], :popover-open))  { translate:  100% 0; }
+        .drawer.top:not(:is([open], :popover-open))    { translate: 0 -100%; }
+        .drawer.bottom:not(:is([open], :popover-open)) { translate: 0  100%; }
 
-            /* Fit the smaller of (viewport-height) or (width-derived height).
-               Whichever bound is tighter wins; aspect-ratio handles the other. */
-            block-size: min(
-                calc(100dvh - 2rem),
-                calc((100dvw - 2rem) / var(--paper-aspect))
-            );
-            inline-size: auto;
-
-            border: 1px solid var(--border);
-            border-radius: var(--cfg-radius, 0.5rem);
-            box-shadow: 0 1rem 3rem -1rem oklch(0% 0 0 / 0.4);
-            overflow: hidden;
-
-            /* CQ container — descendants size against paper width via cqi. */
-            container-type: size;
-            container-name: paper;
+        @starting-style {
+          .drawer.left:is([open], :popover-open)   { translate: -100% 0; opacity: 0; }
+          .drawer.right:is([open], :popover-open)  { translate:  100% 0; opacity: 0; }
+          .drawer.top:is([open], :popover-open)    { translate: 0 -100%; opacity: 0; }
+          .drawer.bottom:is([open], :popover-open) { translate: 0  100%; opacity: 0; }
         }
 
-        /* core.type and core.space both reference `100vi` in their formulas
-           — wrong for a fixed-aspect document where everything should track
-           the paper, not the viewport.
-
-           Override for descendants only (.paper *, NOT .paper itself).
-
-           Why: `--cfg-space-base` and `--paper-type-base` are registered
-           as <length> via @property. Registered length properties are
-           evaluated at the DECLARATION site — so setting `1cqi` on `.paper`
-           resolves it against the paper's PARENT (viewport), and the
-           already-resolved px value propagates to descendants. Bug.
-           Setting them on `.paper *` evaluates cqi at each descendant,
-           which IS inside the paper's container query → paper-relative.
-
-           --type and --space step ratios still apply, so hierarchy and
-           density still work — they just operate on a paper-relative
-           base instead of a viewport-fluid one. */
-        .paper * {
-            /* Paper-relative bases — declared on descendants so cqi
-               evaluates inside the paper's container query context. */
-            --paper-type-base: 1.75cqi;
-            --cfg-space-base: 1cqi;
-
-            font-size: calc(
-                var(--paper-type-base) *
-                pow(var(--cfg-type-min-ratio), var(--type)) *
-                var(--cfg-type-scale)
-            );
-            --s: calc(
-                var(--cfg-space-base) *
-                pow(var(--cfg-space-ratio), var(--space)) *
-                var(--cfg-space-scale)
-            );
+        dialog.drawer::backdrop {
+          background: oklch(0% 0 0 / 0.5);
+          transition:
+            background-color 250ms ease-out,
+            display          250ms allow-discrete,
+            overlay          250ms allow-discrete;
         }
-
-        @media print {
-            body.doc {
-                padding: 0;
-                min-block-size: auto;
-                display: block;
-            }
-            @page { size: letter; margin: 0 }
-
-            body.doc .paper,
-            .paper {
-                inline-size: var(--paper-w);
-                block-size: var(--paper-h);
-                aspect-ratio: auto;
-                border: 0;
-                border-radius: 0;
-                box-shadow: none;
-            }
+        dialog.drawer:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
+        @starting-style {
+          dialog.drawer[open]::backdrop { background: oklch(0% 0 0 / 0); }
         }
-    }
+      }
+
     
     /* ════════════════════════════════════════════════════════════════
        layout.composition — stateless layout primitives
@@ -1287,6 +1065,19 @@
         /* No-print: hide an element when printing. */
         @media print {
             :where(.np) { display: none !important }
+        }
+    }
+    
+    .surface {  --depth: 1
+        .well { --depth: 0}
+        .surface {  --depth: 2
+            .well { --depth: 1}
+            .surface {  --depth: 3
+                .well { --depth: 2}
+                .surface {  --depth: 4
+                    .well { --depth: 3}
+                }
+            }
         }
     }
     
