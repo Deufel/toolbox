@@ -422,21 +422,31 @@
     @layer theme {
 
         :root {
-          --hue: 18;
-          --cfg-surf-top-light: 99;
-          --cfg-surf-bot-light: 88;
-          --cfg-surf-top-dark: 8;
-          --cfg-surf-bot-dark: 2;
-          --cfg-color-surf-chroma: 0.003;
-          --cfg-color-loud-l-light: 50%;
-          --cfg-color-loud-c-light: 0.32;
+          /* Identity */
+          --hue: 220;
+          --cfg-color-loud-l-light: 45%;
+          --cfg-color-loud-c-light: 0.18;
           --cfg-color-loud-l-dark: 65%;
-          --cfg-color-loud-c-dark: 0.3;
+          --cfg-color-loud-c-dark: 0.18;
+          --cfg-color-surf-chroma: 0.012;
           --cfg-fg-tint: 0.005;
-          --cfg-type-min: 0.9375rem;
-          --cfg-type-max: 1rem;
-          --cfg-radius: 0.5em;
+
+          /* Surfaces — light mode warm cream, dark mode warm charcoal */
+          --cfg-surf-top-light: 99;
+          --cfg-surf-bot-light: 91;
+          --cfg-surf-top-dark: 22;    /* was 28 — slightly darker leaf */
+          --cfg-surf-bot-dark: 12;    /* was 10 — body lightens */
+
+          /* Geometry & motion */
+          --cfg-radius: 6px;
+          --gap: 0.75rem;
+
+          /* Fonts */
+          --font-ui:    -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+          --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+          --font-mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
         }
+        body { font-family: var(--font-ui); }
 
         @media (prefers-color-scheme: dark) { :root:not([data-ui-theme]) { --cfg-dark: 1 } }
         [data-ui-theme="light"] { --cfg-dark: 0 }
@@ -891,7 +901,7 @@
     }
     
     @layer component.simple {
-          /* tabs — segmented control. Container is a neutral pill; each tab
+        /* tabs — segmented control. Container is a neutral pill; each tab
          is transparent until aria-selected="true", at which point it
          pops chromatic.                                                 */
       .tabs {
@@ -912,11 +922,40 @@
           font-weight: 600;
           white-space: nowrap;
           user-select: none;
+          transition:
+            background-color calc(var(--cfg-motion) * 0.2s) ease-out,
+            color            calc(var(--cfg-motion) * 0.2s) ease-out,
+            border-color     calc(var(--cfg-motion) * 0.2s) ease-out;
         }
         & > button * { --type: -1; }
+        & > button:hover { --fg: -1; }
         & > button[aria-selected="true"] {
           --bg: var(--cfg-bg-loud);
           --fg: -1;
+        }
+
+        /* underline — alternate look. Drops the pill container, keeps
+           a quiet baseline, and marks the selected tab with a chromatic
+           underline drawn from currentColor.                           */
+        &.underline {
+          padding: 0;
+          border: 0;
+          border-radius: 0;
+          border-block-end: 1px solid var(--border);
+          gap: 0;
+
+          & > button {
+            --bg: 0;
+            margin-block-end: -1px;
+            padding: 0.4em 0.85em;
+            border-radius: 0.4em 0.4em 0 0;
+            border-block-end: 2px solid transparent;
+          }
+          & > button[aria-selected="true"] {
+            --bg: 0;
+            --fg: 0.8;
+            border-block-end-color: currentColor;
+          }
         }
       }
 
@@ -960,9 +999,9 @@
           /* avatar — rounded square holder for initials or image. Editorial
          serif so initials read as a personal mark rather than UI.       */
       .avatar {
-        --bg: 0.2;
+        --bg: 0;
         --fg: -1;
-        --type: 1;
+        --type: 0;
         display: inline-flex;
         align-items: center;
         justify-content: center;
