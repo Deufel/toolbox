@@ -410,6 +410,9 @@
       }
     }
     
+    @property --cfg-bg-loud { syntax: "<number>"; inherits: true; initial-value: 0.55 }
+
+
     /* ════════════════════════════════════════════════════════════════
        theme — project-level visual decisions
        The "vibe" of the page. Theme blocks (light/dark), state classes
@@ -417,130 +420,30 @@
        State classes are uniform across all components.
        ════════════════════════════════════════════════════════════ */
     @layer theme {
-      /* ── Light/dark theme values ──────────────────────────────
-         The MATH lives in core.color. These rules only set which
-         VALUES the math operates on for each theme.
 
-         Default behavior: when no data-ui-theme attribute is set
-         (or it's "system"), follow the OS preference via
-         prefers-color-scheme. Explicit attributes override. */
+        @media (prefers-color-scheme: dark) { :root:not([data-ui-theme]) { --cfg-dark: 1 } }
+        [data-ui-theme="light"] { --cfg-dark: 0 }
+        [data-ui-theme="dark"]  { --cfg-dark: 1 }
 
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-ui-theme="light"]):not([data-ui-theme="dark"]),
-        [data-ui-theme="system"] {
-          --cfg-color-top-l: 33;
-          --cfg-color-base-step: 2.5;
-          --cfg-color-curve-k: 0.6;
-          --cfg-color-surf-chroma: 0.010;
-          --cfg-color-surf-mid: 33.5;
-          --cfg-color-surf-rng: 27.5;
+        .suc { --hue-lock: 145 }
+        .inf { --hue-lock: 240 }
+        .wrn { --hue-lock: 75  }
+        .dgr { --hue-lock: 25  }
+
+        [data-ui-motion="off"]   { --cfg-motion: 0 }
+        [data-ui-motion="on"]    { --cfg-motion: 1 }
+        [data-ui-motion="debug"] { --cfg-motion: 10 }
+        @media (prefers-reduced-motion: reduce) { :root, [data-ui-motion] { --cfg-motion: 0 } }
+
+        body { transition: --cfg-type-scale calc(var(--cfg-motion) * 0.2s) ease-out; }
+        [data-ui-type="sm"] { --cfg-type-scale: 0.875 }
+        [data-ui-type="md"] { --cfg-type-scale: 1     }
+        [data-ui-type="lg"] { --cfg-type-scale: 1.125 }
+
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: var(--Border) transparent;
         }
-      }
-      @media (prefers-color-scheme: light) {
-        [data-ui-theme="system"] {
-          --cfg-color-top-l: 88;
-          --cfg-color-base-step: 4;
-          --cfg-color-curve-k: 0.6;
-          --cfg-color-surf-chroma: 0.018;
-          --cfg-color-surf-mid: 60.5;
-          --cfg-color-surf-rng: 55;
-        }
-      }
-      [data-ui-theme="light"] {
-        --cfg-color-top-l: 88;
-        --cfg-color-base-step: 4;
-        --cfg-color-curve-k: 0.6;
-        --cfg-color-surf-chroma: 0.018;
-        --cfg-color-surf-mid: 60.5;
-        --cfg-color-surf-rng: 55;
-      }
-      [data-ui-theme="dark"] {
-        --cfg-color-top-l: 33;
-        --cfg-color-base-step: 2.5;
-        --cfg-color-curve-k: 0.6;
-        --cfg-color-surf-chroma: 0.010;
-        --cfg-color-surf-mid: 33.5;
-        --cfg-color-surf-rng: 27.5;
-      }
-
-
-      /* ── State classes ────────────────────────────────────────
-         Uniform across every component. The pointer helper adds
-         these via JS; CSS reacts through the formula. */
-      .hover    { --l-shift: 0.04;  --c-shift: 0.02 }
-      .active   { --l-shift: -0.04; --c-shift: -0.10 }
-      .disabled { --fg: -0.35; cursor: not-allowed }
-
-
-      /* ── Motion presets ───────────────────────────────────────
-         --cfg-motion is a multiplier consumed by transition-duration
-         calcs throughout the system. 0 disables motion; "debug" slows
-         everything 10× for inspection. The OS/browser preference
-         (prefers-reduced-motion: reduce) is sovereign — it overrides
-         any explicit button choice. The button is for users who don't
-         have that preference set. */
-      [data-ui-motion="off"]   { --cfg-motion: 0 }
-      [data-ui-motion="on"]    { --cfg-motion: 1 }
-      [data-ui-motion="debug"] { --cfg-motion: 10 }
-      @media (prefers-reduced-motion: reduce) {
-        :root, [data-ui-motion] { --cfg-motion: 0 }
-      }
-
-      /* Timer-hand rotation reflects current motion state. The natural
-         hand position in the SVG points at 1:30 (-45° from horizontal).
-         Rotation values transform that to: 12 (off), 3 (on), 9 (debug).
-         The transition uses --cfg-motion itself so when motion is off,
-         the hand snaps; when debug, it sweeps slowly. */
-      /* Timer-hand transition. The actual rotation comes from a
-         monotonically-increasing signal counter on the SVG line —
-         each click advances clockwise without wraparound concerns.
-         Duration ties to --cfg-motion: snappy in 'on', slow in
-         'debug', instant in 'off'. */
-      .timer-hand {
-        transform-box: view-box;
-        transform-origin: 12px 14px;
-        transition: rotate calc(var(--cfg-motion) * 0.25s) ease-out;
-      }
-
-
-      /* ── Type size presets ────────────────────────────────────
-         Drive type via the --cfg-type-scale multiplier rather than
-         resetting the base range. One value to reason about, one
-         value to animate. Transition is tied to --cfg-motion so it
-         respects the motion preset. */
-      body {
-        transition: --cfg-type-scale calc(var(--cfg-motion) * 0.2s) ease-out;
-      }
-      [data-ui-type="sm"] { --cfg-type-scale: 0.875 }
-      [data-ui-type="md"] { --cfg-type-scale: 1     }
-      [data-ui-type="lg"] { --cfg-type-scale: 1.125 }
-
-
-      /* ── Scrollbars ───────────────────────────────────────────
-         Track invisible (transparent over the surface). Thumb is
-         the chromatic foreground at --fg: 0.5 — same color the fg
-         formula would produce if an element had --fg: 0.5. We can't
-         literally set --fg here (it would tint text on every element),
-         so the formula is reproduced inline against the current
-         surface (--_bg) and page hue (--_h). */
-      * {
-        scrollbar-width: thin;
-        scrollbar-color: oklch(from var(--_bg)
-          calc(var(--cfg-color-muted-l) + 0.5 * (var(--cfg-color-vivid-l) - var(--cfg-color-muted-l)))
-          calc(var(--cfg-color-muted-c) + 0.5 * (var(--cfg-color-vivid-c) - var(--cfg-color-muted-c)))
-          var(--_h)
-        ) transparent;
-      }
-      ::-webkit-scrollbar { inline-size: 8px; block-size: 8px }
-      ::-webkit-scrollbar-track { background: transparent }
-      ::-webkit-scrollbar-thumb {
-        background: oklch(from var(--_bg)
-          calc(var(--cfg-color-muted-l) + 0.5 * (var(--cfg-color-vivid-l) - var(--cfg-color-muted-l)))
-          calc(var(--cfg-color-muted-c) + 0.5 * (var(--cfg-color-vivid-c) - var(--cfg-color-muted-c)))
-          var(--_h)
-        );
-        border-radius: 999px;
-      }
 
 
       /* ── Syntax highlighting ──────────────────────────────────
