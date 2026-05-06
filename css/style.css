@@ -421,6 +421,23 @@
        ════════════════════════════════════════════════════════════ */
     @layer theme {
 
+        :root {
+          --hue: 18;
+          --cfg-surf-top-light: 99;
+          --cfg-surf-bot-light: 88;
+          --cfg-surf-top-dark: 8;
+          --cfg-surf-bot-dark: 2;
+          --cfg-color-surf-chroma: 0.003;
+          --cfg-color-loud-l-light: 50%;
+          --cfg-color-loud-c-light: 0.32;
+          --cfg-color-loud-l-dark: 65%;
+          --cfg-color-loud-c-dark: 0.3;
+          --cfg-fg-tint: 0.005;
+          --cfg-type-min: 0.9375rem;
+          --cfg-type-max: 1rem;
+          --cfg-radius: 0.5em;
+        }
+
         @media (prefers-color-scheme: dark) { :root:not([data-ui-theme]) { --cfg-dark: 1 } }
         [data-ui-theme="light"] { --cfg-dark: 0 }
         [data-ui-theme="dark"]  { --cfg-dark: 1 }
@@ -429,6 +446,7 @@
         .inf { --hue-lock: 240 }
         .wrn { --hue-lock: 75  }
         .dgr { --hue-lock: 25  }
+        .bw { --cfg-color-surf-chroma: 0; --cfg-color-loud-c-light: 0; --cfg-color-loud-c-dark: 0; }
 
         [data-ui-motion="off"]   { --cfg-motion: 0 }
         [data-ui-motion="on"]    { --cfg-motion: 1 }
@@ -768,6 +786,26 @@
       /* (filled in as the system grows) */
     }
     
+    @layer component.base {
+     /* kbd — keyboard key marker. Mono surface that evokes a physical
+         keycap. Border slightly louder than .input so keys pop in prose. */
+      kbd {
+        --bg: 0;
+        --fg: -1;
+        --type: -1.5;
+        display: inline-flex;
+        align-items: center;
+        padding: 0.1em 0.45em;
+        border: 1px solid var(--Border);
+        border-radius: 0.35em;
+        font-family: ui-monospace, monospace;
+        font-weight: 600;
+        line-height: 1.4;
+
+        & * { --type: -1.5; }
+      }
+    }
+    
     @layer component.simple {
       /* btn — neutral interactive control. Base for text and icon+text.
          Use .icon-btn for square icon-only.                   */
@@ -1014,6 +1052,19 @@
         border-block-start: 1px solid var(--border);
         margin-block: 1em;
         inline-size: 100%;
+      }
+    }
+    
+    @layer component.simple {
+      .card {
+        padding: 1em;
+        border: 1px solid var(--border);
+        border-radius: var(--cfg-radius);
+      }
+      .Card {
+        padding: 1em;
+        border: 1px solid var(--Border);
+        border-radius: var(--cfg-radius);
       }
     }
     
