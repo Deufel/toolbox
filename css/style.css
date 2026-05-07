@@ -753,6 +753,49 @@
         & > * { grid-area: stack }
       }
 
+        .hero {
+            display: grid;
+            grid-template:
+                "h h h" auto
+                "n m a" 1fr
+                "f f f" auto /
+                auto 1fr auto;
+            height: 100svh;
+            overflow: hidden;
+
+            > header  { grid-area: h; }
+            > footer  { grid-area: f; }
+            > section { grid-area: n; overflow-y: auto; scrollbar-gutter: stable; }
+            > article { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+            > aside   { grid-area: a; overflow-y: auto; scrollbar-gutter: stable; }
+        }
+
+          /* ── .hud-grid ─────────────────────────────────────────────────
+         A grid with 9 directional anchor slots. this is the no overlap version of .hud
+         Slots: ↖ ↑ ↗ / ← • → / ↙ ↓ ↘
+         ──────────────────────────────────────────────────────── */
+
+       .hud-grid {
+            display: grid;
+            grid-template:
+         Slots: "↖ ↑ ↗" auto
+                "← • →" 1fr
+                "↙ ↓ ↘" auto /
+             auto 1fr auto;
+            height: 100svh;
+            overflow: hidden;
+
+            > .↖ { grid-area: ↖; }
+            > .↑ { grid-area: ↑; }
+            > .↗ { grid-area: ↗; }
+            > .← { grid-area: ←; overflow-y: auto; scrollbar-gutter: stable; }
+            > .• { grid-area: •; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+            > .→ { grid-area: →; overflow-y: auto; scrollbar-gutter: stable; }
+            > .↙ { grid-area: ↙; }
+            > .↓ { grid-area: ↓; }
+            > .↘ { grid-area: ↘; }
+        }
+
       /* ── .hud ─────────────────────────────────────────────────
          A .stack with 9 directional anchor slots. Children are
          full-bleed over a single cell, sized to content, anchored
