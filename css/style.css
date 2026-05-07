@@ -1290,14 +1290,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Responsive show/hide. Matches viewport ranges; flips display
-           to `revert-layer` so the element gets its natural display value
-           back (block/inline/grid/etc.) without the consumer specifying. */
-        :where(.mobile, .tablet, .desktop) { display: none }
-        @media (         width <   480px) { :where(.mobile)  { display: revert-layer } }
-        @media (480px <= width <  1024px) { :where(.tablet)  { display: revert-layer } }
-        @media (         width >= 1024px) { :where(.desktop) { display: revert-layer } }
-
         /* Print mode adjustments — generic enough to live here. */
         @media print {
             :where(body) { min-height: 0 }
@@ -1315,6 +1307,15 @@
 
     @layer utility.important {
         :where([hidden]) { display: none !important }
+
+        /* Responsive show/hide. The viewport class is a participation gate —
+           it has to win against any inline `@scope` rule that sets `display`
+           on the element to define its internal layout. `revert-layer` returns
+           the element to its natural display when it should be visible. */
+        :where(.mobile, .tablet, .desktop) { display: none !important }
+        @media (         width <   480px) { :where(.mobile)  { display: revert-layer !important } }
+        @media (480px <= width <  1024px) { :where(.tablet)  { display: revert-layer !important } }
+        @media (         width >= 1024px) { :where(.desktop) { display: revert-layer !important } }
 
         /* No-print: hide an element when printing. */
         @media print {
