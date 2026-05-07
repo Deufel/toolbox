@@ -5,7 +5,7 @@
       core.color,
       core.type,
       theme,
-      layout.app,
+      layout.page,
       layout.composition,
       component.base,
       component.simple,
@@ -595,22 +595,33 @@
       }
     }
     
-    @layer layout.app {
-        body.app {
+
+    @layer layout.page {
+        .page {
             display: grid;
             grid-template:
-                "h h h" auto
-                "n m a" 1fr
-                "f f f" auto /
+                "b  b  b" auto
+                "h  h  h" auto
+                "s  s  s" auto
+                "nh mh a" auto
+                "n  m  a" 1fr
+                "nf mf a" auto
+                "f  f  f" auto /
                 auto 1fr auto;
             height: 100svh;
             overflow: hidden;
 
-            > #header { grid-area: h; }
-            > #footer { grid-area: f; }
-            > #nav    { grid-area: n; overflow-y: auto; scrollbar-gutter: stable; }
-            > #main   { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-            > #aside  { grid-area: a; overflow-y: auto; scrollbar-gutter: stable; }
+            & > .pg-banner            { grid-area: b;  }
+            & > .pg-header            { grid-area: h;  }
+            & > .pg-subheader         { grid-area: s;  }
+            & > .pg-navigation-header { grid-area: nh; }
+            & > .pg-navigation        { grid-area: n;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+            & > .pg-navigation-footer { grid-area: nf; }
+            & > .pg-main-header       { grid-area: mh; }
+            & > .pg-main              { grid-area: m;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+            & > .pg-main-footer       { grid-area: mf; }
+            & > .pg-aside             { grid-area: a;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+            & > .pg-footer            { grid-area: f;  }
         }
     }
     
@@ -756,20 +767,19 @@
         .hero {
             display: grid;
             grid-template:
-                "h h h" auto
-                "n m a" 1fr
-                "f f f" auto /
+                "t t t" auto
+                "l m r" 1fr
+                "b b b" auto /
                 auto 1fr auto;
-            height: 100svh;
+            height: 100%;
             overflow: hidden;
 
-            > header  { grid-area: h; }
-            > footer  { grid-area: f; }
-            > section { grid-area: n; overflow-y: auto; scrollbar-gutter: stable; }
-            > article { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-            > aside   { grid-area: a; overflow-y: auto; scrollbar-gutter: stable; }
+            & > .top    { grid-area: t; }
+            & > .bottom { grid-area: b; }
+            & > .left   { grid-area: l; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+            & > .main   { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+            & > .right  { grid-area: r; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
         }
-
           /* ── .hud-grid ─────────────────────────────────────────────────
          A grid with 9 directional anchor slots. this is the no overlap version of .hud
          Slots: ↖ ↑ ↗ / ← • → / ↙ ↓ ↘
