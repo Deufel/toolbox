@@ -858,18 +858,43 @@
         --bg: 0;
         --fg: -1;
         --type: -1;
+
         display: inline-flex;
         align-items: center;
         justify-content: center;
+
+        /* Lock to font-size; do not let parent layout stretch us */
+        flex: 0 0 auto;
+        align-self: center;
+        inline-size: 2.2em;     /* 1em icon + 2 × 0.6em padding */
+        block-size: 2.2em;
+        aspect-ratio: 1;        /* redundant but harmless and self-documenting */
+
         padding: 0.6em;
         border: 1px solid var(--border);
         border-radius: var(--cfg-radius);
-        aspect-ratio: 1;
         line-height: 1;
         user-select: none;
 
-        & * { --type: -1; }
-        & svg { inline-size: 1em; block-size: 1em; display: block; }
+        /* Removed: `& * { --type: -1 }` — --type cascades naturally,
+           and forcing it on `*` blocks legitimate overrides like
+           a small label inside the button. */
+
+        & svg {
+          inline-size: 1em;
+          block-size: 1em;
+          display: block;
+        }
+      }
+
+      /* Ensure tap target is large enough on touch devices.
+         Using max-width: 480px because that's the conventional mobile
+         breakpoint stick.css already uses for .mobile / .tablet / .desktop. */
+      @media (max-width: 480px) {
+        .icon-btn {
+          min-inline-size: 44px;
+          min-block-size: 44px;
+        }
       }
     }
     
