@@ -611,6 +611,8 @@
             height: 100svh;
             overflow: hidden;
 
+            & > [class ^="pg-"]       { padding: var(--gap); }
+
             & > .pg-banner            { grid-area: b;  }
             & > .pg-header            { grid-area: h;  }
             & > .pg-subheader         { grid-area: s;  }
