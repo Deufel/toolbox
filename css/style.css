@@ -690,35 +690,49 @@
       }
 
       .lcr {
-        display: grid; grid-template-columns: 1fr auto 1fr;
-        align-items: center; gap: var(--gap);
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
+          align-items: center;
+          gap: var(--gap);
 
-        & > :first-child  { justify-self: start }
-        & > :nth-child(2) { justify-self: center }
-        & > :last-child   { justify-self: end }
-      }
+          & > :first-child:not(style):not(script)         { justify-self: start  }
+          & > :nth-child(2 of :not(style):not(script))    { justify-self: center }
+          & > :last-child:not(style):not(script)          { justify-self: end    }
 
-      .tmb {
-        display: grid; grid-template-rows: 1fr auto 1fr;
-        justify-items: center; gap: var(--gap);
+          & > style, & > script { display: none }
+        }
 
-        & > :first-child  { align-self: start }
-        & > :nth-child(2) { align-self: center }
-        & > :last-child   { align-self: end }
-      }
+        .tmb {
+          display: grid;
+          grid-template-rows: 1fr auto 1fr;
+          justify-items: center;
+          gap: var(--gap);
+
+          & > :first-child:not(style):not(script)         { align-self: start  }
+          & > :nth-child(2 of :not(style):not(script))    { align-self: center }
+          & > :last-child:not(style):not(script)          { align-self: end    }
+
+          & > style, & > script { display: none }
+        }
 
       /* ── .flank — leading/trailing fixed, the other grows ──── */
-      .flank, .flank-start, .flank-end {
-        display: flex; flex-direction: row; align-items: center; gap: var(--gap);
-      }
-      .flank, .flank-start {
-        & > :first-child { flex: 0 0 auto }
-        & > :last-child  { flex: 1 1 auto; min-inline-size: 0 }
-      }
-      .flank-end {
-        & > :first-child { flex: 1 1 auto; min-inline-size: 0 }
-        & > :last-child  { flex: 0 0 auto }
-      }
+        .flank, .flank-start {
+          display: flex; flex-direction: row; align-items: center; gap: var(--gap);
+
+          & > :first-child:not(style):not(script) { flex: 0 0 auto }
+          & > :last-child:not(style):not(script)  { flex: 1 1 auto; min-inline-size: 0 }
+
+          & > style, & > script { display: none }
+        }
+
+        .flank-end {
+          display: flex; flex-direction: row; align-items: center; gap: var(--gap);
+
+          & > :first-child:not(style):not(script) { flex: 1 1 auto; min-inline-size: 0 }
+          & > :last-child:not(style):not(script)  { flex: 0 0 auto }
+
+          & > style, & > script { display: none }
+        }
 
       .frame {
         aspect-ratio: 16 / 9;
