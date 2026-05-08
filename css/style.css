@@ -616,12 +616,12 @@
             & > .pg-banner            { grid-area: b;  }
             & > .pg-header            { grid-area: h;  }
             & > .pg-subheader         { grid-area: s;  }
-            & > .pg-navigation-header { grid-area: nh; }
+            & > .pg-navigation-header { grid-area: nh; scrollbar-gutter: stable; }
             & > .pg-navigation        { grid-area: n;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-            & > .pg-navigation-footer { grid-area: nf; }
-            & > .pg-main-header       { grid-area: mh; }
+            & > .pg-navigation-footer { grid-area: nf; scrollbar-gutter: stable; }
+            & > .pg-main-header       { grid-area: mh; scrollbar-gutter: stable; }
             & > .pg-main              { grid-area: m;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-            & > .pg-main-footer       { grid-area: mf; }
+            & > .pg-main-footer       { grid-area: mf; scrollbar-gutter: stable }
             & > .pg-aside             { grid-area: a;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
             & > .pg-footer            { grid-area: f;  }
         }
