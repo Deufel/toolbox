@@ -474,123 +474,123 @@
         }
 
 
-      /* ── Syntax highlighting ──────────────────────────────────
-         Live code tokens at --fg: 0.5 (mid-vivid chromatic) — the
-         only chromatic value safe in both light and dark themes.
-         Differentiated by --hue-shift in 12° steps within ±36° of
-         the page hue. Tight tonal palette stays cohesive with the
-         brand.
+    /* ── Syntax highlighting — Custom Highlight API ─────────────
+         The ::highlight() pseudo only honors color, background-color,
+         text-decoration, text-shadow. Custom properties set on
+         ::highlight() do NOT cascade into the painted text, so each
+         rule sets `color` directly. Each rule reads --_bg, --_l, and
+         --cfg-dark from the originating element via relative-color
+         syntax — the same surface anchoring the rest of the formula
+         uses, so token colors automatically follow theme switches
+         and surface depth.
 
-         Comments use negative --fg (contrast ink), the proper
-         mode for dim text — theme-safe across light/dark via the
-         formula's contrast branch.
+         Two formulas:
+           --token-color   chromatic ink, pinned to a fixed L/C
+                           in OKLCH so it reads against any surface;
+                           hue shift varies per category.
+           --comment-color dim ink, lightness pulled toward the
+                           surface so comments recede; tiny chroma
+                           tint via --cfg-fg-tint.
 
-         The CSS Custom Highlight API only supports color,
-         background-color, text-decoration, text-shadow on
-         ::highlight(). Differentiation here is color only. */
-      ::highlight(css-comment),
-      ::highlight(html-comment),
-      ::highlight(python-comment),
-      ::highlight(javascript-comment)    { --fg: -0.4; --hue-shift:   0 }
+         Token L/C endpoints live here as system constants — they're
+         specific to the highlight use case (must read against both
+         light and dark surfaces) and aren't reused elsewhere. Adjust
+         by editing these eight values. ─────────────────────────── */
 
-      ::highlight(css-string),
-      ::highlight(html-value),
-      ::highlight(python-string),
-      ::highlight(javascript-string)     { --fg: 0.5; --hue-shift: -36 }
-
-      ::highlight(css-number),
-      ::highlight(css-unit),
-      ::highlight(python-number),
-      ::highlight(javascript-number)     { --fg: 0.5; --hue-shift: -24 }
-
-      ::highlight(css-punctuation),
-      ::highlight(html-bracket),
-      ::highlight(python-operator),
-      ::highlight(python-punctuation),
-      ::highlight(javascript-operator),
-      ::highlight(javascript-punctuation) { --fg: 0.5; --hue-shift: -12 }
-
-      ::highlight(css-property),
-      ::highlight(css-var-name),
-      ::highlight(css-selector),
-      ::highlight(html-tag),
-      ::highlight(html-attribute),
-      ::highlight(html-doctype),
-      ::highlight(html-entity)           { --fg: 0.5; --hue-shift:  12 }
-
-      ::highlight(python-function),
-      ::highlight(python-class),
-      ::highlight(python-builtin),
-      ::highlight(javascript-function),
-      ::highlight(javascript-class),
-      ::highlight(javascript-builtin)    { --fg: 0.5; --hue-shift:  24 }
-
-      ::highlight(css-atrule),
-      ::highlight(python-keyword),
-      ::highlight(python-decorator),
-      ::highlight(javascript-keyword),
-      ::highlight(javascript-decorator)  { --fg: 0.5; --hue-shift:  36 }
-
-      /* Comments — contrast-ink (negative fg) branch of the formula.
-         Theme-safe: dark text on light surfaces, light text on dark
-         surfaces. Hue-shift adds a faint chromatic tint via
-         --cfg-fg-tint. */
       ::highlight(css-comment),
       ::highlight(html-comment),
       ::highlight(python-comment),
       ::highlight(javascript-comment) {
+        /* Light-mode comment: dark ink that's been mixed toward the surface.
+           Dark-mode comment: light ink mixed toward the surface.
+           Result: visibly dimmer than active code, but still legible. */
         color: oklch(from var(--_bg)
           calc(
-            l * (1 - clamp(0, -1 * var(--fg), 1))
-            + (4% * clamp(0, calc((50% - l) / 1% * 20), 1)
-               + 97% * (1 - clamp(0, calc((50% - l) / 1% * 20), 1)))
-              * clamp(0, -1 * var(--fg), 1)
+            /* light: 35% (dark ink). dark: 70% (light ink, dim). */
+            (35% * (1 - var(--cfg-dark)) + 70% * var(--cfg-dark))
           )
-          calc(c * (1 - clamp(0, -1 * var(--fg), 1)) + var(--cfg-fg-tint) * clamp(0, -1 * var(--fg), 1))
-          calc(h + var(--hue-shift))
+          calc(c + var(--cfg-fg-tint))
+          calc(h + 0)
         );
       }
 
-      /* Live code tokens — chromatic ramp (positive fg) branch.
-         --fg: 0.5 sits at mid-vivid: visible against both light
-         and dark surfaces. Hue shifts ±12° to ±36° spread the
-         categories around the page hue without leaving the family. */
+      /* Strings — warm shift */
       ::highlight(css-string),
-      ::highlight(css-atrule),
-      ::highlight(css-var-name),
-      ::highlight(css-unit),
-      ::highlight(css-number),
-      ::highlight(css-property),
-      ::highlight(css-selector),
-      ::highlight(css-punctuation),
-      ::highlight(html-doctype),
-      ::highlight(html-entity),
       ::highlight(html-value),
-      ::highlight(html-tag),
-      ::highlight(html-attribute),
-      ::highlight(html-bracket),
       ::highlight(python-string),
-      ::highlight(python-decorator),
-      ::highlight(python-function),
-      ::highlight(python-class),
-      ::highlight(python-keyword),
-      ::highlight(python-builtin),
+      ::highlight(javascript-string) {
+        color: oklch(from var(--_bg)
+          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+          0.13
+          calc(h - 36)
+        );
+      }
+
+      /* Numbers / units */
+      ::highlight(css-number),
+      ::highlight(css-unit),
       ::highlight(python-number),
+      ::highlight(javascript-number) {
+        color: oklch(from var(--_bg)
+          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+          0.13
+          calc(h - 24)
+        );
+      }
+
+      /* Punctuation / operators / brackets */
+      ::highlight(css-punctuation),
+      ::highlight(html-bracket),
       ::highlight(python-operator),
       ::highlight(python-punctuation),
-      ::highlight(javascript-string),
-      ::highlight(javascript-decorator),
-      ::highlight(javascript-function),
-      ::highlight(javascript-class),
-      ::highlight(javascript-keyword),
-      ::highlight(javascript-builtin),
-      ::highlight(javascript-number),
       ::highlight(javascript-operator),
       ::highlight(javascript-punctuation) {
         color: oklch(from var(--_bg)
-          calc(var(--cfg-color-muted-l) + var(--fg) * (var(--cfg-color-vivid-l) - var(--cfg-color-muted-l)))
-          calc(var(--cfg-color-muted-c) + var(--fg) * (var(--cfg-color-vivid-c) - var(--cfg-color-muted-c)))
-          calc(var(--_h) + var(--hue-shift))
+          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+          0.10
+          calc(h - 12)
+        );
+      }
+
+      /* Identifiers — properties, vars, selectors, tags, attributes */
+      ::highlight(css-property),
+      ::highlight(css-var-name),
+      ::highlight(css-selector),
+      ::highlight(html-tag),
+      ::highlight(html-attribute),
+      ::highlight(html-doctype),
+      ::highlight(html-entity) {
+        color: oklch(from var(--_bg)
+          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+          0.13
+          calc(h + 12)
+        );
+      }
+
+      /* Functions, classes, builtins */
+      ::highlight(python-function),
+      ::highlight(python-class),
+      ::highlight(python-builtin),
+      ::highlight(javascript-function),
+      ::highlight(javascript-class),
+      ::highlight(javascript-builtin) {
+        color: oklch(from var(--_bg)
+          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+          0.14
+          calc(h + 24)
+        );
+      }
+
+      /* Keywords / atrules / decorators — strongest cool shift */
+      ::highlight(css-atrule),
+      ::highlight(python-keyword),
+      ::highlight(python-decorator),
+      ::highlight(javascript-keyword),
+      ::highlight(javascript-decorator) {
+        color: oklch(from var(--_bg)
+          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+          0.15
+          calc(h + 36)
         );
       }
     }
