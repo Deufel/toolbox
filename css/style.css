@@ -349,10 +349,17 @@
       .surface:has(.surface .surface)                   { --depth: 2 }
       .surface:has(.surface .surface .surface)          { --depth: 3 }
 
+      .stage-0 { --depth: 0 }
+      .stage-1 { --depth: 1 }
+      .stage-2 { --depth: 2 }
+      .stage-3 { --depth: 3 }
+
       /* Paint: surfaces always paint their bg. Non-surfaces paint only
          when --bg > 0 (--_bg-chromatic acts as the alpha gate). */
-      :where(*)              { background-color: oklch(from var(--_bg) l c h / var(--_bg-chromatic)) }
-      :where(body, .surface) { background-color: var(--_bg) }
+      :where(*)                { background-color: oklch(from var(--_bg) l c h / var(--_bg-chromatic)) }
+      :where(body, .surface )  { background-color: var(--_bg) }
+      :where([class^="stage"]) { background-color: var(--_bg) }
+
 
       :where(svg) { color: currentColor }
 
