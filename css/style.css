@@ -341,26 +341,6 @@
         --_surf-l:   calc((var(--_surf-top) + var(--_t-stage) * (var(--_surf-bot) - var(--_surf-top))) * 1%);
       }
 
-      /* Stage cascade: a surface's stage = how many surfaces nest INSIDE it.
-         Leaf surface (no nested .surface) stays at stage 0 — brightest.
-         Each containing layer increments. Inverts the usual depth convention
-         so the leaf — what the user is focused on — is always brightest. */
-      .surface                                          { --depth: 0 }
-      .surface:has(.surface)                            { --depth: 1 }
-      .surface:has(.surface .surface)                   { --depth: 2 }
-      .surface:has(.surface .surface .surface)          { --depth: 3 }
-
-      .stage-0 { --depth: 0 }
-      .stage-1 { --depth: 1 }
-      .stage-2 { --depth: 2 }
-      .stage-3 { --depth: 3 }
-
-      /* Paint: surfaces always paint their bg. Non-surfaces paint only
-         when --bg > 0 (--_bg-chromatic acts as the alpha gate). */
-      :where(*)                { background-color: oklch(from var(--_bg) l c h / var(--_bg-chromatic)) }
-      :where(body, .surface )  { background-color: var(--_bg) }
-      :where([class^="stage"]) { background-color: var(--_bg) }
-
 
       :where(svg) { color: currentColor }
 
@@ -384,13 +364,36 @@
       }
     }
     
-    @layer utility.layout {
-      /* (existing utilities — .nowrap, .truncate, .tr, .select-all unchanged) */
+    @layer core.color {
+        /* Surface ramp — both bare .surface (auto-cascade via :has)
+       and the explicit .surface-N variants compute --_surf-l from
+       their own --depth value. */
+    :where(body, .surface, .surface-0, .surface-1, .surface-2, .surface-3) {
+      --_surf-top: calc(var(--cfg-surf-top-light) * (1 - var(--cfg-dark)) + var(--cfg-surf-top-dark) * var(--cfg-dark));
+      --_surf-bot: calc(var(--cfg-surf-bot-light) * (1 - var(--cfg-dark)) + var(--cfg-surf-bot-dark) * var(--cfg-dark));
+      --_t-stage:  clamp(0, calc(var(--depth) / 3), 1);
+      --_surf-l:   calc((var(--_surf-top) + var(--_t-stage) * (var(--_surf-bot) - var(--_surf-top))) * 1%);
+    }
 
-      /* Surface depth offsets — step relative to the rendered stage
-         (whether inferred via :has() or set explicitly via .surface-N).
-         Clamps to [0, 3] so out-of-range offsets don't break the ramp.
-         Only meaningful on elements that participate in the surface ramp. */
+    /* Stage cascade — bare .surface infers depth from nesting.
+       Variants stay outside this cascade so explicit stages don't
+       inflate :has() inference on parents. */
+    .surface                                          { --depth: 0 }
+    .surface:has(.surface)                            { --depth: 1 }
+    .surface:has(.surface .surface)                   { --depth: 2 }
+    .surface:has(.surface .surface .surface)          { --depth: 3 }
+
+    /* Explicit stage variants — pin a surface to a specific stage. */
+    .surface-0 { --depth: 0 }
+    .surface-1 { --depth: 1 }
+    .surface-2 { --depth: 2 }
+    .surface-3 { --depth: 3 }
+
+    /* Paint — surfaces always paint their bg. */
+    :where(*) { background-color: oklch(from var(--_bg) l c h / var(--_bg-chromatic)) }
+    :where(body, .surface, .surface-0, .surface-1, .surface-2, .surface-3) {
+      background-color: var(--_bg);
+    }
       .step-up    { --depth: max(0, calc(var(--depth) - 1)) }
       .step-up-2  { --depth: max(0, calc(var(--depth) - 2)) }
       .step-up-3  { --depth: max(0, calc(var(--depth) - 3)) }
