@@ -186,8 +186,6 @@
        Curves and floor are hardcoded system constants.
        ════════════════════════════════════════════════════════════ */
 
-    @layer core.color;
-
     /* ── Public API ─────────────────────────────────────────────── */
     @property --bg         { syntax: "<number>"; inherits: true; initial-value: 0 }
     @property --fg         { syntax: "<number>"; inherits: true; initial-value: -1 }
@@ -1345,19 +1343,17 @@
        utility.exceptions — buffer layer; intentionally near-empty
        utility.important — !important rules for cascade-immune cases
        ============================================================ */
-
     @layer utility.layout {
-        :where(.nowrap)   { white-space: nowrap }
-        :where(.truncate) {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Print mode adjustments — generic enough to live here. */
-        @media print {
-            :where(body) { min-height: 0 }
-        }
+      :where(.nowrap)   { white-space: nowrap; }
+      :where(.truncate) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      :where(.tr) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      :where(.tr:is(:hover, :focus, :focus-within)) {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        overflow-wrap: anywhere;
+      }
+      :where(.select-all) { -webkit-user-select: all; user-select: all; }
     }
 
     @layer utility.exceptions {
