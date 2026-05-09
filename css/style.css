@@ -330,6 +330,7 @@
         );
       }
 
+
       /* Surface ramp — only surfaces compute --_surf-l. Descendants
          inherit, so chips/text/buttons anchor their chroma ramp to
          whatever surface they're sitting in. */
@@ -381,6 +382,22 @@
       :where(.hoverable):hover {
         --_interact-bg: var(--cfg-hover-bg-shift);
       }
+    }
+    
+    @layer utility.layout {
+      /* (existing utilities — .nowrap, .truncate, .tr, .select-all unchanged) */
+
+      /* Surface depth offsets — step relative to the rendered stage
+         (whether inferred via :has() or set explicitly via .surface-N).
+         Clamps to [0, 3] so out-of-range offsets don't break the ramp.
+         Only meaningful on elements that participate in the surface ramp. */
+      .step-up    { --depth: max(0, calc(var(--depth) - 1)) }
+      .step-up-2  { --depth: max(0, calc(var(--depth) - 2)) }
+      .step-up-3  { --depth: max(0, calc(var(--depth) - 3)) }
+
+      .step-down    { --depth: min(3, calc(var(--depth) + 1)) }
+      .step-down-2  { --depth: min(3, calc(var(--depth) + 2)) }
+      .step-down-3  { --depth: min(3, calc(var(--depth) + 3)) }
     }
     
     /* Type */
