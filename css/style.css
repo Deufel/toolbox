@@ -691,6 +691,7 @@
       }
 
 
+      .read   { max-inline-size: 65ch; margin-inline: auto; }
       .column { display: flex; flex-direction: column; gap: var(--gap) }
       .row    { display: flex; flex-direction: row; flex-wrap: wrap; gap: var(--gap); align-items: center }
 
