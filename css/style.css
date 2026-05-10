@@ -394,13 +394,7 @@
     :where(body, .surface, .surface-0, .surface-1, .surface-2, .surface-3) {
       background-color: var(--_bg);
     }
-      .step-up    { --depth: max(0, calc(var(--depth) - 1)) }
-      .step-up-2  { --depth: max(0, calc(var(--depth) - 2)) }
-      .step-up-3  { --depth: max(0, calc(var(--depth) - 3)) }
 
-      .step-down    { --depth: min(3, calc(var(--depth) + 1)) }
-      .step-down-2  { --depth: min(3, calc(var(--depth) + 2)) }
-      .step-down-3  { --depth: min(3, calc(var(--depth) + 3)) }
     }
     
     /* Type */
@@ -1123,10 +1117,11 @@
       }
     }
     
-
     @layer component.simple {
-          /* avatar — rounded square holder for initials or image. Editorial
-         serif so initials read as a personal mark rather than UI.       */
+      /* avatar — rounded square holder for initials or image. Editorial
+         serif so initials read as a personal mark rather than UI. Box
+         sized by line-height (1lh) so dimensions are independent of
+         which letters are inside.                                       */
       .avatar {
         --bg: 0;
         --fg: -1;
@@ -1134,8 +1129,10 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        inline-size: 1lh;
+        block-size: 1lh;
         padding: 0.4em;
-        aspect-ratio: 1;
+        box-sizing: content-box;
         border: 1px solid var(--border);
         border-radius: var(--cfg-radius);
         font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
