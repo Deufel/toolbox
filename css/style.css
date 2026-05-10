@@ -1227,77 +1227,31 @@
     
     @layer component.simple {
       .card {
-        padding: 1em;
+        padding: var(--gap);
         border: 1px solid var(--border);
         border-radius: var(--cfg-radius);
       }
       .Card {
-        padding: 1em;
+        padding: var(--gap);
         border: 1px solid var(--Border);
         border-radius: var(--cfg-radius);
       }
     }
     
     @layer component.simple {
-        /* card — bordered container. A .surface that's also bounded.   */
-      .card {
-        --bg: 0;
-        padding: 1em;
-        border: 1px solid var(--border);
-        border-radius: var(--cfg-radius);
-      }
-
-      /* fieldset — semantic input grouping that lays out as a row of
-         equal-width siblings. Reset UA chrome (border, padding,
-         legend), then make it a flex container with each direct child
-         taking equal share. Use for first/last name, city/state/zip,
-         date pickers split into day/month/year — anything that should
-         read as one logical row of related inputs.                   */
-      fieldset {
-        margin: 0;
-        padding: 0;
-        border: 0;
-        min-inline-size: 0;
-        display: flex;
-        gap: 0.5em;
-
-        & > * {
-          flex: 1;
-          min-inline-size: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 0.2em;
-        }
-      }
-
-      /* Form input auto-stretch — donut scope. Inputs inside a <form>
-         stretch to fill the form's inline size, except where a
-         <fieldset> holds them (those size naturally as flex items in
-         the fieldset row). The triple declaration covers Safari and
-         Firefox legacy keywords; standard `stretch` overrides for
-         browsers that support it.                                     */
-      @scope (form) to (fieldset) {
-        .input {
-          inline-size: -webkit-fill-available;
-          inline-size: -moz-available;
-          inline-size: stretch;
-        }
-      }
-    }
-    
-
-    @layer component.simple {
-    /* input — text inputs, textareas, selects. Same neutral surface
-         as .btn so they line up in forms. Border shifts from --border
-         to --Border on focus — louder derived color, no hardcoded ring. */
+      /* input — text inputs, textareas, selects. Same neutral surface
+         as .btn so they line up in forms. Block-size pinned to 2.4lh
+         to match .btn / .icon-btn / .tabs at any --type.               */
       .input {
         --bg: 0;
         --fg: -1;
         --type: -1;
-        padding: 0.3em 0.7em;
+        block-size: 2.4lh;
+        padding-inline: 0.7em;
         border: 1px solid var(--border);
         border-radius: var(--cfg-radius);
         font: inherit;
+        line-height: 1;
         min-inline-size: 0;
 
         & * { --type: -1; }
@@ -1306,6 +1260,10 @@
           outline: none;
         }
         &::placeholder { color: var(--border); }
+
+        @media (max-width: 480px) {
+          min-block-size: 44px;
+        }
       }
 
       /* select — strip native chevron, draw our own via --border color. */
@@ -1317,16 +1275,21 @@
         background-position: right 0.6em center;
       }
 
-      /* textarea — natural block-size, but matches the rest. */
+      /* textarea — natural multi-line block-size; opt out of the
+         2.4lh single-row height and restore prose line-height for
+         readable wrapped text.                                        */
       textarea.input {
         block-size: 6em;
         resize: vertical;
         line-height: 1.5;
+        padding-block: 0.4em;
+
+        @media (max-width: 480px) {
+          min-block-size: 6em;
+        }
       }
 
-      /* check, radio — toggle indicators. --bg flips from quiet to loud
-         when checked. The checkmark is drawn via SVG inline-image with
-         currentColor so it inherits the formula's --fg.                 */
+      /* check, radio — toggle indicators. */
       .check, .radio {
         --bg: 0;
         appearance: none;
@@ -1359,7 +1322,36 @@
       .radio:checked {
         background-image: radial-gradient(circle, currentColor 32%, transparent 36%);
       }
+    }
 
+    @layer component.simple {
+      /* fieldset — semantic input grouping that lays out as a row of
+         equal-width siblings.                                          */
+      fieldset {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        min-inline-size: 0;
+        display: flex;
+        gap: 0.5em;
+
+        & > * {
+          flex: 1;
+          min-inline-size: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0.2em;
+        }
+      }
+
+      /* Form input auto-stretch — donut scope. */
+      @scope (form) to (fieldset) {
+        .input {
+          inline-size: -webkit-fill-available;
+          inline-size: -moz-available;
+          inline-size: stretch;
+        }
+      }
     }
     
     /* ============================================================
