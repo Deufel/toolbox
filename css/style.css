@@ -916,7 +916,9 @@
     
     @layer component.simple {
       /* btn — neutral interactive control. Base for text and icon+text.
-         Use .icon-btn for square icon-only.                   */
+         Use .icon-btn for square icon-only. Block-size pinned to 2lh
+         so all buttons (text, icon, tabs container) align at the same
+         height regardless of glyph metrics.                            */
       .btn {
         --bg: 0;
         --fg: -1;
@@ -925,7 +927,8 @@
         align-items: center;
         justify-content: center;
         gap: 0.4em;
-        padding: 0.3em 0.7em;
+        block-size: 2lh;
+        padding-inline: 0.7em;
         border: 1px solid var(--border);
         border-radius: var(--cfg-radius);
         font-weight: 600;
@@ -934,10 +937,20 @@
 
         & * { --type: -1; }
         & svg { inline-size: 1em; block-size: 1em; display: block; flex-shrink: 0; }
+
+        /* Touch-target floor on small viewports */
+        @media (max-width: 480px) {
+          min-block-size: 44px;
+        }
       }
     }
+
+
     
     @layer component.simple {
+      /* icon-btn — square icon-only button. Same height as .btn (2lh)
+         with a square aspect ratio, so it lines up next to text buttons
+         without manual tuning.                                          */
       .icon-btn {
         --bg: 0;
         --fg: -1;
@@ -947,37 +960,24 @@
         align-items: center;
         justify-content: center;
 
-        /* Lock to font-size; do not let parent layout stretch us */
         flex: 0 0 auto;
         align-self: center;
-        inline-size: 2.2em;     /* 1em icon + 2 × 0.6em padding */
-        block-size: 2.2em;
-        aspect-ratio: 1;        /* redundant but harmless and self-documenting */
+        block-size: 2lh;
+        aspect-ratio: 1;
 
-        padding: 0.6em;
         border: 1px solid var(--border);
         border-radius: var(--cfg-radius);
-        line-height: 1;
         user-select: none;
-
-        /* Removed: `& * { --type: -1 }` — --type cascades naturally,
-           and forcing it on `*` blocks legitimate overrides like
-           a small label inside the button. */
 
         & svg {
           inline-size: 1em;
           block-size: 1em;
           display: block;
         }
-      }
 
-      /* Ensure tap target is large enough on touch devices.
-         Using max-width: 480px because that's the conventional mobile
-         breakpoint stick.css already uses for .mobile / .tablet / .desktop. */
-      @media (max-width: 480px) {
-        .icon-btn {
-          min-inline-size: 44px;
+        @media (max-width: 480px) {
           min-block-size: 44px;
+          min-inline-size: 44px;
         }
       }
     }
@@ -1024,12 +1024,14 @@
     }
     
     @layer component.simple {
-        /* tabs — segmented control. Container is a neutral pill; each tab
-         is transparent until aria-selected="true", at which point it
-         pops chromatic.                                                 */
+      /* tabs — segmented control. Outer container matches .btn height
+         (2lh) so a tab strip aligns with adjacent buttons in a toolbar.
+         Inner tabs flex-fill to absorb the container's interior padding. */
       .tabs {
         --bg: 0;
         display: inline-flex;
+        align-items: stretch;
+        block-size: 2lh;
         padding: 0.2em;
         border: 1px solid var(--border);
         border-radius: var(--cfg-radius);
@@ -1040,7 +1042,7 @@
           --fg: -0.55;
           --type: -1;
           border: 0;
-          padding: 0.25em 0.85em;
+          padding-inline: 0.85em;
           border-radius: max(0px, calc(var(--cfg-radius) - 0.2em));
           font-weight: 600;
           white-space: nowrap;
@@ -1057,9 +1059,13 @@
           --fg: -1;
         }
 
+        @media (max-width: 480px) {
+          min-block-size: 44px;
+        }
+
         /* underline — alternate look. Drops the pill container, keeps
            a quiet baseline, and marks the selected tab with a chromatic
-           underline drawn from currentColor.                           */
+           underline drawn from currentColor. Height still matches .btn. */
         &.underline {
           padding: 0;
           border: 0;
@@ -1081,7 +1087,6 @@
           }
         }
       }
-
     }
     
      /* crumbs — breadcrumb trail. <a> for clickable steps,
