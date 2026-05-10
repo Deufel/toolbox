@@ -944,13 +944,11 @@
         }
       }
     }
-
-
     
+
     @layer component.simple {
-      /* icon-btn — square icon-only button. Same height as .btn (2lh)
-         with a square aspect ratio, so it lines up next to text buttons
-         without manual tuning.                                          */
+      /* icon-btn — square icon-only button. Same height as .btn (2.4lh)
+         with a square aspect ratio.                                     */
       .icon-btn {
         --bg: 0;
         --fg: -1;
@@ -962,11 +960,12 @@
 
         flex: 0 0 auto;
         align-self: center;
-        block-size: 2lh;
+        block-size: 2.4lh;
         aspect-ratio: 1;
 
         border: 1px solid var(--border);
         border-radius: var(--cfg-radius);
+        line-height: 1;
         user-select: none;
 
         & svg {
@@ -981,6 +980,7 @@
         }
       }
     }
+
     
     @layer component.simple {
      /* tag — labeled state indicator. Use a <span> for a static label
@@ -1025,17 +1025,17 @@
     
     @layer component.simple {
       /* tabs — segmented control. Outer container matches .btn height
-         (2lh) so a tab strip aligns with adjacent buttons in a toolbar.
-         Inner tabs flex-fill to absorb the container's interior padding. */
+         (2.4lh) so a tab strip aligns with adjacent buttons.            */
       .tabs {
         --bg: 0;
         display: inline-flex;
         align-items: stretch;
-        block-size: 2lh;
+        block-size: 2.4lh;
         padding: 0.2em;
         border: 1px solid var(--border);
         border-radius: var(--cfg-radius);
         gap: 0.15em;
+        line-height: 1;
 
         & > button {
           --bg: -1;
@@ -1045,6 +1045,7 @@
           padding-inline: 0.85em;
           border-radius: max(0px, calc(var(--cfg-radius) - 0.2em));
           font-weight: 600;
+          line-height: 1;
           white-space: nowrap;
           user-select: none;
           transition:
@@ -1063,9 +1064,7 @@
           min-block-size: 44px;
         }
 
-        /* underline — alternate look. Drops the pill container, keeps
-           a quiet baseline, and marks the selected tab with a chromatic
-           underline drawn from currentColor. Height still matches .btn. */
+        /* underline — alternate look. */
         &.underline {
           padding: 0;
           border: 0;
@@ -1105,6 +1104,7 @@
           --type: -1;
           --fg: -0.55;
           text-decoration: none;
+          line-height: 1;
         }
         & > a:hover {
           --fg: 0.8;
