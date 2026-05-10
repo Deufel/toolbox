@@ -1018,6 +1018,8 @@
     }
     
     @layer component.simple {
+
+
       /* tabs — segmented control. Outer container matches .btn height
          (2.4lh) so a tab strip aligns with adjacent buttons.            */
       .tabs {
@@ -1117,31 +1119,27 @@
     }
     
     @layer component.simple {
-      /* avatar — rounded square holder for initials or image. Editorial
-         serif so initials read as a personal mark rather than UI. Box
-         sized by line-height (1lh) so dimensions are independent of
-         which letters are inside.                                       */
-      .avatar {
-        --bg: 0;
-        --fg: -1;
-        --type: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        inline-size: 1lh;
-        block-size: 1lh;
-        padding: 0.4em;
-        box-sizing: content-box;
-        border: 1px solid var(--border);
-        border-radius: var(--cfg-radius);
-        font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-        font-weight: 500;
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
-        line-height: 1;
+       /* avatar ───────────────────────────────────────────────── */
+        .avatar {
+          --bg: 0;
+          --fg: -1;
+          --type: 0;
+          box-sizing: border-box;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          block-size: 2.4lh;
+          aspect-ratio: 1;
+          border: 1px solid var(--border);
+          border-radius: var(--cfg-radius);
+          font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+          font-weight: 500;
+          letter-spacing: 0.02em;
+          text-transform: uppercase;
+          line-height: 1;
 
-        & * { --type: 1; }
-      }
+          & * { --type: 1; }
+        }
     }
     
     @layer component.simple {
