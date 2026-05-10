@@ -914,34 +914,28 @@
       }
     }
     
-    @layer component.simple {
-      /* btn — neutral interactive control. Base for text and icon+text.
-         Use .icon-btn for square icon-only. Block-size pinned to 2lh
-         so all buttons (text, icon, tabs container) align at the same
-         height regardless of glyph metrics.                            */
-      .btn {
-        --bg: 0;
-        --fg: -1;
-        --type: -1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4em;
-        block-size: 2lh;
-        padding-inline: 0.7em;
-        border: 1px solid var(--border);
-        border-radius: var(--cfg-radius);
-        font-weight: 600;
-        white-space: nowrap;
-        user-select: none;
+    .btn {
+      --bg: 0;
+      --fg: -1;
+      --type: -1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4em;
+      block-size: 2.4lh;        /* was 2lh */
+      padding-inline: 0.7em;
+      border: 1px solid var(--border);
+      border-radius: var(--cfg-radius);
+      font-weight: 600;
+      line-height: 1;           /* was missing */
+      white-space: nowrap;
+      user-select: none;
 
-        & * { --type: -1; }
-        & svg { inline-size: 1em; block-size: 1em; display: block; flex-shrink: 0; }
+      & * { --type: -1; }
+      & svg { inline-size: 1em; block-size: 1em; display: block; flex-shrink: 0; }
 
-        /* Touch-target floor on small viewports */
-        @media (max-width: 480px) {
-          min-block-size: 44px;
-        }
+      @media (max-width: 480px) {
+        min-block-size: 44px;
       }
     }
     
