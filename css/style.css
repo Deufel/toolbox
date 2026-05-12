@@ -668,6 +668,10 @@
             position: fixed;
             inset: auto;
             margin: 0;
+            padding: 0;
+            border: 0;
+            background: var(--_bg);
+            color: var(--color);
             max-block-size: none;
             max-inline-size: none;
             transition:
@@ -689,10 +693,34 @@
                 }
             }
 
-            &.left   { --_translate-closed: -100% 0; inset: 0 auto 0 0; inline-size: min(85vw, 320px); block-size: 100svh; }
-            &.right  { --_translate-closed:  100% 0; inset: 0 0 0 auto; inline-size: min(85vw, 320px); block-size: 100svh; }
-            &.top    { --_translate-closed: 0 -100%; inset: 0 0 auto 0; inline-size: 100vw; block-size: min(85svh, 240px); }
-            &.bottom { --_translate-closed: 0  100%; inset: auto 0 0 0; inline-size: 100vw; block-size: min(85svh, 240px); }
+            &.left {
+                --_translate-closed: -100% 0;
+                inset: 0 auto 0 0;
+                inline-size: min(85vw, 320px);
+                block-size: 100svh;
+                border-radius: 0 var(--cfg-radius) var(--cfg-radius) 0;
+            }
+            &.right {
+                --_translate-closed: 100% 0;
+                inset: 0 0 0 auto;
+                inline-size: min(85vw, 320px);
+                block-size: 100svh;
+                border-radius: var(--cfg-radius) 0 0 var(--cfg-radius);
+            }
+            &.top {
+                --_translate-closed: 0 -100%;
+                inset: 0 0 auto 0;
+                inline-size: 100vw;
+                block-size: min(85svh, 240px);
+                border-radius: 0 0 var(--cfg-radius) var(--cfg-radius);
+            }
+            &.bottom {
+                --_translate-closed: 0 100%;
+                inset: auto 0 0 0;
+                inline-size: 100vw;
+                block-size: min(85svh, 240px);
+                border-radius: var(--cfg-radius) var(--cfg-radius) 0 0;
+            }
         }
 
         dialog.drawer {
@@ -817,9 +845,9 @@
 
         & > .top    { grid-area: t; }
         & > .bottom { grid-area: b; }
-        & > .left   { grid-area: l; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+        & > .left   { grid-area: l; overflow-y: auto; min-height: 0; }
         & > .main   { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-        & > .right  { grid-area: r; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+        & > .right  { grid-area: r; overflow-y: auto; min-height: 0; }
       }
 
     }
@@ -827,55 +855,81 @@
     
     @layer layout.composition{
 
-      /* ── .hud-grid — nine distinct cells, chrome+content ───── */
-        .hud-overlay {
-            display: grid;
-            grid-template-areas: "hud";
-            height: 100%;
-            pointer-events: none;
+      /* ── .hud-overlay — fills parent, stacks 9 positions in one cell ───── */
+      .hud-overlay {
+          display: grid;
+          grid-template-areas: "hud";
+          height: 100%;
+          pointer-events: none;
 
-            & > * {
+          & > * {
               grid-area: hud;
               justify-self: center;
               align-self: center;
               pointer-events: auto;
-            }
+          }
 
-            & > .↖ { justify-self: start;  align-self: start  }
-            & > .↑ { justify-self: center; align-self: start  }
-            & > .↗ { justify-self: end;    align-self: start  }
-            & > .← { justify-self: start;  align-self: center }
-            & > .• { justify-self: center; align-self: center }
-            & > .→ { justify-self: end;    align-self: center }
-            & > .↙ { justify-self: start;  align-self: end    }
-            & > .↓ { justify-self: center; align-self: end    }
-            & > .↘ { justify-self: end;    align-self: end    }
+          & > .↖ { justify-self: start;  align-self: start  }
+          & > .↑ { justify-self: center; align-self: start  }
+          & > .↗ { justify-self: end;    align-self: start  }
+          & > .← { justify-self: start;  align-self: center }
+          & > .• { justify-self: center; align-self: center }
+          & > .→ { justify-self: end;    align-self: center }
+          & > .↙ { justify-self: start;  align-self: end    }
+          & > .↓ { justify-self: center; align-self: end    }
+          & > .↘ { justify-self: end;    align-self: end    }
+      }
+
+      /* ── .hud-page — full-viewport overlay, stacks 9 positions ───── */
+      .hud-page {
+          position: fixed;
+          inset: 0;
+          display: grid;
+          grid-template-areas: "hud";
+          pointer-events: none;
+          z-index: 1;
+
+          & > * {
+              grid-area: hud;
+              justify-self: center;
+              align-self: center;
+              pointer-events: auto;
+          }
+
+          & > .↖ { justify-self: start;  align-self: start  }
+          & > .↑ { justify-self: center; align-self: start  }
+          & > .↗ { justify-self: end;    align-self: start  }
+          & > .← { justify-self: start;  align-self: center }
+          & > .• { justify-self: center; align-self: center }
+          & > .→ { justify-self: end;    align-self: center }
+          & > .↙ { justify-self: start;  align-self: end    }
+          & > .↓ { justify-self: center; align-self: end    }
+          & > .↘ { justify-self: end;    align-self: end    }
       }
 
       /* ── .hud-grid — nine distinct cells, chrome+content ───── */
       .hud-grid {
-            display: grid;
-            grid-template:
-              "↖ ↑ ↗" auto
-              "← • →" 1fr
-              "↙ ↓ ↘" auto /
-              auto 1fr auto;
-            height: 100%;
-            overflow: hidden;
+          display: grid;
+          grid-template:
+            "↖ ↑ ↗" auto
+            "← • →" 1fr
+            "↙ ↓ ↘" auto /
+            auto 1fr auto;
+          height: 100%;
+          overflow: hidden;
 
-            & > .↖ { grid-area: ↖; }
-            & > .↑ { grid-area: ↑; }
-            & > .↗ { grid-area: ↗; }
-            & > .← { grid-area: ←; overflow-y: auto; scrollbar-gutter: stable; }
-            & > .• { grid-area: •; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-            & > .→ { grid-area: →; overflow-y: auto; scrollbar-gutter: stable; }
-            & > .↙ { grid-area: ↙; }
-            & > .↓ { grid-area: ↓; }
-            & > .↘ { grid-area: ↘; }
+          & > .↖ { grid-area: ↖; }
+          & > .↑ { grid-area: ↑; }
+          & > .↗ { grid-area: ↗; }
+          & > .← { grid-area: ←; overflow-y: auto; scrollbar-gutter: stable; }
+          & > .• { grid-area: •; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+          & > .→ { grid-area: →; overflow-y: auto; scrollbar-gutter: stable; }
+          & > .↙ { grid-area: ↙; }
+          & > .↓ { grid-area: ↓; }
+          & > .↘ { grid-area: ↘; }
       }
 
     }
-
     
     /* ============================================================
        component-base.css — component.base
