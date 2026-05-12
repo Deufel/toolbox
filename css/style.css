@@ -173,7 +173,7 @@
     }
     
     /* ════════════════════════════════════════════════════════════════
-       stick.css v3 — color formula (surface-anchored)
+       stick.css v3 — color formula (stage-anchored)
 
        Public API (5 tokens):
          --bg          [0, 1]   surface (0) → loud (1)
@@ -205,7 +205,7 @@
     @property --cfg-fg-tint             { syntax: "<number>";     inherits: true; initial-value: 0.02 }
     @property --cfg-color-alpha         { syntax: "<number>";     inherits: true; initial-value: 1 }
 
-    /* ── Configuration: surface ramp ────────────────────────────── */
+    /* ── Configuration: stage ramp ──────────────────────────────── */
     @property --cfg-surf-top-light   { syntax: "<number>"; inherits: true; initial-value: 97 }
     @property --cfg-surf-bot-light   { syntax: "<number>"; inherits: true; initial-value: 90 }
     @property --cfg-surf-top-dark    { syntax: "<number>"; inherits: true; initial-value: 28 }
@@ -269,14 +269,14 @@
            because perceptual L deltas in dark range require larger jumps. */
         --_floor: calc(0.05 * (1 - var(--cfg-dark)) + 0.22 * var(--cfg-dark));
 
-        /* Chroma ramp pipeline (surface-anchored, [0, 1]).
+        /* Chroma ramp pipeline (stage-anchored, [0, 1]).
            Interaction perturbs --bg directly; L/C lifts emerge from ramp. */
         --_bg-clamped:   clamp(0, calc(var(--bg) + var(--_interact-bg)), 1);
         --_bg-chromatic: clamp(0, calc(var(--_bg-clamped) * 1000000), 1);
         --_bg-effective: calc((var(--_floor) + (1 - var(--_floor)) * var(--_bg-clamped)) * var(--_bg-chromatic));
         --_bg-curved:    pow(var(--_bg-effective), 1.5);
 
-        /* Final L/C: lerp from inherited surface to theme loud endpoint */
+        /* Final L/C: lerp from inherited stage to theme loud endpoint */
         --_l: calc(var(--_surf-l) * (1 - var(--_bg-curved)) + var(--_loud-l) * var(--_bg-curved));
         --_c: calc(var(--cfg-color-surf-chroma) * (1 - var(--_bg-curved)) + var(--_loud-c) * var(--_bg-curved));
 
@@ -331,10 +331,10 @@
       }
 
 
-      /* Surface ramp — only surfaces compute --_surf-l. Descendants
+      /* Stage ramp — only stages compute --_surf-l. Descendants
          inherit, so chips/text/buttons anchor their chroma ramp to
-         whatever surface they're sitting in. */
-      :where(body, .surface) {
+         whatever stage they're sitting in. */
+      :where(body, .stage, .stage-0, .stage-1, .stage-2, .stage-3) {
         --_surf-top: calc(var(--cfg-surf-top-light) * (1 - var(--cfg-dark)) + var(--cfg-surf-top-dark) * var(--cfg-dark));
         --_surf-bot: calc(var(--cfg-surf-bot-light) * (1 - var(--cfg-dark)) + var(--cfg-surf-bot-dark) * var(--cfg-dark));
         --_t-stage:  clamp(0, calc(var(--depth) / 3), 1);
@@ -345,7 +345,7 @@
       :where(svg) { color: currentColor }
 
       /* Interaction states — hover/active perturb --bg directly, sliding
-         the element along the surface→loud axis. L and C lifts emerge
+         the element along the stage→loud axis. L and C lifts emerge
          automatically from the ramp.
            .clickable  — full interactive treatment, gets pointer cursor
            .hoverable  — hover response only, no cursor, no active state */
@@ -365,65 +365,81 @@
     }
     
     @layer core.color {
-        /* Surface ramp — both bare .surface (auto-cascade via :has)
-       and the explicit .surface-N variants compute --_surf-l from
-       their own --depth value. */
-    :where(body, .surface, .surface-0, .surface-1, .surface-2, .surface-3) {
-      --_surf-top: calc(var(--cfg-surf-top-light) * (1 - var(--cfg-dark)) + var(--cfg-surf-top-dark) * var(--cfg-dark));
-      --_surf-bot: calc(var(--cfg-surf-bot-light) * (1 - var(--cfg-dark)) + var(--cfg-surf-bot-dark) * var(--cfg-dark));
-      --_t-stage:  clamp(0, calc(var(--depth) / 3), 1);
-      --_surf-l:   calc((var(--_surf-top) + var(--_t-stage) * (var(--_surf-bot) - var(--_surf-top))) * 1%);
-    }
+      /* Stage cascade — bare .stage infers depth from nesting.
+         Variants stay outside this cascade. */
+      .stage                                  { --depth: 0 }
+      .stage:has(.stage)                      { --depth: 1 }
+      .stage:has(.stage .stage)               { --depth: 2 }
+      .stage:has(.stage .stage .stage)        { --depth: 3 }
 
-    /* Stage cascade — bare .surface infers depth from nesting.
-       Variants stay outside this cascade so explicit stages don't
-       inflate :has() inference on parents. */
-    .surface                                          { --depth: 0 }
-    .surface:has(.surface)                            { --depth: 1 }
-    .surface:has(.surface .surface)                   { --depth: 2 }
-    .surface:has(.surface .surface .surface)          { --depth: 3 }
+      /* Explicit stage variants — pin a stage to a specific depth. */
+      .stage-0 { --depth: 0 }
+      .stage-1 { --depth: 1 }
+      .stage-2 { --depth: 2 }
+      .stage-3 { --depth: 3 }
 
-    /* Explicit stage variants — pin a surface to a specific stage. */
-    .surface-0 { --depth: 0 }
-    .surface-1 { --depth: 1 }
-    .surface-2 { --depth: 2 }
-    .surface-3 { --depth: 3 }
-
-    /* Paint — surfaces always paint their bg. */
-    :where(*) { background-color: oklch(from var(--_bg) l c h / var(--_bg-chromatic)) }
-    :where(body, .surface, .surface-0, .surface-1, .surface-2, .surface-3) {
-      background-color: var(--_bg);
-    }
-
+      /* Paint — stages always paint their bg. */
+      :where(*) { background-color: oklch(from var(--_bg) l c h / var(--_bg-chromatic)) }
+      :where(body, .stage, .stage-0, .stage-1, .stage-2, .stage-3) {
+        background-color: var(--_bg);
+      }
     }
     
-    /* Type */
+    /* ════════════════════════════════════════════════════════════════
+       Type + scale — the unified scale formula
+
+       Public API (2 tokens):
+         --type    local scale step (non-inheriting)
+                     integer steps; -2 = small, 0 = body, +2 = display
+         --scale   regional multiplier (inheriting)
+                     1 = default; set on a region to rescale everything
+
+       All spacing — component em-padding, lh-based component sizing,
+       layout primitive gaps — derives from these two knobs through
+       font-size and line-height.
+
+       Configuration:
+         --cfg-type-min        body size at narrow viewport
+         --cfg-type-max        body size at wide viewport
+         --cfg-type-min-ratio  scale step ratio at narrow viewport
+         --cfg-type-max-ratio  scale step ratio at wide viewport
+         --cfg-fluid-min-vp    viewport bounds for fluid interpolation
+         --cfg-fluid-max-vp
+       ════════════════════════════════════════════════════════════ */
+
     @property --cfg-fluid-min-vp    { syntax: "<length>"; inherits: true; initial-value: 320px }
     @property --cfg-fluid-max-vp    { syntax: "<length>"; inherits: true; initial-value: 1280px }
-    @property --cfg-type-scale      { syntax: "<number>"; inherits: true; initial-value: 1 }
     @property --cfg-type-min-ratio  { syntax: "<number>"; inherits: true; initial-value: 1.2 }
     @property --cfg-type-max-ratio  { syntax: "<number>"; inherits: true; initial-value: 1.28 }
+    @property --scale               { syntax: "<number>"; inherits: true; initial-value: 1 }
     @property --type                { syntax: "<number>"; inherits: false; initial-value: 0 }
-    /* ════════════════════════════════════════════════════════════════
-       core.type — the fluid type formula
-       --cfg-type-min/max plus the viewport-clamped font-size, with
-       derived line-height and letter-spacing.
-       ════════════════════════════════════════════════════════════ */
+
     @layer core.type {
       :root {
         --cfg-type-min: 0.8rem;
         --cfg-type-max: 1rem;
       }
+
       :where(*) {
+        /* Step sizes at each viewport endpoint — ratio^type from base */
         --_t-min: calc(var(--cfg-type-min) * pow(var(--cfg-type-min-ratio), var(--type)));
         --_t-max: calc(var(--cfg-type-max) * pow(var(--cfg-type-max-ratio), var(--type)));
+
+        /* Fluid interpolation between the two endpoints, then regional scale */
         font-size: calc(
           clamp(
             var(--_t-min),
-            calc(var(--_t-min) + (var(--_t-max) - var(--_t-min)) * (100vi - var(--cfg-fluid-min-vp)) / (var(--cfg-fluid-max-vp) - var(--cfg-fluid-min-vp))),
+            calc(
+              var(--_t-min)
+              + (var(--_t-max) - var(--_t-min))
+              * (100vi - var(--cfg-fluid-min-vp))
+              / (var(--cfg-fluid-max-vp) - var(--cfg-fluid-min-vp))
+            ),
             var(--_t-max)
-          ) * var(--cfg-type-scale)
+          )
+          * var(--scale)
         );
+
         letter-spacing: clamp(-0.04em, calc(0.01em - var(--type) * 0.012em), 0.04em);
         line-height:    clamp(1.1, calc(1.5 - var(--type) * 0.075), 1.6);
       }
@@ -482,10 +498,10 @@
         [data-ui-motion="debug"] { --cfg-motion: 10 }
         @media (prefers-reduced-motion: reduce) { :root, [data-ui-motion] { --cfg-motion: 0 } }
 
-        body { transition: --cfg-type-scale calc(var(--cfg-motion) * 0.2s) ease-out; }
-        [data-ui-type="sm"] { --cfg-type-scale: 0.875 }
-        [data-ui-type="md"] { --cfg-type-scale: 1     }
-        [data-ui-type="lg"] { --cfg-type-scale: 1.125 }
+        body { transition: --scale calc(var(--cfg-motion) * 0.2s) ease-out; }
+        [data-ui-type="sm"] { --scale: 0.875 }
+        [data-ui-type="md"] { --scale: 1     }
+        [data-ui-type="lg"] { --scale: 1.125 }
 
         * {
           scrollbar-width: thin;
@@ -614,36 +630,35 @@
       }
     }
     
-
     @layer layout.page {
-        .page {
-            display: grid;
-            grid-template:
-                "b  b  b" auto
-                "h  h  h" auto
-                "s  s  s" auto
-                "nh mh a" auto
-                "n  m  a" 1fr
-                "nf mf a" auto
-                "f  f  f" auto /
-                auto 1fr auto;
-            height: 100svh;
-            overflow: hidden;
+      .page {
+        display: grid;
+        grid-template:
+          "b  b  b" auto
+          "h  h  h" auto
+          "s  s  s" auto
+          "nh mh a" auto
+          "n  m  a" 1fr
+          "nf mf a" auto
+          "f  f  f" auto /
+          auto 1fr auto;
+        height: 100svh;
+        overflow: hidden;
 
-            & > [class ^="pg-"]       { padding: var(--gap); }
+        & > [class ^="pg-"]       { padding: calc(0.25 * 1lh); }
 
-            & > .pg-banner            { grid-area: b;  }
-            & > .pg-header            { grid-area: h;  }
-            & > .pg-subheader         { grid-area: s;  }
-            & > .pg-navigation-header { grid-area: nh; }
-            & > .pg-navigation        { grid-area: n;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-            & > .pg-navigation-footer { grid-area: nf; }
-            & > .pg-main-header       { grid-area: mh; }
-            & > .pg-main              { grid-area: m;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-            & > .pg-main-footer       { grid-area: mf; }
-            & > .pg-aside             { grid-area: a;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-            & > .pg-footer            { grid-area: f;  }
-        }
+        & > .pg-banner            { grid-area: b;  }
+        & > .pg-header            { grid-area: h;  }
+        & > .pg-subheader         { grid-area: s;  }
+        & > .pg-navigation-header { grid-area: nh; }
+        & > .pg-navigation        { grid-area: n;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+        & > .pg-navigation-footer { grid-area: nf; }
+        & > .pg-main-header       { grid-area: mh; }
+        & > .pg-main              { grid-area: m;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+        & > .pg-main-footer       { grid-area: mf; }
+        & > .pg-aside             { grid-area: a;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+        & > .pg-footer            { grid-area: f;  }
+      }
     }
     
     @layer component.complex {
@@ -700,81 +715,76 @@
     
     /* ════════════════════════════════════════════════════════════════
        layout.composition — stateless layout primitives
+
+       Gap derives from line-height (calc(0.25 * 1lh)), scaling with
+       the ambient --type. To control spacing, control --type. To
+       rescale a region, set --scale.
        ════════════════════════════════════════════════════════════ */
 
     @layer layout.composition {
-      :root {
-        --gap: clamp(
-          0.25rem,
-          calc(0.25rem + 1.75rem * pow(100vi / 3000px, 3)),
-          2rem
-        );
-      }
-
 
       .read   { max-inline-size: 65ch; margin-inline: auto; }
-      .column { display: flex; flex-direction: column; gap: var(--gap) }
-      .row    { display: flex; flex-direction: row; flex-wrap: wrap; gap: var(--gap); align-items: center }
+      .column { display: flex; flex-direction: column; gap: calc(0.25 * 1lh) }
+      .row    { display: flex; flex-direction: row; flex-wrap: wrap; gap: calc(0.25 * 1lh); align-items: center }
 
       .split {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: var(--gap);
+        gap: calc(0.25 * 1lh);
       }
 
       .spread {
         display: flex; flex-direction: row; flex-wrap: wrap;
-        justify-content: space-between; align-items: center; gap: var(--gap);
+        justify-content: space-between; align-items: center; gap: calc(0.25 * 1lh);
       }
       .spread-column {
         display: flex; flex-direction: column;
-        justify-content: space-between; gap: var(--gap);
+        justify-content: space-between; gap: calc(0.25 * 1lh);
       }
 
       .lcr {
-          display: grid;
-          grid-template-columns: 1fr auto 1fr;
-          align-items: center;
-          gap: var(--gap);
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: calc(0.25 * 1lh);
 
-          & > :first-child:not(style):not(script)         { justify-self: start  }
-          & > :nth-child(2 of :not(style):not(script))    { justify-self: center }
-          & > :last-child:not(style):not(script)          { justify-self: end    }
+        & > :first-child:not(style):not(script)         { justify-self: start  }
+        & > :nth-child(2 of :not(style):not(script))    { justify-self: center }
+        & > :last-child:not(style):not(script)          { justify-self: end    }
 
-          & > style, & > script { display: none }
-        }
+        & > style, & > script { display: none }
+      }
 
-        .tmb {
-          display: grid;
-          grid-template-rows: 1fr auto 1fr;
-          justify-items: center;
-          gap: var(--gap);
+      .tmb {
+        display: grid;
+        grid-template-rows: 1fr auto 1fr;
+        justify-items: center;
+        gap: calc(0.25 * 1lh);
 
-          & > :first-child:not(style):not(script)         { align-self: start  }
-          & > :nth-child(2 of :not(style):not(script))    { align-self: center }
-          & > :last-child:not(style):not(script)          { align-self: end    }
+        & > :first-child:not(style):not(script)         { align-self: start  }
+        & > :nth-child(2 of :not(style):not(script))    { align-self: center }
+        & > :last-child:not(style):not(script)          { align-self: end    }
 
-          & > style, & > script { display: none }
-        }
+        & > style, & > script { display: none }
+      }
 
-      /* ── .flank — leading/trailing fixed, the other grows ──── */
-        .flank, .flank-start {
-          display: flex; flex-direction: row; align-items: center; gap: var(--gap);
+      .flank, .flank-start {
+        display: flex; flex-direction: row; align-items: center; gap: calc(0.25 * 1lh);
 
-          & > :first-child:not(style):not(script) { flex: 0 0 auto }
-          & > :last-child:not(style):not(script)  { flex: 1 1 auto; min-inline-size: 0 }
+        & > :first-child:not(style):not(script) { flex: 0 0 auto }
+        & > :last-child:not(style):not(script)  { flex: 1 1 auto; min-inline-size: 0 }
 
-          & > style, & > script { display: none }
-        }
+        & > style, & > script { display: none }
+      }
 
-        .flank-end {
-          display: flex; flex-direction: row; align-items: center; gap: var(--gap);
+      .flank-end {
+        display: flex; flex-direction: row; align-items: center; gap: calc(0.25 * 1lh);
 
-          & > :first-child:not(style):not(script) { flex: 1 1 auto; min-inline-size: 0 }
-          & > :last-child:not(style):not(script)  { flex: 0 0 auto }
+        & > :first-child:not(style):not(script) { flex: 1 1 auto; min-inline-size: 0 }
+        & > :last-child:not(style):not(script)  { flex: 0 0 auto }
 
-          & > style, & > script { display: none }
-        }
+        & > style, & > script { display: none }
+      }
 
       .frame {
         aspect-ratio: 16 / 9;
@@ -784,7 +794,7 @@
       }
 
       .grid {
-        display: grid; gap: var(--gap);
+        display: grid; gap: calc(0.25 * 1lh);
         grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min, 16rem)), 1fr));
       }
 
@@ -795,92 +805,75 @@
         & > * { grid-area: stack }
       }
 
-        .hero {
+      .hero {
+        display: grid;
+        grid-template:
+          "t t t" auto
+          "l m r" 1fr
+          "b b b" auto /
+          auto 1fr auto;
+        height: 100%;
+        overflow: hidden;
+
+        & > .top    { grid-area: t; }
+        & > .bottom { grid-area: b; }
+        & > .left   { grid-area: l; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+        & > .main   { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+        & > .right  { grid-area: r; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+      }
+
+    }
+
+    
+    @layer layout.composition{
+
+      /* ── .hud-grid — nine distinct cells, chrome+content ───── */
+        .hud-overlay {
+            display: grid;
+            grid-template-areas: "hud";
+            height: 100%;
+            pointer-events: none;
+
+            & > * {
+              grid-area: hud;
+              justify-self: center;
+              align-self: center;
+              pointer-events: auto;
+            }
+
+            & > .↖ { justify-self: start;  align-self: start  }
+            & > .↑ { justify-self: center; align-self: start  }
+            & > .↗ { justify-self: end;    align-self: start  }
+            & > .← { justify-self: start;  align-self: center }
+            & > .• { justify-self: center; align-self: center }
+            & > .→ { justify-self: end;    align-self: center }
+            & > .↙ { justify-self: start;  align-self: end    }
+            & > .↓ { justify-self: center; align-self: end    }
+            & > .↘ { justify-self: end;    align-self: end    }
+      }
+
+      /* ── .hud-grid — nine distinct cells, chrome+content ───── */
+      .hud-grid {
             display: grid;
             grid-template:
-                "t t t" auto
-                "l m r" 1fr
-                "b b b" auto /
-                auto 1fr auto;
+              "↖ ↑ ↗" auto
+              "← • →" 1fr
+              "↙ ↓ ↘" auto /
+              auto 1fr auto;
             height: 100%;
             overflow: hidden;
 
-            & > .top    { grid-area: t; }
-            & > .bottom { grid-area: b; }
-            & > .left   { grid-area: l; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-            & > .main   { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-            & > .right  { grid-area: r; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-        }
-          /* ── .hud-grid ─────────────────────────────────────────────────
-         A grid with 9 directional anchor slots. this is the no overlap version of .hud
-         Slots: ↖ ↑ ↗ / ← • → / ↙ ↓ ↘
-         ──────────────────────────────────────────────────────── */
-
-       .hud-grid {
-            display: grid;
-            grid-template:
-         Slots: "↖ ↑ ↗" auto
-                "← • →" 1fr
-                "↙ ↓ ↘" auto /
-             auto 1fr auto;
-            height: 100svh;
-            overflow: hidden;
-
-            > .↖ { grid-area: ↖; }
-            > .↑ { grid-area: ↑; }
-            > .↗ { grid-area: ↗; }
-            > .← { grid-area: ←; overflow-y: auto; scrollbar-gutter: stable; }
-            > .• { grid-area: •; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-            > .→ { grid-area: →; overflow-y: auto; scrollbar-gutter: stable; }
-            > .↙ { grid-area: ↙; }
-            > .↓ { grid-area: ↓; }
-            > .↘ { grid-area: ↘; }
-        }
-
-      /* ── .hud ─────────────────────────────────────────────────
-         A .stack with 9 directional anchor slots. Children are
-         full-bleed over a single cell, sized to content, anchored
-         by justify-self / align-self. Siblings are geometrically
-         independent — a giant ↖ panel cannot push a centered •
-         child off-axis.
-
-         Container is hit-test transparent (pointer-events: none);
-         children opt back in. Decorative children (e.g. a centered
-         reticle whose bounding box exceeds its visual) should set
-         pointer-events: none again to avoid blocking passthrough.
-
-         Slots: ↖ ↑ ↗ / ← • → / ↙ ↓ ↘
-         ──────────────────────────────────────────────────────── */
-      .hud {
-        display: grid;
-        grid-template-areas: "hud";
-        height: 100%;
-        pointer-events: none;
-
-        & > * {
-          grid-area: hud;
-          justify-self: center;
-          align-self: center;
-          pointer-events: auto;
-        }
-
-        & > .↖ { justify-self: start;  align-self: start  }
-        & > .↑ { justify-self: center; align-self: start  }
-        & > .↗ { justify-self: end;    align-self: start  }
-        & > .← { justify-self: start;  align-self: center }
-        & > .• { justify-self: center; align-self: center }
-        & > .→ { justify-self: end;    align-self: center }
-        & > .↙ { justify-self: start;  align-self: end    }
-        & > .↓ { justify-self: center; align-self: end    }
-        & > .↘ { justify-self: end;    align-self: end    }
-
-        /* When .column or .row groups multiple items into one slot,
-           mirror the slot's horizontal anchor on the inner cross-axis
-           so grouped chips don't flag-fly. */
-        & > .↖.column, & > .←.column, & > .↙.column { align-items: flex-start }
-        & > .↑.column, & > .•.column, & > .↓.column { align-items: center }
-        & > .↗.column, & > .→.column, & > .↘.column { align-items: flex-end }
+            & > .↖ { grid-area: ↖; }
+            & > .↑ { grid-area: ↑; }
+            & > .↗ { grid-area: ↗; }
+            & > .← { grid-area: ←; overflow-y: auto; scrollbar-gutter: stable; }
+            & > .• { grid-area: •; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+            & > .→ { grid-area: →; overflow-y: auto; scrollbar-gutter: stable; }
+            & > .↙ { grid-area: ↙; }
+            & > .↓ { grid-area: ↓; }
+            & > .↘ { grid-area: ↘; }
       }
+
     }
 
     
@@ -911,6 +904,18 @@
         line-height: 1.4;
 
         & * { --type: -1.5; }
+      }
+    }
+    
+    @layer component.simple {
+      /* glass — translucent stage. Sits over content with a blur,
+         surface paints with --cfg-color-alpha < 1 so what's behind
+         shows through. Common for modal overlays, drawer dims, and
+         floating chrome on media. */
+      .glass {
+        --cfg-color-alpha: 0.65;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
       }
     }
     
