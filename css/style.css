@@ -637,9 +637,9 @@
           "b  b  b" auto
           "h  h  h" auto
           "s  s  s" auto
-          "nh mh a" auto
+          "n  mh a" auto
           "n  m  a" 1fr
-          "nf mf a" auto
+          "n  mf a" auto
           "f  f  f" auto /
           auto 1fr auto;
         height: 100svh;
@@ -649,15 +649,13 @@
 
         & > .pg-banner            { grid-area: b;  }
         & > .pg-header            { grid-area: h;  }
-        & > .pg-subheader         { grid-area: s;  }
-        & > .pg-navigation-header { grid-area: nh; }
+        & > .pg-subheader         { grid-area: s;  padding-block:0; }
         & > .pg-navigation        { grid-area: n;  overflow-y: auto;  min-height: 0; }
-        & > .pg-navigation-footer { grid-area: nf; }
         & > .pg-main-header       { grid-area: mh; }
         & > .pg-main              { grid-area: m;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
         & > .pg-main-footer       { grid-area: mf; }
         & > .pg-aside             { grid-area: a;  overflow-y: auto;  min-height: 0; }
-        & > .pg-footer            { grid-area: f;  }
+        & > .pg-footer            { grid-area: f;  padding-block:0; }
       }
     }
     
