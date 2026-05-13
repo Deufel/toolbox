@@ -1265,22 +1265,46 @@
     }
     
     @layer component.simple {
-      /* hr — horizontal divider. Painted from --border to match the
-         quiet-tone band used throughout.                                */
+      /* hr — divider. Defaults to horizontal; .vr flips to vertical.
+         Works automatically inside flex/grid parents via align-self/justify-self stretch. */
       hr {
-        block-size: 0;
         border: 0;
-        border-block-start: 1px solid var(--border);
-        margin-block: 1em;
+        background: var(--border);
+        block-size: 1px;
         inline-size: 100%;
+        margin-block: 1em;
+        margin-inline: 0;
       }
+
       hr.vr {
-        inline-size: 0;
-        border: 0;
-        border-inline-start: 1px solid var(--border);
-        margin-inline: calc(0.25 * 1lh);
+        block-size: auto;
+        inline-size: 1px;
+        min-block-size: 1lh;
         margin-block: 0;
+        margin-inline: calc(0.25 * 1lh);
         align-self: stretch;
+        justify-self: stretch;
+      }
+
+      /* hr.text — divider with a centered label.
+         Usage: <hr class="text" data-text="OR"> */
+      hr.text {
+        /* reset the background-line approach; we draw lines via gradient */
+        background: linear-gradient(var(--border), var(--border)) center / 100% 1px no-repeat;
+        block-size: 1lh;
+        inline-size: 100%;
+        display: grid;
+        place-items: center;
+        overflow: visible;        /* let the label sit on top */
+      }
+
+      hr.text::after {
+        content: attr(data-text);
+        background: var(--bg);    /* mask the line behind the text */
+        padding-inline: calc(0.5 * 1lh);
+        color: var(--color);
+        font-size: 0.875em;       /* slightly smaller than body */
+        line-height: 1;
       }
     }
     
