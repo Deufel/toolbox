@@ -28,11 +28,6 @@
     @property --cfg-radius { syntax: "<length>"; inherits: true; initial-value: 6px }
     @property --cfg-motion { syntax: "<number>"; inherits: true; initial-value: 1 }
 
-
-
-    /* Layout */
-    @property --gap { syntax: "<length>"; inherits: true; initial-value: 8px }
-
     
     /* ============================================================
        reset.css — reset.fix + reset.opinion
@@ -474,7 +469,6 @@
 
           /* Geometry & motion */
           --cfg-radius: 6px;
-          --gap: 0.75rem;
 
           /* Fonts */
           --font-ui:    -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
@@ -1141,17 +1135,26 @@
       }
     }
     
-     /* crumbs — breadcrumb trail. <a> for clickable steps,
-         <span aria-current="page"> for the current page. Separators
-         are rendered via ::before, painted with --border so they sit
-         quieter than the crumb labels.                                  */
+    /* crumbs — breadcrumb trail. <a> for clickable steps,
+       <span aria-current="page"> for the current page. Separators
+       are rendered via ::before, painted with --border so they sit
+       quieter than the crumb labels.
+
+       Separator is set via --sep (default "/"). Override per-instance:
+         <nav class="crumbs" style="--sep: '>'">…</nav>
+         <nav class="crumbs" style="--sep: '|'">…</nav>
+         <nav class="crumbs" style="--sep: '\\'">…</nav>   backslash, escaped
+         <nav class="crumbs" style="--sep: '›'">…</nav>    any glyph works
+       Value must be a quoted string — `content` won't accept it otherwise.  */
 
     @layer component.simple {
       .crumbs {
+        --sep: "/";
+
         display: inline-flex;
         align-items: center;
         flex-wrap: wrap;
-        gap: 0.5em;
+        gap: calc(0.25 * 1lh);
 
         & > * {
           --type: -1;
@@ -1168,8 +1171,8 @@
           font-weight: 600;
         }
         & > * + *::before {
-          content: "/";
-          margin-inline-end: 0.5em;
+          content: var(--sep);
+          margin-inline-end: calc(0.25 * 1lh);
           color: var(--border);
         }
       }
