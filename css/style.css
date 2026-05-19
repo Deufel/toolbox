@@ -1346,7 +1346,10 @@
         text-overflow: ellipsis;
       }
       & > .tag {
+        --bg: 0.1;
+        --fg: 0.8;
         margin-inline-start: auto;
+        border-color: var(--Border);
       }
     }
 
@@ -1383,7 +1386,7 @@
           block-size: 30cqb;
         }
         & > p {
-          --type: -1;
+          --type: -2;
           flex: 0 0 auto;
           inline-size: 90cqi;
           margin-block-start: 6cqb;
