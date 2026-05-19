@@ -648,8 +648,7 @@
         height: 100svh;
         overflow: hidden;
 
-        & .centered { max-width: 1200px; margin-inline: auto;}
-
+        &.centered { max-width: 1200px; margin-inline: auto; }
 
         & > [class ^="pg-"]       { padding: calc(0.25 * 1lh); }
 
@@ -1667,7 +1666,6 @@
        ============================================================ */
     @layer utility.layout {
 
-      :where(.centered  { max-width:1200px; margin-inline: auto; }
       :where(.nowrap)   { white-space: nowrap; }
       :where(.truncate) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       :where(.tr) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
