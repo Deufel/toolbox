@@ -1,1707 +1,1707 @@
 
-    @layer
-      reset.fix,
-      reset.opinion,
-      core.color,
-      core.type,
-      theme,
-      layout.page,
-      layout.composition,
-      component.base,
-      component.simple,
-      component.complex,
-      utility.layout,
-      utility.exceptions,
-      utility.important;
+@layer
+  reset.fix,
+  reset.opinion,
+  core.color,
+  core.type,
+  theme,
+  layout.page,
+  layout.composition,
+  component.base,
+  component.simple,
+  component.complex,
+  utility.layout,
+  utility.exceptions,
+  utility.important;
 
-    
-    /* ════════════════════════════════════════════════════════════════
-       @property declarations
-       These must live outside @layer (CSS spec requirement).
-       ════════════════════════════════════════════════════════════ */
 
-    /* State shift hooks — applied per-element. See @layer theme. */
-    @property --l-shift { syntax: "<number>"; inherits: false; initial-value: 0 }
-    @property --c-shift { syntax: "<number>"; inherits: false; initial-value: 0 }
+/* ════════════════════════════════════════════════════════════════
+    @property declarations
+    These must live outside @layer (CSS spec requirement).
+    ════════════════════════════════════════════════════════════ */
 
-    /* Global theme config — radius, motion. Values must be absolute. */
-    @property --cfg-radius { syntax: "<length>"; inherits: true; initial-value: 6px }
-    @property --cfg-motion { syntax: "<number>"; inherits: true; initial-value: 1 }
+/* State shift hooks — applied per-element. See @layer theme. */
+@property --l-shift { syntax: "<number>"; inherits: false; initial-value: 0 }
+@property --c-shift { syntax: "<number>"; inherits: false; initial-value: 0 }
 
-    
-    /* ============================================================
-       reset.css — reset.fix + reset.opinion
+/* Global theme config — radius, motion. Values must be absolute. */
+@property --cfg-radius { syntax: "<length>"; inherits: true; initial-value: 6px }
+@property --cfg-motion { syntax: "<number>"; inherits: true; initial-value: 1 }
 
-       reset.fix: spec-correctness fixes only. No taste.
-       reset.opinion: structural project-wide preferences. NO core
-                      token consumption (no --_bg, --s, --type).
-                      Visual rules that consume tokens go to theme.
-       ============================================================ */
 
-    @layer reset.fix {
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            background-repeat: no-repeat;
-        }
+/* ============================================================
+    reset.css — reset.fix + reset.opinion
 
-        :root {
-            interpolate-size: allow-keywords;
-        }
+    reset.fix: spec-correctness fixes only. No taste.
+    reset.opinion: structural project-wide preferences. NO core
+                  token consumption (no --_bg, --s, --type).
+                  Visual rules that consume tokens go to theme.
+    ============================================================ */
 
-        /* No color-scheme here. Theme is decided by [data-ui-theme]
-           and the prefers-color-scheme media query inside core.color.
-           Setting color-scheme at html level would let the browser
-           independently style native UI (scrollbars, form controls)
-           and fight our explicit theme attribute.
+@layer reset.fix {
+  *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      background-repeat: no-repeat;
+  }
 
-           No line-height default. core.type computes per-element
-           line-height from --type; setting one here would conflict
-           with that formula. */
-        :where(html) {
-            -moz-text-size-adjust: none;
-            -webkit-text-size-adjust: none;
-            text-size-adjust: none;
-        }
+  :root {
+      interpolate-size: allow-keywords;
+  }
 
-        :where(body, figure, blockquote, dl, dd, p) {
-            margin-block-end: 0;
-        }
+    /* No color-scheme here. Theme is decided by [data-ui-theme]
+        and the prefers-color-scheme media query inside core.color.
+        Setting color-scheme at html level would let the browser
+        independently style native UI (scrollbars, form controls)
+        and fight our explicit theme attribute.
 
-        :where(img, picture, svg) {
-            max-width: 100%;
-            display: block;
-            height: auto;
-        }
+        No line-height default. core.type computes per-element
+        line-height from --type; setting one here would conflict
+        with that formula. */
+  :where(html) {
+      -moz-text-size-adjust: none;
+      -webkit-text-size-adjust: none;
+      text-size-adjust: none;
+  }
 
-        :where(table, thead, tbody, tfoot, tr) {
-            isolation: isolate;
-        }
+  :where(body, figure, blockquote, dl, dd, p) {
+      margin-block-end: 0;
+  }
 
-        :where(input, button, textarea, select) {
-            font: inherit;
-        }
+  :where(img, picture, svg) {
+      max-width: 100%;
+      display: block;
+      height: auto;
+  }
+
+  :where(table, thead, tbody, tfoot, tr) {
+      isolation: isolate;
+  }
+
+  :where(input, button, textarea, select) {
+      font: inherit;
+  }
+}
+
+@layer reset.opinion {
+  :where(body) {
+      overflow-wrap: break-word;
+  }
+
+  :where(html) {
+      scrollbar-width: thin;
+  }
+
+  :where(p) {
+      text-wrap: pretty;
+  }
+
+  :where(h1, h2, h3, h4, h5, h6) {
+      text-wrap: balance;
+  }
+
+  :where(img, picture, video, canvas, svg) {
+      height: auto;
+  }
+
+  :where(svg) {
+      color: currentColor;
+  }
+
+  :where(button, [role="button"], summary, label[for],
+          input[type="file"]::file-selector-button) {
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+  }
+
+  :where(:disabled, [aria-disabled="true"]) {
+      cursor: not-allowed;
+  }
+
+  :where(table) {
+      border-collapse: collapse;
+  }
+
+  :where(fieldset) {
+      border: 0;
+      padding: 0;
+      margin: 0;
+      min-inline-size: 0;
+  }
+
+  :where(legend) {
+      padding: 0;
+  }
+
+  :where(textarea) {
+      resize: vertical;
+  }
+
+  :where(textarea:not([rows])) {
+      min-block-size: 10em;
+  }
+
+  :where(abbr[title]) {
+      cursor: help;
+      text-decoration: underline dotted;
+  }
+
+  :where(summary) {
+      list-style: none;
+  }
+
+  :where(a) {
+      text-decoration: none;
+  }
+
+  /* The :autofill rule that previously lived here consumed --_bg,
+      which violates reset.opinion's "no core tokens" rule.
+      Moved to theme.css. */
+
+  :where(ul, ol):where([role="list"]) {
+      list-style: none;
+      padding: 0;
+  }
+
+
+}
+
+/* ════════════════════════════════════════════════════════════════
+    stick.css v3 — color formula (stage-anchored)
+
+    Public API (5 tokens):
+      --bg          [0, 1]   surface (0) → loud (1)
+      --fg          [-1, 1]  neutral ink (-1) → 0 → chromatic ink (1)
+      --hue         [0, 360] base hue
+      --hue-shift   delta added to --hue (semantic palettes, charts)
+      --hue-lock    overrides hue+shift when set (branded content)
+
+    Configuration: 19 cfg-* tokens for theme tuning.
+    Curves and floor are hardcoded system constants.
+    ════════════════════════════════════════════════════════════ */
+
+/* ── Public API ─────────────────────────────────────────────── */
+@property --bg         { syntax: "<number>"; inherits: true; initial-value: 0 }
+@property --fg         { syntax: "<number>"; inherits: true; initial-value: -1 }
+@property --hue        { syntax: "<number>"; inherits: true; initial-value: 220 }
+@property --hue-lock   { syntax: "*";        inherits: true }
+@property --hue-shift  { syntax: "<number>"; inherits: true; initial-value: 0 }
+
+/* ── Configuration: theme switch ────────────────────────────── */
+@property --cfg-dark { syntax: "<number>"; inherits: true; initial-value: 0 }
+
+/* ── Configuration: chroma ramp endpoints ───────────────────── */
+@property --cfg-color-loud-l-light  { syntax: "<percentage>"; inherits: true; initial-value: 50% }
+@property --cfg-color-loud-c-light  { syntax: "<number>";     inherits: true; initial-value: 0.22 }
+@property --cfg-color-loud-l-dark   { syntax: "<percentage>"; inherits: true; initial-value: 70% }
+@property --cfg-color-loud-c-dark   { syntax: "<number>";     inherits: true; initial-value: 0.22 }
+@property --cfg-color-surf-chroma   { syntax: "<number>";     inherits: true; initial-value: 0.018 }
+@property --cfg-fg-tint             { syntax: "<number>";     inherits: true; initial-value: 0.02 }
+@property --cfg-color-alpha         { syntax: "<number>";     inherits: true; initial-value: 1 }
+
+/* ── Configuration: stage ramp ──────────────────────────────── */
+@property --cfg-surf-top-light   { syntax: "<number>"; inherits: true; initial-value: 97 }
+@property --cfg-surf-bot-light   { syntax: "<number>"; inherits: true; initial-value: 90 }
+@property --cfg-surf-top-dark    { syntax: "<number>"; inherits: true; initial-value: 28 }
+@property --cfg-surf-bot-dark    { syntax: "<number>"; inherits: true; initial-value: 10 }
+
+/* ── Configuration: contrast flip ───────────────────────────── */
+@property --cfg-fg-flip { syntax: "<number>"; inherits: true; initial-value: 0.55 }
+
+/* ── Configuration: interaction states ──────────────────────── */
+@property --cfg-hover-bg-shift  { syntax: "<number>"; inherits: true; initial-value: 0.12 }
+@property --cfg-active-bg-shift { syntax: "<number>"; inherits: true; initial-value: -0.06 }
+@property --cfg-active-fg-mul   { syntax: "<number>"; inherits: true; initial-value: 0.7 }
+
+/* ── Structural ─────────────────────────────────────────────── */
+@property --depth { syntax: "<number>"; inherits: false; initial-value: 0 }
+
+/* ── Private intermediates ──────────────────────────────────── */
+@property --_bg              { syntax: "<color>";      inherits: true;  initial-value: oklch(97% 0.018 220) }
+@property --_h               { syntax: "<number>";     inherits: false; initial-value: 220 }
+@property --_surf-top        { syntax: "<number>";     inherits: false; initial-value: 97 }
+@property --_surf-bot        { syntax: "<number>";     inherits: false; initial-value: 90 }
+@property --_t-stage         { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_surf-l          { syntax: "<percentage>"; inherits: true;  initial-value: 97% }
+@property --_bg-clamped      { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_bg-chromatic    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_bg-effective    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_bg-curved       { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_floor           { syntax: "<number>";     inherits: false; initial-value: 0.08 }
+@property --_l               { syntax: "<percentage>"; inherits: false; initial-value: 97% }
+@property --_c               { syntax: "<number>";     inherits: false; initial-value: 0.018 }
+@property --_loud-l          { syntax: "<percentage>"; inherits: false; initial-value: 50% }
+@property --_loud-c          { syntax: "<number>";     inherits: false; initial-value: 0.22 }
+@property --_fg-pos          { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-neg          { syntax: "<number>";     inherits: false; initial-value: 1 }
+@property --_fg-pos-curved   { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-onpos        { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-pole         { syntax: "<percentage>"; inherits: false; initial-value: 4% }
+@property --_fg-ramp-l       { syntax: "<percentage>"; inherits: false; initial-value: 90% }
+@property --_fg-ramp-c       { syntax: "<number>";     inherits: false; initial-value: 0.05 }
+@property --_fg-l            { syntax: "<percentage>"; inherits: false; initial-value: 4% }
+@property --_fg-c            { syntax: "<number>";     inherits: false; initial-value: 0.02 }
+@property --_surf-dark       { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_flip-threshold  { syntax: "<percentage>"; inherits: false; initial-value: 55% }
+@property --_chroma-present  { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_interact-bg     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_interact-fg-mul { syntax: "<number>";     inherits: false; initial-value: 1 }
+@property --_fg-effective    { syntax: "<number>";     inherits: false; initial-value: -1 }
+
+@layer core.color {
+
+  :where(*) {
+    /* Hue resolution — lock overrides shift+base */
+    --_h: var(--hue-lock, calc(var(--hue) + var(--hue-shift)));
+
+    /* Theme-aware loud endpoint */
+    --_loud-l: calc(var(--cfg-color-loud-l-light) * (1 - var(--cfg-dark)) + var(--cfg-color-loud-l-dark) * var(--cfg-dark));
+    --_loud-c: calc(var(--cfg-color-loud-c-light) * (1 - var(--cfg-dark)) + var(--cfg-color-loud-c-dark) * var(--cfg-dark));
+
+    /* Theme-aware floor: light needs a tiny floor (0.05) so low --bg
+        cells have a visible chromatic step. Dark needs more (0.22)
+        because perceptual L deltas in dark range require larger jumps. */
+    --_floor: calc(0.05 * (1 - var(--cfg-dark)) + 0.22 * var(--cfg-dark));
+
+    /* Chroma ramp pipeline (stage-anchored, [0, 1]).
+        Interaction perturbs --bg directly; L/C lifts emerge from ramp. */
+    --_bg-clamped:   clamp(0, calc(var(--bg) + var(--_interact-bg)), 1);
+    --_bg-chromatic: clamp(0, calc(var(--_bg-clamped) * 1000000), 1);
+    --_bg-effective: calc((var(--_floor) + (1 - var(--_floor)) * var(--_bg-clamped)) * var(--_bg-chromatic));
+    --_bg-curved:    pow(var(--_bg-effective), 1.5);
+
+    /* Final L/C: lerp from inherited stage to theme loud endpoint */
+    --_l: calc(var(--_surf-l) * (1 - var(--_bg-curved)) + var(--_loud-l) * var(--_bg-curved));
+    --_c: calc(var(--cfg-color-surf-chroma) * (1 - var(--_bg-curved)) + var(--_loud-c) * var(--_bg-curved));
+
+    --_bg: oklch(clamp(4%, var(--_l), 97%) var(--_c) var(--_h) / var(--cfg-color-alpha));
+
+    /* Foreground: --fg < 0 → neutral ink, --fg > 0 → chromatic ink */
+    --_fg-effective: calc(var(--fg) * var(--_interact-fg-mul));
+    --_fg-pos: clamp(0, var(--_fg-effective), 1);
+    --_fg-neg: clamp(0, calc(-1 * var(--_fg-effective)), 1);
+
+    /* Contrast pole flip — chroma-biased so high-chroma cells flip earlier */
+    --_chroma-present: clamp(0, calc(var(--_c) * 30), 1);
+    --_flip-threshold: calc(
+      var(--cfg-fg-flip) * 100%
+      + var(--_chroma-present) * 3%
+      + var(--_c) * 60%
+    );
+    --_surf-dark: clamp(0, calc((var(--_flip-threshold) - var(--_l)) / 1% * 20), 1);
+    --_fg-pole: calc(4% * (1 - var(--_surf-dark)) + 97% * var(--_surf-dark));
+
+    /* Chromatic-ink ramp (positive --fg side) — same shape as bg */
+    --_fg-pos-curved: pow(var(--_fg-pos), 1.5);
+    --_fg-ramp-l: calc(var(--_surf-l) + var(--_fg-pos-curved) * (var(--_loud-l) - var(--_surf-l)));
+    --_fg-ramp-c: calc(var(--cfg-color-surf-chroma) + var(--_fg-pos-curved) * (var(--_loud-c) - var(--cfg-color-surf-chroma)));
+    --_fg-onpos: clamp(0, calc(var(--_fg-pos) * 1000000), 1);
+
+    /* Merge neutral and chromatic fg branches via step function */
+    --_fg-l: calc(
+      (clamp(4%, var(--_l), 97%) * (1 - var(--_fg-neg)) + var(--_fg-pole) * var(--_fg-neg)) * (1 - var(--_fg-onpos))
+      + var(--_fg-ramp-l) * var(--_fg-onpos)
+    );
+    --_fg-c: calc(
+      (var(--_c) * (1 - var(--_fg-neg)) + var(--cfg-fg-tint) * var(--_fg-neg)) * (1 - var(--_fg-onpos))
+      + var(--_fg-ramp-c) * var(--_fg-onpos)
+    );
+
+    color: oklch(clamp(4%, var(--_fg-l), 97%) var(--_fg-c) var(--_h) / 1);
+
+    /* Border tokens derived from current bg */
+    --border: oklch(
+      from var(--_bg)
+      calc(l + (var(--cfg-dark) * 2 - 1) * 0.14)
+      calc(c * 0.3)
+      h
+    );
+    --Border: oklch(
+      from var(--_bg)
+      calc(l + (var(--cfg-dark) * 2 - 1) * 0.22)
+      clamp(0.08, calc(c + 0.12), 0.18)
+      calc(h + 8)
+    );
+  }
+
+
+  /* Stage ramp — only stages compute --_surf-l. Descendants
+      inherit, so chips/text/buttons anchor their chroma ramp to
+      whatever stage they're sitting in. */
+  :where(body, .stage, .stage-0, .stage-1, .stage-2, .stage-3) {
+    --_surf-top: calc(var(--cfg-surf-top-light) * (1 - var(--cfg-dark)) + var(--cfg-surf-top-dark) * var(--cfg-dark));
+    --_surf-bot: calc(var(--cfg-surf-bot-light) * (1 - var(--cfg-dark)) + var(--cfg-surf-bot-dark) * var(--cfg-dark));
+    --_t-stage:  clamp(0, calc(var(--depth) / 3), 1);
+    --_surf-l:   calc((var(--_surf-top) + var(--_t-stage) * (var(--_surf-bot) - var(--_surf-top))) * 1%);
+  }
+
+
+  :where(svg) { color: currentColor }
+
+  /* Interaction states — hover/active perturb --bg directly, sliding
+      the element along the stage→loud axis. L and C lifts emerge
+      automatically from the ramp.
+        .clickable  — full interactive treatment, gets pointer cursor
+        .hoverable  — hover response only, no cursor, no active state */
+  :where(button, a, [role="button"], [tabindex], .clickable):not([tabindex="-1"]) {
+    cursor: pointer;
+  }
+  :where(button, a, [role="button"], [tabindex], .clickable):not([tabindex="-1"]):hover {
+    --_interact-bg: var(--cfg-hover-bg-shift);
+  }
+  :where(button, a, [role="button"], [tabindex], .clickable):not([tabindex="-1"]):active {
+    --_interact-bg: var(--cfg-active-bg-shift);
+    --_interact-fg-mul: var(--cfg-active-fg-mul);
+  }
+  :where(.hoverable):hover {
+    --_interact-bg: var(--cfg-hover-bg-shift);
+  }
+}
+
+@layer core.color {
+  /* Stage cascade — bare .stage infers depth from nesting.
+      Variants stay outside this cascade. */
+  .stage                                  { --depth: 0 }
+  .stage:has(.stage)                      { --depth: 1 }
+  .stage:has(.stage .stage)               { --depth: 2 }
+  .stage:has(.stage .stage .stage)        { --depth: 3 }
+
+  /* Explicit stage variants — pin a stage to a specific depth. */
+  .stage-0 { --depth: 0 }
+  .stage-1 { --depth: 1 }
+  .stage-2 { --depth: 2 }
+  .stage-3 { --depth: 3 }
+
+  /* Paint — stages always paint their bg. */
+  :where(*) { background-color: oklch(from var(--_bg) l c h / var(--_bg-chromatic)) }
+  :where(body, .stage, .stage-0, .stage-1, .stage-2, .stage-3) {
+    background-color: var(--_bg);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+    Type + scale — the unified scale formula
+
+    Public API (2 tokens):
+      --type    local scale step (non-inheriting)
+                  integer steps; -2 = small, 0 = body, +2 = display
+      --scale   regional multiplier (inheriting)
+                  1 = default; set on a region to rescale everything
+
+    All spacing — component em-padding, lh-based component sizing,
+    layout primitive gaps — derives from these two knobs through
+    font-size and line-height.
+
+    Configuration:
+      --cfg-type-min        body size at narrow viewport
+      --cfg-type-max        body size at wide viewport
+      --cfg-type-min-ratio  scale step ratio at narrow viewport
+      --cfg-type-max-ratio  scale step ratio at wide viewport
+      --cfg-fluid-min-vp    viewport bounds for fluid interpolation
+      --cfg-fluid-max-vp
+    ════════════════════════════════════════════════════════════ */
+
+@property --cfg-fluid-min-vp    { syntax: "<length>"; inherits: true; initial-value: 320px }
+@property --cfg-fluid-max-vp    { syntax: "<length>"; inherits: true; initial-value: 1280px }
+@property --cfg-type-min-ratio  { syntax: "<number>"; inherits: true; initial-value: 1.2 }
+@property --cfg-type-max-ratio  { syntax: "<number>"; inherits: true; initial-value: 1.28 }
+@property --scale               { syntax: "<number>"; inherits: true; initial-value: 1 }
+@property --type                { syntax: "<number>"; inherits: false; initial-value: 0 }
+
+@layer core.type {
+  :root {
+    --cfg-type-min: 0.8rem;
+    --cfg-type-max: 1rem;
+  }
+
+  :where(*) {
+    /* Step sizes at each viewport endpoint — ratio^type from base */
+    --_t-min: calc(var(--cfg-type-min) * pow(var(--cfg-type-min-ratio), var(--type)));
+    --_t-max: calc(var(--cfg-type-max) * pow(var(--cfg-type-max-ratio), var(--type)));
+
+    /* Fluid interpolation between the two endpoints, then regional scale */
+    font-size: calc(
+      clamp(
+        var(--_t-min),
+        calc(
+          var(--_t-min)
+          + (var(--_t-max) - var(--_t-min))
+          * (100vi - var(--cfg-fluid-min-vp))
+          / (var(--cfg-fluid-max-vp) - var(--cfg-fluid-min-vp))
+        ),
+        var(--_t-max)
+      )
+      * var(--scale)
+    );
+
+    letter-spacing: clamp(-0.04em, calc(0.01em - var(--type) * 0.012em), 0.04em);
+    line-height:    clamp(1.1, calc(1.5 - var(--type) * 0.075), 1.6);
+  }
+}
+
+@property --cfg-bg-loud { syntax: "<number>"; inherits: true; initial-value: 0.55 }
+
+
+/* ════════════════════════════════════════════════════════════════
+    theme — project-level visual decisions
+    The "vibe" of the page. Theme blocks (light/dark), state classes
+    that nudge the color formula, font families, etc.
+    State classes are uniform across all components.
+    ════════════════════════════════════════════════════════════ */
+@layer theme {
+
+    :root {
+      /* Identity */
+      --hue: 220;
+      --cfg-color-loud-l-light: 45%;
+      --cfg-color-loud-c-light: 0.18;
+      --cfg-color-loud-l-dark: 65%;
+      --cfg-color-loud-c-dark: 0.18;
+      --cfg-color-surf-chroma: 0.012;
+      --cfg-fg-tint: 0.005;
+
+      /* Surfaces — light mode warm cream, dark mode warm charcoal */
+      --cfg-surf-top-light: 99;
+      --cfg-surf-bot-light: 91;
+      --cfg-surf-top-dark: 22;    /* was 28 — slightly darker leaf */
+      --cfg-surf-bot-dark: 12;    /* was 10 — body lightens */
+
+      /* Geometry & motion */
+      --cfg-radius: 6px;
+
+      /* Fonts */
+      --font-ui:    -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+      --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      --font-mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     }
-
-    @layer reset.opinion {
-        :where(body) {
-            overflow-wrap: break-word;
-        }
-
-        :where(html) {
-            scrollbar-width: thin;
-        }
-
-        :where(p) {
-            text-wrap: pretty;
-        }
-
-        :where(h1, h2, h3, h4, h5, h6) {
-            text-wrap: balance;
-        }
-
-        :where(img, picture, video, canvas, svg) {
-            height: auto;
-        }
-
-        :where(svg) {
-            color: currentColor;
-        }
-
-        :where(button, [role="button"], summary, label[for],
-               input[type="file"]::file-selector-button) {
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        :where(:disabled, [aria-disabled="true"]) {
-            cursor: not-allowed;
-        }
-
-        :where(table) {
-            border-collapse: collapse;
-        }
-
-        :where(fieldset) {
-            border: 0;
-            padding: 0;
-            margin: 0;
-            min-inline-size: 0;
-        }
-
-        :where(legend) {
-            padding: 0;
-        }
-
-        :where(textarea) {
-            resize: vertical;
-        }
-
-        :where(textarea:not([rows])) {
-            min-block-size: 10em;
-        }
-
-        :where(abbr[title]) {
-            cursor: help;
-            text-decoration: underline dotted;
-        }
-
-        :where(summary) {
-            list-style: none;
-        }
-
-        :where(a) {
-            text-decoration: none;
-        }
-
-        /* The :autofill rule that previously lived here consumed --_bg,
-           which violates reset.opinion's "no core tokens" rule.
-           Moved to theme.css. */
-
-        :where(ul, ol):where([role="list"]) {
-            list-style: none;
-            padding: 0;
-        }
-
-
-    }
-    
-    /* ════════════════════════════════════════════════════════════════
-       stick.css v3 — color formula (stage-anchored)
-
-       Public API (5 tokens):
-         --bg          [0, 1]   surface (0) → loud (1)
-         --fg          [-1, 1]  neutral ink (-1) → 0 → chromatic ink (1)
-         --hue         [0, 360] base hue
-         --hue-shift   delta added to --hue (semantic palettes, charts)
-         --hue-lock    overrides hue+shift when set (branded content)
-
-       Configuration: 19 cfg-* tokens for theme tuning.
-       Curves and floor are hardcoded system constants.
-       ════════════════════════════════════════════════════════════ */
-
-    /* ── Public API ─────────────────────────────────────────────── */
-    @property --bg         { syntax: "<number>"; inherits: true; initial-value: 0 }
-    @property --fg         { syntax: "<number>"; inherits: true; initial-value: -1 }
-    @property --hue        { syntax: "<number>"; inherits: true; initial-value: 220 }
-    @property --hue-lock   { syntax: "*";        inherits: true }
-    @property --hue-shift  { syntax: "<number>"; inherits: true; initial-value: 0 }
-
-    /* ── Configuration: theme switch ────────────────────────────── */
-    @property --cfg-dark { syntax: "<number>"; inherits: true; initial-value: 0 }
-
-    /* ── Configuration: chroma ramp endpoints ───────────────────── */
-    @property --cfg-color-loud-l-light  { syntax: "<percentage>"; inherits: true; initial-value: 50% }
-    @property --cfg-color-loud-c-light  { syntax: "<number>";     inherits: true; initial-value: 0.22 }
-    @property --cfg-color-loud-l-dark   { syntax: "<percentage>"; inherits: true; initial-value: 70% }
-    @property --cfg-color-loud-c-dark   { syntax: "<number>";     inherits: true; initial-value: 0.22 }
-    @property --cfg-color-surf-chroma   { syntax: "<number>";     inherits: true; initial-value: 0.018 }
-    @property --cfg-fg-tint             { syntax: "<number>";     inherits: true; initial-value: 0.02 }
-    @property --cfg-color-alpha         { syntax: "<number>";     inherits: true; initial-value: 1 }
-
-    /* ── Configuration: stage ramp ──────────────────────────────── */
-    @property --cfg-surf-top-light   { syntax: "<number>"; inherits: true; initial-value: 97 }
-    @property --cfg-surf-bot-light   { syntax: "<number>"; inherits: true; initial-value: 90 }
-    @property --cfg-surf-top-dark    { syntax: "<number>"; inherits: true; initial-value: 28 }
-    @property --cfg-surf-bot-dark    { syntax: "<number>"; inherits: true; initial-value: 10 }
-
-    /* ── Configuration: contrast flip ───────────────────────────── */
-    @property --cfg-fg-flip { syntax: "<number>"; inherits: true; initial-value: 0.55 }
-
-    /* ── Configuration: interaction states ──────────────────────── */
-    @property --cfg-hover-bg-shift  { syntax: "<number>"; inherits: true; initial-value: 0.12 }
-    @property --cfg-active-bg-shift { syntax: "<number>"; inherits: true; initial-value: -0.06 }
-    @property --cfg-active-fg-mul   { syntax: "<number>"; inherits: true; initial-value: 0.7 }
-
-    /* ── Structural ─────────────────────────────────────────────── */
-    @property --depth { syntax: "<number>"; inherits: false; initial-value: 0 }
-
-    /* ── Private intermediates ──────────────────────────────────── */
-    @property --_bg              { syntax: "<color>";      inherits: true;  initial-value: oklch(97% 0.018 220) }
-    @property --_h               { syntax: "<number>";     inherits: false; initial-value: 220 }
-    @property --_surf-top        { syntax: "<number>";     inherits: false; initial-value: 97 }
-    @property --_surf-bot        { syntax: "<number>";     inherits: false; initial-value: 90 }
-    @property --_t-stage         { syntax: "<number>";     inherits: false; initial-value: 0 }
-    @property --_surf-l          { syntax: "<percentage>"; inherits: true;  initial-value: 97% }
-    @property --_bg-clamped      { syntax: "<number>";     inherits: false; initial-value: 0 }
-    @property --_bg-chromatic    { syntax: "<number>";     inherits: false; initial-value: 0 }
-    @property --_bg-effective    { syntax: "<number>";     inherits: false; initial-value: 0 }
-    @property --_bg-curved       { syntax: "<number>";     inherits: false; initial-value: 0 }
-    @property --_floor           { syntax: "<number>";     inherits: false; initial-value: 0.08 }
-    @property --_l               { syntax: "<percentage>"; inherits: false; initial-value: 97% }
-    @property --_c               { syntax: "<number>";     inherits: false; initial-value: 0.018 }
-    @property --_loud-l          { syntax: "<percentage>"; inherits: false; initial-value: 50% }
-    @property --_loud-c          { syntax: "<number>";     inherits: false; initial-value: 0.22 }
-    @property --_fg-pos          { syntax: "<number>";     inherits: false; initial-value: 0 }
-    @property --_fg-neg          { syntax: "<number>";     inherits: false; initial-value: 1 }
-    @property --_fg-pos-curved   { syntax: "<number>";     inherits: false; initial-value: 0 }
-    @property --_fg-onpos        { syntax: "<number>";     inherits: false; initial-value: 0 }
-    @property --_fg-pole         { syntax: "<percentage>"; inherits: false; initial-value: 4% }
-    @property --_fg-ramp-l       { syntax: "<percentage>"; inherits: false; initial-value: 90% }
-    @property --_fg-ramp-c       { syntax: "<number>";     inherits: false; initial-value: 0.05 }
-    @property --_fg-l            { syntax: "<percentage>"; inherits: false; initial-value: 4% }
-    @property --_fg-c            { syntax: "<number>";     inherits: false; initial-value: 0.02 }
-    @property --_surf-dark       { syntax: "<number>";     inherits: false; initial-value: 0 }
-    @property --_flip-threshold  { syntax: "<percentage>"; inherits: false; initial-value: 55% }
-    @property --_chroma-present  { syntax: "<number>";     inherits: false; initial-value: 0 }
-    @property --_interact-bg     { syntax: "<number>";     inherits: false; initial-value: 0 }
-    @property --_interact-fg-mul { syntax: "<number>";     inherits: false; initial-value: 1 }
-    @property --_fg-effective    { syntax: "<number>";     inherits: false; initial-value: -1 }
-
-    @layer core.color {
-
-      :where(*) {
-        /* Hue resolution — lock overrides shift+base */
-        --_h: var(--hue-lock, calc(var(--hue) + var(--hue-shift)));
-
-        /* Theme-aware loud endpoint */
-        --_loud-l: calc(var(--cfg-color-loud-l-light) * (1 - var(--cfg-dark)) + var(--cfg-color-loud-l-dark) * var(--cfg-dark));
-        --_loud-c: calc(var(--cfg-color-loud-c-light) * (1 - var(--cfg-dark)) + var(--cfg-color-loud-c-dark) * var(--cfg-dark));
-
-        /* Theme-aware floor: light needs a tiny floor (0.05) so low --bg
-           cells have a visible chromatic step. Dark needs more (0.22)
-           because perceptual L deltas in dark range require larger jumps. */
-        --_floor: calc(0.05 * (1 - var(--cfg-dark)) + 0.22 * var(--cfg-dark));
-
-        /* Chroma ramp pipeline (stage-anchored, [0, 1]).
-           Interaction perturbs --bg directly; L/C lifts emerge from ramp. */
-        --_bg-clamped:   clamp(0, calc(var(--bg) + var(--_interact-bg)), 1);
-        --_bg-chromatic: clamp(0, calc(var(--_bg-clamped) * 1000000), 1);
-        --_bg-effective: calc((var(--_floor) + (1 - var(--_floor)) * var(--_bg-clamped)) * var(--_bg-chromatic));
-        --_bg-curved:    pow(var(--_bg-effective), 1.5);
-
-        /* Final L/C: lerp from inherited stage to theme loud endpoint */
-        --_l: calc(var(--_surf-l) * (1 - var(--_bg-curved)) + var(--_loud-l) * var(--_bg-curved));
-        --_c: calc(var(--cfg-color-surf-chroma) * (1 - var(--_bg-curved)) + var(--_loud-c) * var(--_bg-curved));
-
-        --_bg: oklch(clamp(4%, var(--_l), 97%) var(--_c) var(--_h) / var(--cfg-color-alpha));
-
-        /* Foreground: --fg < 0 → neutral ink, --fg > 0 → chromatic ink */
-        --_fg-effective: calc(var(--fg) * var(--_interact-fg-mul));
-        --_fg-pos: clamp(0, var(--_fg-effective), 1);
-        --_fg-neg: clamp(0, calc(-1 * var(--_fg-effective)), 1);
-
-        /* Contrast pole flip — chroma-biased so high-chroma cells flip earlier */
-        --_chroma-present: clamp(0, calc(var(--_c) * 30), 1);
-        --_flip-threshold: calc(
-          var(--cfg-fg-flip) * 100%
-          + var(--_chroma-present) * 3%
-          + var(--_c) * 60%
-        );
-        --_surf-dark: clamp(0, calc((var(--_flip-threshold) - var(--_l)) / 1% * 20), 1);
-        --_fg-pole: calc(4% * (1 - var(--_surf-dark)) + 97% * var(--_surf-dark));
-
-        /* Chromatic-ink ramp (positive --fg side) — same shape as bg */
-        --_fg-pos-curved: pow(var(--_fg-pos), 1.5);
-        --_fg-ramp-l: calc(var(--_surf-l) + var(--_fg-pos-curved) * (var(--_loud-l) - var(--_surf-l)));
-        --_fg-ramp-c: calc(var(--cfg-color-surf-chroma) + var(--_fg-pos-curved) * (var(--_loud-c) - var(--cfg-color-surf-chroma)));
-        --_fg-onpos: clamp(0, calc(var(--_fg-pos) * 1000000), 1);
-
-        /* Merge neutral and chromatic fg branches via step function */
-        --_fg-l: calc(
-          (clamp(4%, var(--_l), 97%) * (1 - var(--_fg-neg)) + var(--_fg-pole) * var(--_fg-neg)) * (1 - var(--_fg-onpos))
-          + var(--_fg-ramp-l) * var(--_fg-onpos)
-        );
-        --_fg-c: calc(
-          (var(--_c) * (1 - var(--_fg-neg)) + var(--cfg-fg-tint) * var(--_fg-neg)) * (1 - var(--_fg-onpos))
-          + var(--_fg-ramp-c) * var(--_fg-onpos)
-        );
-
-        color: oklch(clamp(4%, var(--_fg-l), 97%) var(--_fg-c) var(--_h) / 1);
-
-        /* Border tokens derived from current bg */
-        --border: oklch(
-          from var(--_bg)
-          calc(l + (var(--cfg-dark) * 2 - 1) * 0.14)
-          calc(c * 0.3)
-          h
-        );
-        --Border: oklch(
-          from var(--_bg)
-          calc(l + (var(--cfg-dark) * 2 - 1) * 0.22)
-          clamp(0.08, calc(c + 0.12), 0.18)
-          calc(h + 8)
-        );
-      }
-
-
-      /* Stage ramp — only stages compute --_surf-l. Descendants
-         inherit, so chips/text/buttons anchor their chroma ramp to
-         whatever stage they're sitting in. */
-      :where(body, .stage, .stage-0, .stage-1, .stage-2, .stage-3) {
-        --_surf-top: calc(var(--cfg-surf-top-light) * (1 - var(--cfg-dark)) + var(--cfg-surf-top-dark) * var(--cfg-dark));
-        --_surf-bot: calc(var(--cfg-surf-bot-light) * (1 - var(--cfg-dark)) + var(--cfg-surf-bot-dark) * var(--cfg-dark));
-        --_t-stage:  clamp(0, calc(var(--depth) / 3), 1);
-        --_surf-l:   calc((var(--_surf-top) + var(--_t-stage) * (var(--_surf-bot) - var(--_surf-top))) * 1%);
-      }
-
-
-      :where(svg) { color: currentColor }
-
-      /* Interaction states — hover/active perturb --bg directly, sliding
-         the element along the stage→loud axis. L and C lifts emerge
-         automatically from the ramp.
-           .clickable  — full interactive treatment, gets pointer cursor
-           .hoverable  — hover response only, no cursor, no active state */
-      :where(button, a, [role="button"], [tabindex], .clickable):not([tabindex="-1"]) {
-        cursor: pointer;
-      }
-      :where(button, a, [role="button"], [tabindex], .clickable):not([tabindex="-1"]):hover {
-        --_interact-bg: var(--cfg-hover-bg-shift);
-      }
-      :where(button, a, [role="button"], [tabindex], .clickable):not([tabindex="-1"]):active {
-        --_interact-bg: var(--cfg-active-bg-shift);
-        --_interact-fg-mul: var(--cfg-active-fg-mul);
-      }
-      :where(.hoverable):hover {
-        --_interact-bg: var(--cfg-hover-bg-shift);
-      }
-    }
-    
-    @layer core.color {
-      /* Stage cascade — bare .stage infers depth from nesting.
-         Variants stay outside this cascade. */
-      .stage                                  { --depth: 0 }
-      .stage:has(.stage)                      { --depth: 1 }
-      .stage:has(.stage .stage)               { --depth: 2 }
-      .stage:has(.stage .stage .stage)        { --depth: 3 }
-
-      /* Explicit stage variants — pin a stage to a specific depth. */
-      .stage-0 { --depth: 0 }
-      .stage-1 { --depth: 1 }
-      .stage-2 { --depth: 2 }
-      .stage-3 { --depth: 3 }
-
-      /* Paint — stages always paint their bg. */
-      :where(*) { background-color: oklch(from var(--_bg) l c h / var(--_bg-chromatic)) }
-      :where(body, .stage, .stage-0, .stage-1, .stage-2, .stage-3) {
-        background-color: var(--_bg);
-      }
-    }
-    
-    /* ════════════════════════════════════════════════════════════════
-       Type + scale — the unified scale formula
-
-       Public API (2 tokens):
-         --type    local scale step (non-inheriting)
-                     integer steps; -2 = small, 0 = body, +2 = display
-         --scale   regional multiplier (inheriting)
-                     1 = default; set on a region to rescale everything
-
-       All spacing — component em-padding, lh-based component sizing,
-       layout primitive gaps — derives from these two knobs through
-       font-size and line-height.
-
-       Configuration:
-         --cfg-type-min        body size at narrow viewport
-         --cfg-type-max        body size at wide viewport
-         --cfg-type-min-ratio  scale step ratio at narrow viewport
-         --cfg-type-max-ratio  scale step ratio at wide viewport
-         --cfg-fluid-min-vp    viewport bounds for fluid interpolation
-         --cfg-fluid-max-vp
-       ════════════════════════════════════════════════════════════ */
-
-    @property --cfg-fluid-min-vp    { syntax: "<length>"; inherits: true; initial-value: 320px }
-    @property --cfg-fluid-max-vp    { syntax: "<length>"; inherits: true; initial-value: 1280px }
-    @property --cfg-type-min-ratio  { syntax: "<number>"; inherits: true; initial-value: 1.2 }
-    @property --cfg-type-max-ratio  { syntax: "<number>"; inherits: true; initial-value: 1.28 }
-    @property --scale               { syntax: "<number>"; inherits: true; initial-value: 1 }
-    @property --type                { syntax: "<number>"; inherits: false; initial-value: 0 }
-
-    @layer core.type {
-      :root {
-        --cfg-type-min: 0.8rem;
-        --cfg-type-max: 1rem;
-      }
-
-      :where(*) {
-        /* Step sizes at each viewport endpoint — ratio^type from base */
-        --_t-min: calc(var(--cfg-type-min) * pow(var(--cfg-type-min-ratio), var(--type)));
-        --_t-max: calc(var(--cfg-type-max) * pow(var(--cfg-type-max-ratio), var(--type)));
-
-        /* Fluid interpolation between the two endpoints, then regional scale */
-        font-size: calc(
-          clamp(
-            var(--_t-min),
-            calc(
-              var(--_t-min)
-              + (var(--_t-max) - var(--_t-min))
-              * (100vi - var(--cfg-fluid-min-vp))
-              / (var(--cfg-fluid-max-vp) - var(--cfg-fluid-min-vp))
-            ),
-            var(--_t-max)
-          )
-          * var(--scale)
-        );
-
-        letter-spacing: clamp(-0.04em, calc(0.01em - var(--type) * 0.012em), 0.04em);
-        line-height:    clamp(1.1, calc(1.5 - var(--type) * 0.075), 1.6);
-      }
-    }
-    
-    @property --cfg-bg-loud { syntax: "<number>"; inherits: true; initial-value: 0.55 }
-
-
-    /* ════════════════════════════════════════════════════════════════
-       theme — project-level visual decisions
-       The "vibe" of the page. Theme blocks (light/dark), state classes
-       that nudge the color formula, font families, etc.
-       State classes are uniform across all components.
-       ════════════════════════════════════════════════════════════ */
-    @layer theme {
-
-        :root {
-          /* Identity */
-          --hue: 220;
-          --cfg-color-loud-l-light: 45%;
-          --cfg-color-loud-c-light: 0.18;
-          --cfg-color-loud-l-dark: 65%;
-          --cfg-color-loud-c-dark: 0.18;
-          --cfg-color-surf-chroma: 0.012;
-          --cfg-fg-tint: 0.005;
-
-          /* Surfaces — light mode warm cream, dark mode warm charcoal */
-          --cfg-surf-top-light: 99;
-          --cfg-surf-bot-light: 91;
-          --cfg-surf-top-dark: 22;    /* was 28 — slightly darker leaf */
-          --cfg-surf-bot-dark: 12;    /* was 10 — body lightens */
-
-          /* Geometry & motion */
-          --cfg-radius: 6px;
-
-          /* Fonts */
-          --font-ui:    -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
-          --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-          --font-mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-        }
-        body { font-family: var(--font-ui); }
-
-        @media (prefers-color-scheme: dark) { :root:not([data-ui-theme]) { --cfg-dark: 1 } }
-        [data-ui-theme="light"] { --cfg-dark: 0 }
-        [data-ui-theme="dark"]  { --cfg-dark: 1 }
-
-        .suc { --hue-lock: 145 }
-        .inf { --hue-lock: 240 }
-        .wrn { --hue-lock: 75  }
-        .dgr { --hue-lock: 25  }
-        .bw { --cfg-color-surf-chroma: 0; --cfg-color-loud-c-light: 0; --cfg-color-loud-c-dark: 0; }
-
-        [data-ui-motion="off"]   { --cfg-motion: 0 }
-        [data-ui-motion="on"]    { --cfg-motion: 1 }
-        [data-ui-motion="debug"] { --cfg-motion: 10 }
-        @media (prefers-reduced-motion: reduce) { :root, [data-ui-motion] { --cfg-motion: 0 } }
-
-        body { transition: --scale calc(var(--cfg-motion) * 0.2s) ease-out; }
-        [data-ui-type="sm"] { --scale: 0.875 }
-        [data-ui-type="md"] { --scale: 1     }
-        [data-ui-type="lg"] { --scale: 1.125 }
-
-        * {
-          scrollbar-width: thin;
-          scrollbar-color: var(--Border) transparent;
-        }
-
-
-    /* ── Syntax highlighting — Custom Highlight API ─────────────
-         The ::highlight() pseudo only honors color, background-color,
-         text-decoration, text-shadow. Custom properties set on
-         ::highlight() do NOT cascade into the painted text, so each
-         rule sets `color` directly. Each rule reads --_bg, --_l, and
-         --cfg-dark from the originating element via relative-color
-         syntax — the same surface anchoring the rest of the formula
-         uses, so token colors automatically follow theme switches
-         and surface depth.
-
-         Two formulas:
-           --token-color   chromatic ink, pinned to a fixed L/C
-                           in OKLCH so it reads against any surface;
-                           hue shift varies per category.
-           --comment-color dim ink, lightness pulled toward the
-                           surface so comments recede; tiny chroma
-                           tint via --cfg-fg-tint.
-
-         Token L/C endpoints live here as system constants — they're
-         specific to the highlight use case (must read against both
-         light and dark surfaces) and aren't reused elsewhere. Adjust
-         by editing these eight values. ─────────────────────────── */
-
-      ::highlight(css-comment),
-      ::highlight(html-comment),
-      ::highlight(python-comment),
-      ::highlight(javascript-comment),
-      ::highlight(go-comment) {
-        /* Light-mode comment: dark ink that's been mixed toward the surface.
-           Dark-mode comment: light ink mixed toward the surface.
-           Result: visibly dimmer than active code, but still legible. */
-        color: oklch(from var(--_bg)
-          calc(
-            /* light: 35% (dark ink). dark: 70% (light ink, dim). */
-            (35% * (1 - var(--cfg-dark)) + 70% * var(--cfg-dark))
-          )
-          calc(c + var(--cfg-fg-tint))
-          calc(h + 0)
-        );
-      }
-
-      /* Strings — warm shift */
-      ::highlight(css-string),
-      ::highlight(html-value),
-      ::highlight(python-string),
-      ::highlight(javascript-string),
-      ::highlight(go-string) {
-        color: oklch(from var(--_bg)
-          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
-          0.13
-          calc(h - 36)
-        );
-      }
-
-      /* Numbers / units */
-      ::highlight(css-number),
-      ::highlight(css-unit),
-      ::highlight(python-number),
-      ::highlight(javascript-number),
-      ::highlight(go-number) {
-        color: oklch(from var(--_bg)
-          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
-          0.13
-          calc(h - 24)
-        );
-      }
-
-      /* Punctuation / operators / brackets */
-      ::highlight(css-punctuation),
-      ::highlight(html-bracket),
-      ::highlight(python-operator),
-      ::highlight(python-punctuation),
-      ::highlight(javascript-operator),
-      ::highlight(javascript-punctuation),
-      ::highlight(go-operator),
-      ::highlight(go-punctuation) {
-        color: oklch(from var(--_bg)
-          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
-          0.10
-          calc(h - 12)
-        );
-      }
-
-      /* Identifiers — properties, vars, selectors, tags, attributes */
-      ::highlight(css-property),
-      ::highlight(css-var-name),
-      ::highlight(css-selector),
-      ::highlight(html-tag),
-      ::highlight(html-attribute),
-      ::highlight(html-doctype),
-      ::highlight(html-entity) {
-        color: oklch(from var(--_bg)
-          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
-          0.13
-          calc(h + 12)
-        );
-      }
-
-      /* Functions, classes, builtins */
-      ::highlight(python-function),
-      ::highlight(python-class),
-      ::highlight(python-builtin),
-      ::highlight(javascript-function),
-      ::highlight(javascript-class),
-      ::highlight(javascript-builtin),
-      ::highlight(go-function),
-      ::highlight(go-class),
-      ::highlight(go-builtin) {
-        color: oklch(from var(--_bg)
-          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
-          0.14
-          calc(h + 24)
-        );
-      }
-
-      /* Keywords / atrules / decorators — strongest cool shift */
-      ::highlight(css-atrule),
-      ::highlight(python-keyword),
-      ::highlight(python-decorator),
-      ::highlight(javascript-keyword),
-      ::highlight(javascript-decorator),
-      ::highlight(go-keyword) {
-        color: oklch(from var(--_bg)
-          calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
-          0.15
-          calc(h + 36)
-        );
-      }
-    }
-    
-    @layer layout.page {
-      .page {
-        display: grid;
-        grid-template:
-          "b  b  b" auto
-          "h  h  h" auto
-          "s  s  s" auto
-          "n  mh a" auto
-          "n  m  a" 1fr
-          "n  mf a" auto
-          "f  f  f" auto /
-          auto 1fr auto;
-        height: 100svh;
-        overflow: hidden;
-
-        &.centered { max-width: 1200px; margin-inline: auto; }
-
-        & > [class ^="pg-"]       { padding: calc(0.25 * 1lh); }
-
-        & > .pg-banner            { grid-area: b;  }
-        & > .pg-header            { grid-area: h;  }
-        & > .pg-subheader         { grid-area: s;  padding-block:0; }
-        & > .pg-navigation        { grid-area: n;  overflow-y: auto;  min-height: 0; }
-        & > .pg-main-header       { grid-area: mh; }
-        & > .pg-main              { grid-area: m;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-        & > .pg-main-footer       { grid-area: mf; }
-        & > .pg-aside             { grid-area: a;  overflow-y: auto;  min-height: 0; }
-        & > .pg-footer            { grid-area: f;  padding-block:0; }
-      }
-    }
-    
-    @layer component.complex {
-        .drawer {
-            --_dur: calc(var(--cfg-motion) * 0.25s);
-
-            position: fixed;
-            inset: auto;
-            margin: 0;
-            padding: 0;
-            border: 0;
-            background: var(--_bg);
-            color: var(--color);
-            max-block-size: none;
-            max-inline-size: none;
-            transition:
-                translate var(--_dur) ease-out,
-                opacity   var(--_dur) ease-out,
-                display   var(--_dur) allow-discrete,
-                overlay   var(--_dur) allow-discrete;
-            translate: 0 0;
-            opacity: 1;
-
-            &:not(:is([open], :popover-open)) {
-                opacity: 0;
-                translate: var(--_translate-closed);
-            }
-            @starting-style {
-                &:is([open], :popover-open) {
-                    opacity: 0;
-                    translate: var(--_translate-closed);
-                }
-            }
-
-            &.left {
-                --_translate-closed: -100% 0;
-                inset: 0 auto 0 0;
-                inline-size: min(85vw, 320px);
-                block-size: 100svh;
-                border-radius: 0 var(--cfg-radius) var(--cfg-radius) 0;
-            }
-            &.right {
-                --_translate-closed: 100% 0;
-                inset: 0 0 0 auto;
-                inline-size: min(85vw, 320px);
-                block-size: 100svh;
-                border-radius: var(--cfg-radius) 0 0 var(--cfg-radius);
-            }
-            &.top {
-                --_translate-closed: 0 -100%;
-                inset: 0 0 auto 0;
-                inline-size: 100vw;
-                block-size: min(85svh, 240px);
-                border-radius: 0 0 var(--cfg-radius) var(--cfg-radius);
-            }
-            &.bottom {
-                --_translate-closed: 0 100%;
-                inset: auto 0 0 0;
-                inline-size: 100vw;
-                block-size: min(85svh, 240px);
-                border-radius: var(--cfg-radius) var(--cfg-radius) 0 0;
-            }
-        }
-
-        dialog.drawer {
-            --_dur: calc(var(--cfg-motion) * 0.25s);
-            --_dim: oklch(0% 0 0 / 0.5);
-
-            &::backdrop {
-                background: var(--_dim);
-                transition:
-                    background-color var(--_dur) ease-out,
-                    display          var(--_dur) allow-discrete,
-                    overlay          var(--_dur) allow-discrete;
-            }
-            &:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
-            @starting-style {
-                &[open]::backdrop { background: oklch(0% 0 0 / 0); }
-            }
-        }
-    }
-    
-    /* ════════════════════════════════════════════════════════════════
-       layout.composition — stateless layout primitives
-
-       Gap derives from line-height (calc(0.25 * 1lh)), scaling with
-       the ambient --type. To control spacing, control --type. To
-       rescale a region, set --scale.
-       ════════════════════════════════════════════════════════════ */
-
-    @layer layout.composition {
-
-      .read   { max-inline-size: 65ch; margin-inline: auto; }
-      .column { display: flex; flex-direction: column; gap: calc(0.25 * 1lh) }
-      .row    { display: flex; flex-direction: row; flex-wrap: wrap; gap: calc(0.25 * 1lh); align-items: center }
-
-      .split {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: calc(0.25 * 1lh);
-      }
-
-      .spread {
-        display: flex; flex-direction: row; flex-wrap: wrap;
-        justify-content: space-between; align-items: center; gap: calc(0.25 * 1lh);
-      }
-      .spread-column {
-        display: flex; flex-direction: column;
-        justify-content: space-between; gap: calc(0.25 * 1lh);
-      }
-
-      .lcr {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center;
-        gap: calc(0.25 * 1lh);
-
-        & > :first-child:not(style):not(script)         { justify-self: start  }
-        & > :nth-child(2 of :not(style):not(script))    { justify-self: center }
-        & > :last-child:not(style):not(script)          { justify-self: end    }
-
-        & > style, & > script { display: none }
-      }
-
-      .tmb {
-        display: grid;
-        grid-template-rows: 1fr auto 1fr;
-        justify-items: center;
-        gap: calc(0.25 * 1lh);
-
-        & > :first-child:not(style):not(script)         { align-self: start  }
-        & > :nth-child(2 of :not(style):not(script))    { align-self: center }
-        & > :last-child:not(style):not(script)          { align-self: end    }
-
-        & > style, & > script { display: none }
-      }
-
-      .flank, .flank-start {
-        display: flex; flex-direction: row; align-items: center; gap: calc(0.25 * 1lh);
-
-        & > :first-child:not(style):not(script) { flex: 0 0 auto }
-        & > :last-child:not(style):not(script)  { flex: 1 1 auto; min-inline-size: 0 }
-
-        & > style, & > script { display: none }
-      }
-
-      .flank-end {
-        display: flex; flex-direction: row; align-items: center; gap: calc(0.25 * 1lh);
-
-        & > :first-child:not(style):not(script) { flex: 1 1 auto; min-inline-size: 0 }
-        & > :last-child:not(style):not(script)  { flex: 0 0 auto }
-
-        & > style, & > script { display: none }
-      }
-
-      .frame {
-        aspect-ratio: 16 / 9;
-        overflow: hidden;
-
-        & > * { inline-size: 100%; block-size: 100%; object-fit: cover }
-      }
-
-      .grid {
-        display: grid; gap: calc(0.25 * 1lh);
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min, 16rem)), 1fr));
-      }
-
-      .stack {
-        display: grid;
-        grid-template-areas: "stack";
-
-        & > * { grid-area: stack }
-      }
-
-      .hero {
-        display: grid;
-        grid-template:
-          "t t t" auto
-          "l m r" 1fr
-          "b b b" auto /
-          auto 1fr auto;
-        height: 100%;
-        overflow: hidden;
-
-        & > .top    { grid-area: t; }
-        & > .bottom { grid-area: b; }
-        & > .left   { grid-area: l; overflow-y: auto; min-height: 0; }
-        & > .main   { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-        & > .right  { grid-area: r; overflow-y: auto; min-height: 0; }
-      }
-
-    }
-
-    
-    @layer layout.composition{
-
-      /* ── .hud-overlay — fills parent, stacks 9 positions in one cell ───── */
-      .hud-overlay {
-          display: grid;
-          grid-template-areas: "hud";
-          height: 100%;
-          pointer-events: none;
-
-          & > * {
-              grid-area: hud;
-              justify-self: center;
-              align-self: center;
-              pointer-events: auto;
-          }
-
-          & > .↖ { justify-self: start;  align-self: start  }
-          & > .↑ { justify-self: center; align-self: start  }
-          & > .↗ { justify-self: end;    align-self: start  }
-          & > .← { justify-self: start;  align-self: center }
-          & > .• { justify-self: center; align-self: center }
-          & > .→ { justify-self: end;    align-self: center }
-          & > .↙ { justify-self: start;  align-self: end    }
-          & > .↓ { justify-self: center; align-self: end    }
-          & > .↘ { justify-self: end;    align-self: end    }
-      }
-
-      /* ── .hud-page — full-viewport overlay, stacks 9 positions ───── */
-      .hud-page {
-          position: fixed;
-          inset: 0;
-          display: grid;
-          grid-template-areas: "hud";
-          pointer-events: none;
-          z-index: 1;
-
-          & > * {
-              grid-area: hud;
-              justify-self: center;
-              align-self: center;
-              pointer-events: auto;
-          }
-
-          & > .↖ { justify-self: start;  align-self: start  }
-          & > .↑ { justify-self: center; align-self: start  }
-          & > .↗ { justify-self: end;    align-self: start  }
-          & > .← { justify-self: start;  align-self: center }
-          & > .• { justify-self: center; align-self: center }
-          & > .→ { justify-self: end;    align-self: center }
-          & > .↙ { justify-self: start;  align-self: end    }
-          & > .↓ { justify-self: center; align-self: end    }
-          & > .↘ { justify-self: end;    align-self: end    }
-      }
-
-      /* ── .hud-grid — nine distinct cells, chrome+content ───── */
-      .hud-grid {
-          display: grid;
-          grid-template:
-            "↖ ↑ ↗" auto
-            "← • →" 1fr
-            "↙ ↓ ↘" auto /
-            auto 1fr auto;
-          height: 100%;
-          overflow: hidden;
-
-          & > .↖ { grid-area: ↖; }
-          & > .↑ { grid-area: ↑; }
-          & > .↗ { grid-area: ↗; }
-          & > .← { grid-area: ←; overflow-y: auto; scrollbar-gutter: stable; }
-          & > .• { grid-area: •; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
-          & > .→ { grid-area: →; overflow-y: auto; scrollbar-gutter: stable; }
-          & > .↙ { grid-area: ↙; }
-          & > .↓ { grid-area: ↓; }
-          & > .↘ { grid-area: ↘; }
-      }
-
-    }
-    
-    /* ============================================================
-       component-base.css — component.base
-
-       Default styling for unclassed HTML elements.
-       ============================================================ */
-
-    @layer component.base {
-      /* (filled in as the system grows) */
-    }
-    
-    @layer component.base {
-     /* kbd — keyboard key marker. Mono surface that evokes a physical
-         keycap. Border slightly louder than .input so keys pop in prose. */
-      kbd {
-        --bg: 0;
-        --fg: -1;
-        --type: -1.5;
-        display: inline-flex;
-        align-items: center;
-        padding: 0.1em 0.45em;
-        border: 1px solid var(--Border);
-        border-radius: 0.35em;
-        font-family: ui-monospace, monospace;
-        font-weight: 600;
-        line-height: 1.4;
-
-        & * { --type: -1.5; }
-      }
-    }
-    
-    @layer component.simple {
-      /* glass — translucent stage. Sits over content with a blur,
-         surface paints with --cfg-color-alpha < 1 so what's behind
-         shows through. Common for modal overlays, drawer dims, and
-         floating chrome on media. */
-      .glass {
-        --cfg-color-alpha: 0.65;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-      }
-    }
-    
-    @layer component.base {
-      .btn {
-        --bg: 0;
-        --fg: -1;
-        --type: -1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4em;
-        block-size: 2.4lh;        /* was 2lh */
-        padding-inline: 0.7em;
-        border: 1px solid var(--border);
-        border-radius: var(--cfg-radius);
-        font-weight: 600;
-        line-height: 1;           /* was missing */
-        white-space: nowrap;
-        user-select: none;
-
-        & * { --type: -1; }
-        & svg { inline-size: 1em; block-size: 1em; display: block; flex-shrink: 0; }
-
-        @media (max-width: 480px) {
-          min-block-size: 44px;
-        }
-      }
-    }
-    
-
-    @layer component.simple {
-      /* icon-btn — square icon-only button. Same height as .btn (2.4lh)
-        with a square aspect ratio. SVG sizes off the container via cqb
-        so the icon scales with the box on coarse-pointer touch targets. */
-      .icon-btn {
-        --bg: 0;
-        --fg: -1;
-        --type: -1;
-
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        flex: 0 0 auto;
-        align-self: center;
-        block-size: 2.4lh;
-        aspect-ratio: 1;
-        container-type: size;
-
-        border: 1px solid var(--border);
-        border-radius: var(--cfg-radius);
-        line-height: 1;
-        user-select: none;
-
-        & svg {
-          inline-size: 42cqb;
-          block-size: 42cqb;
-          display: block;
-        }
-
-        @media (pointer: coarse) {
-          min-block-size: 44px;
-          min-inline-size: 44px;
-        }
-      }
-    }
-
-    
-    @layer component.simple {
-     /* tag — labeled state indicator. Use a <span> for a static label
-         (always shows the vivid "on" look). Use a <button> with
-         aria-pressed for an interactive toggle:
-           aria-pressed="false" → off state (transparent, dim)
-           aria-pressed="true"  → on state  (vivid chromatic, same
-                                             as a static tag)
-         Same component, two intents disambiguated by element + ARIA.   */
-      .tag {
-        --bg: 0.8;
-        --fg: -1;
-        --type: -2;
-        display: inline-flex;
-        align-items: center;
-        padding: 0.3em 0.5em 0.2em;
-        border: 1px solid transparent;
-        border-radius: var(--cfg-radius);
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        line-height: 1;
-        user-select: none;
-        transition:
-          background-color calc(var(--cfg-motion) * 0.1s) ease-out,
-          color            calc(var(--cfg-motion) * 0.1s) ease-out,
-          border-color     calc(var(--cfg-motion) * 0.1s) ease-out;
-
-        & * { --type: -2; }
-
-        &[aria-pressed="false"] {
-          --bg: 0;
-          --fg: -0.6;
-          border-color: var(--border);
-        }
-        &:focus-visible {
-          outline: 2px solid var(--Border);
-          outline-offset: 2px;
-        }
-      }
-    }
-    
-    @layer component.simple {
-
-
-      /* tabs — segmented control. Outer container matches .btn height
-         (2.4lh) so a tab strip aligns with adjacent buttons.            */
-    
-      .tabs {
-        --bg: 0;
-        display: inline-flex;
-        align-items: stretch;
-        block-size: 2.4lh;
-        padding: 0.2em;
-        border: 1px solid var(--border);
-        border-radius: var(--cfg-radius);
-        gap: 0.15em;
-        line-height: 1;
-
-        & > :is(button, a) {
-          --bg: -1;
-          --fg: -0.55;
-          --type: -1;
-          display: inline-flex;
-          align-items: center;
-          border: 0;
-          padding-inline: 0.85em;
-          border-radius: max(0px, calc(var(--cfg-radius) - 0.2em));
-          font-weight: 600;
-          line-height: 1;
-          white-space: nowrap;
-          user-select: none;
-          color: inherit;
-          text-decoration: none;
-          cursor: pointer;
-          transition:
-            background-color calc(var(--cfg-motion) * 0.2s) ease-out,
-            color            calc(var(--cfg-motion) * 0.2s) ease-out,
-            border-color     calc(var(--cfg-motion) * 0.2s) ease-out;
-        }
-        & > :is(button, a) * { --type: -1; }
-        & > :is(button, a):hover { --fg: -1; }
-        & > :is(button, a)[aria-selected="true"] {
-          --bg: var(--cfg-bg-loud);
-          --fg: -1;
-        }
-
-        @media (max-width: 480px) {
-          min-block-size: 44px;
-        }
-
-        /* underline — alternate look. */
-        &.underline {
-          padding: 0;
-          border: 0;
-          border-radius: 0;
-          border-block-end: 1px solid var(--border);
-          gap: 0;
-
-          & > :is(button, a) {
-            --bg: 0;
-            margin-block-end: -1px;
-            padding: 0.4em 0.85em;
-            border-radius: 0.4em 0.4em 0 0;
-            border-block-end: 2px solid transparent;
-          }
-          & > :is(button, a)[aria-selected="true"] {
-            --bg: 0;
-            --fg: 0.8;
-            border-block-end-color: currentColor;
-          }
-        }
-      }
-    /* crumbs — breadcrumb trail. <a> for clickable steps,
-       <span aria-current="page"> for the current page. Separators
-       are rendered via ::before, painted with --border so they sit
-       quieter than the crumb labels.
-
-       Separator is set via --sep (default "/"). Override per-instance:
-         <nav class="crumbs" style="--sep: '>'">…</nav>
-         <nav class="crumbs" style="--sep: '|'">…</nav>
-         <nav class="crumbs" style="--sep: '\\'">…</nav>   backslash, escaped
-         <nav class="crumbs" style="--sep: '›'">…</nav>    any glyph works
-       Value must be a quoted string — `content` won't accept it otherwise.  */
-
-    @layer component.simple {
-      .crumbs {
-        --sep: "/";
-
-        display: inline-flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: calc(0.25 * 1lh);
-
-        & > * {
-          --type: -1;
-          --fg: -0.55;
-          text-decoration: none;
-          line-height: 1;
-        }
-        & > a:hover {
-          --fg: 0.8;
-          --_interact-bg: 0;
-        }
-        & > [aria-current] {
-          --fg: -1;
-          font-weight: 600;
-        }
-        & > * + *::before {
-          content: var(--sep);
-          margin-inline-end: calc(0.25 * 1lh);
-          color: var(--border);
-        }
-      }
-    }
-    
-    @layer component.simple {
-       /* avatar ───────────────────────────────────────────────── */
-        .avatar {
-          --bg: 0;
-          --fg: -1;
-          --type: 0;
-          box-sizing: border-box;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          block-size: 2.4lh;
-          aspect-ratio: 1;
-          border: 1px solid var(--border);
-          border-radius: var(--cfg-radius);
-          font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-          font-weight: 500;
-          letter-spacing: 0.02em;
-          text-transform: uppercase;
-          line-height: 1;
-
-          & * { --type: 1; }
-        }
-    }
-
-    @layer component.complex{
-      /* navbar-vert — vertical navigation column. Fixed ~14em wide,
-        stacks <a> rows with icon + label + corner badge. Active state
-        matches .tabs default variant: filled pill via --bg/--fg flip. */
-      .navbar-vert {
-        --bg: 0;
-        display: flex;
-        flex-direction: column;
-        inline-size: 14em;
-        padding: 0.2em;
-        border: 1px solid var(--border);
-        border-radius: var(--cfg-radius);
-        gap: 0.15em;
-        line-height: 1;
-
-        & > a {
-          --bg: -1;
-          --fg: -0.55;
-          --type: -1;
-          display: inline-flex;
-          align-items: center;
-          gap: 0.6em;
-          block-size: 2.4lh;
-          padding-inline: 0.7em;
-          border: 0;
-          border-radius: max(0px, calc(var(--cfg-radius) - 0.2em));
-          font-weight: 600;
-          line-height: 1;
-          white-space: nowrap;
-          user-select: none;
-          color: inherit;
-          text-decoration: none;
-          cursor: pointer;
-          transition:
-            background-color calc(var(--cfg-motion) * 0.2s) ease-out,
-            color            calc(var(--cfg-motion) * 0.2s) ease-out;
-
-          & > svg {
-            position: relative;
-            flex: 0 0 auto;
-            inline-size: 1em;
-            block-size: 1em;
-            display: block;
-          }
-          & > p {
-            margin: 0;
-            flex: 1;
-            min-inline-size: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-          & > .tag {
-            position: absolute;
-            inset-block-start: 0.35em;
-            inset-inline-start: 1.15em;
-            min-inline-size: 0.5em;
-            block-size: 0.5em;
-            padding: 0;
-            border-radius: 50%;
-            background: var(--cfg-bg-loud);
-          }
-
-          /* Anchor establishes positioning context for the corner badge. */
-          position: relative;
-
-          & * { --type: -1; }
-        }
-
-        & > a:hover { --fg: -1; }
-        & > a[aria-current="page"],
-        & > a[aria-selected="true"] {
-          --bg: .4;
-          --fg: -1;
-        }
-
-        @media (pointer: coarse) {
-          & > a { min-block-size: 44px; }
-        }
-      }
+    body { font-family: var(--font-ui); }
+
+    @media (prefers-color-scheme: dark) { :root:not([data-ui-theme]) { --cfg-dark: 1 } }
+    [data-ui-theme="light"] { --cfg-dark: 0 }
+    [data-ui-theme="dark"]  { --cfg-dark: 1 }
+
+    .suc { --hue-lock: 145 }
+    .inf { --hue-lock: 240 }
+    .wrn { --hue-lock: 75  }
+    .dgr { --hue-lock: 25  }
+    .bw { --cfg-color-surf-chroma: 0; --cfg-color-loud-c-light: 0; --cfg-color-loud-c-dark: 0; }
+
+    [data-ui-motion="off"]   { --cfg-motion: 0 }
+    [data-ui-motion="on"]    { --cfg-motion: 1 }
+    [data-ui-motion="debug"] { --cfg-motion: 10 }
+    @media (prefers-reduced-motion: reduce) { :root, [data-ui-motion] { --cfg-motion: 0 } }
+
+    body { transition: --scale calc(var(--cfg-motion) * 0.2s) ease-out; }
+    [data-ui-type="sm"] { --scale: 0.875 }
+    [data-ui-type="md"] { --scale: 1     }
+    [data-ui-type="lg"] { --scale: 1.125 }
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--Border) transparent;
     }
 
 
-    
-    @layer component.simple {
-          /* progress — native <progress>. The parent runs both formulas
-         simultaneously: --bg computes the low-chromatic track, --fg
-         computes the high-chromatic fill. Track paints from --_bg, fill
-         paints from currentColor (the resolved --fg). Indeterminate
-         uses an animated gradient on the parent.                        */
-      progress {
-        --bg: 0.2;
-        --fg: 0.8;
-        appearance: none;
-        inline-size: 12em;
-        block-size: 0.5em;
-        border: 1px solid var(--border);
-        border-radius: 999em;
-        overflow: hidden;
+/* ── Syntax highlighting — Custom Highlight API ─────────────
+      The ::highlight() pseudo only honors color, background-color,
+      text-decoration, text-shadow. Custom properties set on
+      ::highlight() do NOT cascade into the painted text, so each
+      rule sets `color` directly. Each rule reads --_bg, --_l, and
+      --cfg-dark from the originating element via relative-color
+      syntax — the same surface anchoring the rest of the formula
+      uses, so token colors automatically follow theme switches
+      and surface depth.
 
-        &::-webkit-progress-bar {
-          background: var(--_bg);
-          border-radius: 999em;
-        }
-        &::-webkit-progress-value {
-          background: currentColor;
-          border-radius: 999em;
-          transition: inline-size 0.2s;
-        }
-        &::-moz-progress-bar {
-          background: currentColor;
-          border-radius: 999em;
-        }
-        &:indeterminate {
-          animation: progress-pulse 1.2s ease-in-out infinite;
-          &::-webkit-progress-bar { background: var(--_bg); }
-          &::-webkit-progress-value { background: currentColor; }
-          &::-moz-progress-bar { background: currentColor; }
-        }
-      }
-      @keyframes progress-pulse {
-        0%, 100% { opacity: 0.5 }
-        50%      { opacity: 1   }
-      }
-    }
-    
-    @layer component.simple {
-          /* link — for in-prose anchors. Chromatic ink so the link reads
-         as clickable amid neutral text; underline sits in the quiet-
-         tone band so it whispers rather than competes with the word.
-         On hover, the underline brightens to currentColor.              */
-      .link {
-        --fg: 0.8;
-        text-decoration: underline;
-        text-decoration-color: var(--border);
-        text-decoration-thickness: 1px;
-        text-underline-offset: 0.18em;
-        transition: text-decoration-color 0.15s;
+      Two formulas:
+        --token-color   chromatic ink, pinned to a fixed L/C
+                        in OKLCH so it reads against any surface;
+                        hue shift varies per category.
+        --comment-color dim ink, lightness pulled toward the
+                        surface so comments recede; tiny chroma
+                        tint via --cfg-fg-tint.
 
-        &:hover {
-          --_interact-bg: 0;
-          --fg: 1;
-          text-decoration-color: var(--Border);
-        }
-      }
-    }
-    
-    @layer component.simple {
-      /* hr — divider. Defaults to horizontal; .vr flips to vertical.
-         Works automatically inside flex/grid parents via align-self/justify-self stretch. */
-      hr {
-        border: 0;
-        background: var(--border);
-        block-size: 1px;
-        inline-size: 100%;
-        margin-block: 1em;
-        margin-inline: 0;
-      }
+      Token L/C endpoints live here as system constants — they're
+      specific to the highlight use case (must read against both
+      light and dark surfaces) and aren't reused elsewhere. Adjust
+      by editing these eight values. ─────────────────────────── */
 
-      hr.vr {
-        block-size: auto;
-        inline-size: 1px;
-        min-block-size: 1lh;
-        margin-block: 0;
-        margin-inline: calc(0.25 * 1lh);
-        align-self: stretch;
-        justify-self: stretch;
-      }
+  ::highlight(css-comment),
+  ::highlight(html-comment),
+  ::highlight(python-comment),
+  ::highlight(javascript-comment),
+  ::highlight(go-comment) {
+    /* Light-mode comment: dark ink that's been mixed toward the surface.
+        Dark-mode comment: light ink mixed toward the surface.
+        Result: visibly dimmer than active code, but still legible. */
+    color: oklch(from var(--_bg)
+      calc(
+        /* light: 35% (dark ink). dark: 70% (light ink, dim). */
+        (35% * (1 - var(--cfg-dark)) + 70% * var(--cfg-dark))
+      )
+      calc(c + var(--cfg-fg-tint))
+      calc(h + 0)
+    );
+  }
 
-      /* hr.text — divider with a centered label.
-         Usage: <hr class="text" data-text="OR"> */
-      hr.text {
-        /* reset the background-line approach; we draw lines via gradient */
-        background: linear-gradient(var(--border), var(--border)) center / 100% 1px no-repeat;
-        block-size: 1lh;
-        inline-size: 100%;
-        display: grid;
-        place-items: center;
-        overflow: visible;        /* let the label sit on top */
-      }
+  /* Strings — warm shift */
+  ::highlight(css-string),
+  ::highlight(html-value),
+  ::highlight(python-string),
+  ::highlight(javascript-string),
+  ::highlight(go-string) {
+    color: oklch(from var(--_bg)
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(h - 36)
+    );
+  }
 
-      hr.text::after {
-        content: attr(data-text);
-        background: var(--bg);    /* mask the line behind the text */
-        padding-inline: calc(0.5 * 1lh);
-        color: var(--color);
-        font-size: 0.875em;       /* slightly smaller than body */
-        line-height: 1;
-      }
-    }
-    
-    @layer component.simple {
-      .card {
-        padding: calc(0.25 * 1lh);
-        border: 1px solid var(--border);
-        border-radius: var(--cfg-radius);
-      }
-      .Card {
-        padding: calc(0.25 * 1lh);
-        border: 1px solid var(--Border);
-        border-radius: var(--cfg-radius);
-      }
-    }
-    
-    @layer component.simple {
-      /* input — text inputs, textareas, selects. Same neutral surface
-        as .btn so they line up in forms. Block-size pinned to 2.4lh
-        to match .btn / .icon-btn / .tabs at any --type.
+  /* Numbers / units */
+  ::highlight(css-number),
+  ::highlight(css-unit),
+  ::highlight(python-number),
+  ::highlight(javascript-number),
+  ::highlight(go-number) {
+    color: oklch(from var(--_bg)
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(h - 24)
+    );
+  }
 
-        iOS auto-zoom prevention: iOS Safari zooms any input whose
-        computed font-size is < 16px on focus. Pin to 16px on coarse
-        pointers (touch) only, so desktop keeps the --type scale.      */
-      .input {
-        --bg: 0;
-        --fg: -1;
-        --type: -1;
-        block-size: 2.4lh;
-        padding-inline: 0.7em;
-        border: 1px solid var(--border);
-        border-radius: var(--cfg-radius);
-        font: inherit;
-        line-height: 1;
-        min-inline-size: 0;
+  /* Punctuation / operators / brackets */
+  ::highlight(css-punctuation),
+  ::highlight(html-bracket),
+  ::highlight(python-operator),
+  ::highlight(python-punctuation),
+  ::highlight(javascript-operator),
+  ::highlight(javascript-punctuation),
+  ::highlight(go-operator),
+  ::highlight(go-punctuation) {
+    color: oklch(from var(--_bg)
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.10
+      calc(h - 12)
+    );
+  }
 
-        & * { --type: -1; }
-        &:focus {
-          border-color: var(--Border);
-          outline: none;
-        }
-        &::placeholder { color: var(--border); }
+  /* Identifiers — properties, vars, selectors, tags, attributes */
+  ::highlight(css-property),
+  ::highlight(css-var-name),
+  ::highlight(css-selector),
+  ::highlight(html-tag),
+  ::highlight(html-attribute),
+  ::highlight(html-doctype),
+  ::highlight(html-entity) {
+    color: oklch(from var(--_bg)
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(h + 12)
+    );
+  }
 
-        @media (max-width: 480px) {
-          min-block-size: 44px;
-        }
-        @media (pointer: coarse) {
-          font-size: max(16px, 1em);
-        }
-      }
-    }
+  /* Functions, classes, builtins */
+  ::highlight(python-function),
+  ::highlight(python-class),
+  ::highlight(python-builtin),
+  ::highlight(javascript-function),
+  ::highlight(javascript-class),
+  ::highlight(javascript-builtin),
+  ::highlight(go-function),
+  ::highlight(go-class),
+  ::highlight(go-builtin) {
+    color: oklch(from var(--_bg)
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.14
+      calc(h + 24)
+    );
+  }
 
-    @layer component.simple {
-      /* select — strip native chevron, draw our own via --border color.
-        Inherits the coarse-pointer font-size floor from .input.       */
-      select.input {
-        appearance: none;
-        padding-inline-end: 1.8em;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.6em center;
-      }
-    }
+  /* Keywords / atrules / decorators — strongest cool shift */
+  ::highlight(css-atrule),
+  ::highlight(python-keyword),
+  ::highlight(python-decorator),
+  ::highlight(javascript-keyword),
+  ::highlight(javascript-decorator),
+  ::highlight(go-keyword) {
+    color: oklch(from var(--_bg)
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.15
+      calc(h + 36)
+    );
+  }
+}
 
-    @layer component.simple {
-      /* textarea — natural multi-line block-size; opt out of the
-        2.4lh single-row height and restore prose line-height for
-        readable wrapped text. Inherits the coarse-pointer font-size
-        floor from .input.                                            */
-      textarea.input {
-        block-size: 6em;
-        resize: vertical;
-        line-height: 1.5;
-        padding-block: 0.4em;
+@layer layout.page {
+  .page {
+    display: grid;
+    grid-template:
+      "b  b  b" auto
+      "h  h  h" auto
+      "s  s  s" auto
+      "n  mh a" auto
+      "n  m  a" 1fr
+      "n  mf a" auto
+      "f  f  f" auto /
+      auto 1fr auto;
+    height: 100svh;
+    overflow: hidden;
 
-        @media (max-width: 480px) {
-          min-block-size: 6em;
-        }
-      }
-    }
+    &.centered { max-width: 1200px; margin-inline: auto; }
 
-    @layer component.simple {
-      /* check — checkbox toggle indicator. */
-      .check {
-        --bg: 0;
-        appearance: none;
-        margin: 0;
-        inline-size: 1em;
-        block-size: 1em;
-        border: 1px solid var(--border);
-        border-radius: 0.25em;
-        flex-shrink: 0;
-        cursor: pointer;
+    & > [class ^="pg-"]       { padding: calc(0.25 * 1lh); }
 
-        &:checked {
-          --bg: var(--cfg-bg-loud);
-          --fg: -1;
-          border-color: transparent;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E");
-          background-size: 70%;
-          background-repeat: no-repeat;
-          background-position: center;
-        }
-        &:focus-visible {
-          outline: 2px solid var(--Border);
-          outline-offset: 2px;
-        }
-      }
-    }
+    & > .pg-banner            { grid-area: b;  }
+    & > .pg-header            { grid-area: h;  }
+    & > .pg-subheader         { grid-area: s;  padding-block:0; }
+    & > .pg-navigation        { grid-area: n;  overflow-y: auto;  min-height: 0; }
+    & > .pg-main-header       { grid-area: mh; }
+    & > .pg-main              { grid-area: m;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+    & > .pg-main-footer       { grid-area: mf; }
+    & > .pg-aside             { grid-area: a;  overflow-y: auto;  min-height: 0; }
+    & > .pg-footer            { grid-area: f;  padding-block:0; }
+  }
+}
 
-    @layer component.simple {
-      /* radio — radio toggle indicator. */
-      .radio {
-        --bg: 0;
-        appearance: none;
-        margin: 0;
-        inline-size: 1em;
-        block-size: 1em;
-        border: 1px solid var(--border);
-        border-radius: 50%;
-        flex-shrink: 0;
-        cursor: pointer;
+@layer component.complex {
+    .drawer {
+        --_dur: calc(var(--cfg-motion) * 0.25s);
 
-        &:checked {
-          --bg: var(--cfg-bg-loud);
-          --fg: -1;
-          border-color: transparent;
-          background-image: radial-gradient(circle, currentColor 32%, transparent 36%);
-        }
-        &:focus-visible {
-          outline: 2px solid var(--Border);
-          outline-offset: 2px;
-        }
-      }
-    }
-
-    @layer component.simple {
-      /* fieldset — semantic input grouping that lays out as a row of
-         equal-width siblings.                                          */
-      fieldset {
+        position: fixed;
+        inset: auto;
         margin: 0;
         padding: 0;
         border: 0;
-        min-inline-size: 0;
-        display: flex;
-        gap: 0.5em;
+        background: var(--_bg);
+        color: var(--color);
+        max-block-size: none;
+        max-inline-size: none;
+        transition:
+            translate var(--_dur) ease-out,
+            opacity   var(--_dur) ease-out,
+            display   var(--_dur) allow-discrete,
+            overlay   var(--_dur) allow-discrete;
+        translate: 0 0;
+        opacity: 1;
 
-        & > * {
-          flex: 1;
-          min-inline-size: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 0.2em;
-        }
-      }
-
-      /* Form input auto-stretch — donut scope. */
-      @scope (form) to (fieldset) {
-        .input {
-          inline-size: -webkit-fill-available;
-          inline-size: -moz-available;
-          inline-size: stretch;
-        }
-      }
-    }
-    
-     /* ════════════════════════════════════════════════════════════
-         component.complex — .modal primitive
-
-         Centered focused-attention dialog. Subtle fade + slight scale
-         for an unobtrusive but felt open/close animation.
-
-         Pure CSS. Composes with .hero, .stage, .glass like .drawer does.
-         Works as both <dialog> (modal, with backdrop) and <div popover>
-         (non-modal), distinguished by element type — same convention as
-         .drawer.
-
-         The animation uses only transform and opacity — composite-only,
-         GPU-accelerated, smooth even with rich content inside.
-         ════════════════════════════════════════════════════════════ */
-      @layer component.complex {
-
-        .modal {
-          --_dur: calc(var(--cfg-motion) * 0.22s);
-
-          /* Open-state geometry */
-          position: fixed;
-          inset-block-start: 50%;
-          inset-inline-start: 50%;
-          margin: 0;
-          max-block-size: 85svh;
-          max-inline-size: none;
-          inline-size: min(600px, 90vw);
-          block-size: auto;
-          padding: 0;
-          overflow: hidden;
-          border: 1px solid var(--border);
-          border-radius: 0.6rem;
-
-          /* Open state — full size, fully visible */
-          transform: translate(-50%, -50%) scale(1);
-          transform-origin: center center;
-          opacity: 1;
-
-          /* Animation — composite-only properties */
-          transition:
-            transform calc(var(--_dur) * 1.1) cubic-bezier(0.16, 1, 0.3, 1),  /* ease-out-expo, slight overshoot feel */
-            opacity   var(--_dur)              ease-out,
-            display   var(--_dur)              allow-discrete,
-            overlay   var(--_dur)              allow-discrete;
-          will-change: transform, opacity;
-
-          /* Closed state — slightly smaller, slightly translucent, slightly lifted */
-          &:not(:is([open], :popover-open)) {
+        &:not(:is([open], :popover-open)) {
             opacity: 0;
-            transform: translate(-50%, calc(-50% + 8px)) scale(0.96);
-          }
-
-          @starting-style {
+            translate: var(--_translate-closed);
+        }
+        @starting-style {
             &:is([open], :popover-open) {
-              opacity: 0;
-              transform: translate(-50%, calc(-50% + 8px)) scale(0.96);
+                opacity: 0;
+                translate: var(--_translate-closed);
             }
-          }
         }
 
-        /* Backdrop dim — only for <dialog>.modal (modal interaction) */
-        dialog.modal {
-          --_dim: oklch(0% 0 0 / 0.5);
+        &.left {
+            --_translate-closed: -100% 0;
+            inset: 0 auto 0 0;
+            inline-size: min(85vw, 320px);
+            block-size: 100svh;
+            border-radius: 0 var(--cfg-radius) var(--cfg-radius) 0;
+        }
+        &.right {
+            --_translate-closed: 100% 0;
+            inset: 0 0 0 auto;
+            inline-size: min(85vw, 320px);
+            block-size: 100svh;
+            border-radius: var(--cfg-radius) 0 0 var(--cfg-radius);
+        }
+        &.top {
+            --_translate-closed: 0 -100%;
+            inset: 0 0 auto 0;
+            inline-size: 100vw;
+            block-size: min(85svh, 240px);
+            border-radius: 0 0 var(--cfg-radius) var(--cfg-radius);
+        }
+        &.bottom {
+            --_translate-closed: 0 100%;
+            inset: auto 0 0 0;
+            inline-size: 100vw;
+            block-size: min(85svh, 240px);
+            border-radius: var(--cfg-radius) var(--cfg-radius) 0 0;
+        }
+    }
 
-          &::backdrop {
+    dialog.drawer {
+        --_dur: calc(var(--cfg-motion) * 0.25s);
+        --_dim: oklch(0% 0 0 / 0.5);
+
+        &::backdrop {
             background: var(--_dim);
             transition:
-              background-color var(--_dur) ease-out,
-              display          var(--_dur) allow-discrete,
-              overlay          var(--_dur) allow-discrete;
-          }
-          &:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
-          @starting-style {
+                background-color var(--_dur) ease-out,
+                display          var(--_dur) allow-discrete,
+                overlay          var(--_dur) allow-discrete;
+        }
+        &:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
+        @starting-style {
             &[open]::backdrop { background: oklch(0% 0 0 / 0); }
-          }
         }
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+    layout.composition — stateless layout primitives
+
+    Gap derives from line-height (calc(0.25 * 1lh)), scaling with
+    the ambient --type. To control spacing, control --type. To
+    rescale a region, set --scale.
+    ════════════════════════════════════════════════════════════ */
+
+@layer layout.composition {
+
+  .read   { max-inline-size: 65ch; margin-inline: auto; }
+  .column { display: flex; flex-direction: column; gap: calc(0.25 * 1lh) }
+  .row    { display: flex; flex-direction: row; flex-wrap: wrap; gap: calc(0.25 * 1lh); align-items: center }
+
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(0.25 * 1lh);
+  }
+
+  .spread {
+    display: flex; flex-direction: row; flex-wrap: wrap;
+    justify-content: space-between; align-items: center; gap: calc(0.25 * 1lh);
+  }
+  .spread-column {
+    display: flex; flex-direction: column;
+    justify-content: space-between; gap: calc(0.25 * 1lh);
+  }
+
+  .lcr {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: calc(0.25 * 1lh);
+
+    & > :first-child:not(style):not(script)         { justify-self: start  }
+    & > :nth-child(2 of :not(style):not(script))    { justify-self: center }
+    & > :last-child:not(style):not(script)          { justify-self: end    }
+
+    & > style, & > script { display: none }
+  }
+
+  .tmb {
+    display: grid;
+    grid-template-rows: 1fr auto 1fr;
+    justify-items: center;
+    gap: calc(0.25 * 1lh);
+
+    & > :first-child:not(style):not(script)         { align-self: start  }
+    & > :nth-child(2 of :not(style):not(script))    { align-self: center }
+    & > :last-child:not(style):not(script)          { align-self: end    }
+
+    & > style, & > script { display: none }
+  }
+
+  .flank, .flank-start {
+    display: flex; flex-direction: row; align-items: center; gap: calc(0.25 * 1lh);
+
+    & > :first-child:not(style):not(script) { flex: 0 0 auto }
+    & > :last-child:not(style):not(script)  { flex: 1 1 auto; min-inline-size: 0 }
+
+    & > style, & > script { display: none }
+  }
+
+  .flank-end {
+    display: flex; flex-direction: row; align-items: center; gap: calc(0.25 * 1lh);
+
+    & > :first-child:not(style):not(script) { flex: 1 1 auto; min-inline-size: 0 }
+    & > :last-child:not(style):not(script)  { flex: 0 0 auto }
+
+    & > style, & > script { display: none }
+  }
+
+  .frame {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+
+    & > * { inline-size: 100%; block-size: 100%; object-fit: cover }
+  }
+
+  .grid {
+    display: grid; gap: calc(0.25 * 1lh);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min, 16rem)), 1fr));
+  }
+
+  .stack {
+    display: grid;
+    grid-template-areas: "stack";
+
+    & > * { grid-area: stack }
+  }
+
+  .hero {
+    display: grid;
+    grid-template:
+      "t t t" auto
+      "l m r" 1fr
+      "b b b" auto /
+      auto 1fr auto;
+    height: 100%;
+    overflow: hidden;
+
+    & > .top    { grid-area: t; }
+    & > .bottom { grid-area: b; }
+    & > .left   { grid-area: l; overflow-y: auto; min-height: 0; }
+    & > .main   { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+    & > .right  { grid-area: r; overflow-y: auto; min-height: 0; }
+  }
+
+}
+
+
+@layer layout.composition{
+
+  /* ── .hud-overlay — fills parent, stacks 9 positions in one cell ───── */
+  .hud-overlay {
+      display: grid;
+      grid-template-areas: "hud";
+      height: 100%;
+      pointer-events: none;
+
+      & > * {
+          grid-area: hud;
+          justify-self: center;
+          align-self: center;
+          pointer-events: auto;
       }
 
-    
-    /* ============================================================
-       utility.css — utility.layout + utility.exceptions + utility.important
+      & > .↖ { justify-self: start;  align-self: start  }
+      & > .↑ { justify-self: center; align-self: start  }
+      & > .↗ { justify-self: end;    align-self: start  }
+      & > .← { justify-self: start;  align-self: center }
+      & > .• { justify-self: center; align-self: center }
+      & > .→ { justify-self: end;    align-self: center }
+      & > .↙ { justify-self: start;  align-self: end    }
+      & > .↓ { justify-self: center; align-self: end    }
+      & > .↘ { justify-self: end;    align-self: end    }
+  }
 
-       Three small utility layers consolidated. Kept together because
-       each has only a handful of rules and they're conceptually
-       adjacent (small classes that tweak behavior).
+  /* ── .hud-page — full-viewport overlay, stacks 9 positions ───── */
+  .hud-page {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      grid-template-areas: "hud";
+      pointer-events: none;
+      z-index: 1;
 
-       utility.layout    — display/wrap helpers, responsive show/hide
-       utility.exceptions — buffer layer; intentionally near-empty
-       utility.important — !important rules for cascade-immune cases
-       ============================================================ */
-    @layer utility.layout {
-
-      :where(.nowrap)   { white-space: nowrap; }
-      :where(.truncate) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      :where(.tr) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      :where(.tr:is(:hover, :focus, :focus-within)) {
-        white-space: normal;
-        overflow: visible;
-        text-overflow: clip;
-        overflow-wrap: anywhere;
+      & > * {
+          grid-area: hud;
+          justify-self: center;
+          align-self: center;
+          pointer-events: auto;
       }
-      :where(.select-all) { -webkit-user-select: all; user-select: all; }
+
+      & > .↖ { justify-self: start;  align-self: start  }
+      & > .↑ { justify-self: center; align-self: start  }
+      & > .↗ { justify-self: end;    align-self: start  }
+      & > .← { justify-self: start;  align-self: center }
+      & > .• { justify-self: center; align-self: center }
+      & > .→ { justify-self: end;    align-self: center }
+      & > .↙ { justify-self: start;  align-self: end    }
+      & > .↓ { justify-self: center; align-self: end    }
+      & > .↘ { justify-self: end;    align-self: end    }
+  }
+
+  /* ── .hud-grid — nine distinct cells, chrome+content ───── */
+  .hud-grid {
+      display: grid;
+      grid-template:
+        "↖ ↑ ↗" auto
+        "← • →" 1fr
+        "↙ ↓ ↘" auto /
+        auto 1fr auto;
+      height: 100%;
+      overflow: hidden;
+
+      & > .↖ { grid-area: ↖; }
+      & > .↑ { grid-area: ↑; }
+      & > .↗ { grid-area: ↗; }
+      & > .← { grid-area: ←; overflow-y: auto; scrollbar-gutter: stable; }
+      & > .• { grid-area: •; overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+      & > .→ { grid-area: →; overflow-y: auto; scrollbar-gutter: stable; }
+      & > .↙ { grid-area: ↙; }
+      & > .↓ { grid-area: ↓; }
+      & > .↘ { grid-area: ↘; }
+  }
+
+}
+
+/* ============================================================
+    component-base.css — component.base
+
+    Default styling for unclassed HTML elements.
+    ============================================================ */
+
+@layer component.base {
+  /* (filled in as the system grows) */
+}
+
+@layer component.base {
+  /* kbd — keyboard key marker. Mono surface that evokes a physical
+      keycap. Border slightly louder than .input so keys pop in prose. */
+  kbd {
+    --bg: 0;
+    --fg: -1;
+    --type: -1.5;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1em 0.45em;
+    border: 1px solid var(--Border);
+    border-radius: 0.35em;
+    font-family: ui-monospace, monospace;
+    font-weight: 600;
+    line-height: 1.4;
+
+    & * { --type: -1.5; }
+  }
+}
+
+@layer component.simple {
+  /* glass — translucent stage. Sits over content with a blur,
+      surface paints with --cfg-color-alpha < 1 so what's behind
+      shows through. Common for modal overlays, drawer dims, and
+      floating chrome on media. */
+  .glass {
+    --cfg-color-alpha: 0.65;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+@layer component.base {
+  .btn {
+    --bg: 0;
+    --fg: -1;
+    --type: -1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+    block-size: 2.4lh;        /* was 2lh */
+    padding-inline: 0.7em;
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+    font-weight: 600;
+    line-height: 1;           /* was missing */
+    white-space: nowrap;
+    user-select: none;
+
+    & * { --type: -1; }
+    & svg { inline-size: 1em; block-size: 1em; display: block; flex-shrink: 0; }
+
+    @media (max-width: 480px) {
+      min-block-size: 44px;
+    }
+  }
+}
+
+
+@layer component.simple {
+  /* icon-btn — square icon-only button. Same height as .btn (2.4lh)
+    with a square aspect ratio. SVG sizes off the container via cqb
+    so the icon scales with the box on coarse-pointer touch targets. */
+  .icon-btn {
+    --bg: 0;
+    --fg: -1;
+    --type: -1;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+    align-self: center;
+    block-size: 2.4lh;
+    aspect-ratio: 1;
+    container-type: size;
+
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+    line-height: 1;
+    user-select: none;
+
+    & svg {
+      inline-size: 42cqb;
+      block-size: 42cqb;
+      display: block;
     }
 
-    @layer utility.exceptions {
-        /* Visually hidden — screen-reader-only content. */
-        :is(.vh) {
-            inline-size: 0;
-            block-size: 0;
-            overflow: hidden;
+    @media (pointer: coarse) {
+      min-block-size: 44px;
+      min-inline-size: 44px;
+    }
+  }
+}
+
+
+@layer component.simple {
+  /* tag — labeled state indicator. Use a <span> for a static label
+      (always shows the vivid "on" look). Use a <button> with
+      aria-pressed for an interactive toggle:
+        aria-pressed="false" → off state (transparent, dim)
+        aria-pressed="true"  → on state  (vivid chromatic, same
+                                          as a static tag)
+      Same component, two intents disambiguated by element + ARIA.   */
+  .tag {
+    --bg: 0.8;
+    --fg: -1;
+    --type: -2;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3em 0.5em 0.2em;
+    border: 1px solid transparent;
+    border-radius: var(--cfg-radius);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    user-select: none;
+    transition:
+      background-color calc(var(--cfg-motion) * 0.1s) ease-out,
+      color            calc(var(--cfg-motion) * 0.1s) ease-out,
+      border-color     calc(var(--cfg-motion) * 0.1s) ease-out;
+
+    & * { --type: -2; }
+
+    &[aria-pressed="false"] {
+      --bg: 0;
+      --fg: -0.6;
+      border-color: var(--border);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--Border);
+      outline-offset: 2px;
+    }
+  }
+}
+
+@layer component.simple {
+
+
+  /* tabs — segmented control. Outer container matches .btn height
+      (2.4lh) so a tab strip aligns with adjacent buttons.            */
+
+  .tabs {
+    --bg: 0;
+    display: inline-flex;
+    align-items: stretch;
+    block-size: 2.4lh;
+    padding: 0.2em;
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+    gap: 0.15em;
+    line-height: 1;
+
+    & > :is(button, a) {
+      --bg: -1;
+      --fg: -0.55;
+      --type: -1;
+      display: inline-flex;
+      align-items: center;
+      border: 0;
+      padding-inline: 0.85em;
+      border-radius: max(0px, calc(var(--cfg-radius) - 0.2em));
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
+      user-select: none;
+      color: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      transition:
+        background-color calc(var(--cfg-motion) * 0.2s) ease-out,
+        color            calc(var(--cfg-motion) * 0.2s) ease-out,
+        border-color     calc(var(--cfg-motion) * 0.2s) ease-out;
+    }
+    & > :is(button, a) * { --type: -1; }
+    & > :is(button, a):hover { --fg: -1; }
+    & > :is(button, a)[aria-selected="true"] {
+      --bg: var(--cfg-bg-loud);
+      --fg: -1;
+    }
+
+    @media (max-width: 480px) {
+      min-block-size: 44px;
+    }
+
+    /* underline — alternate look. */
+    &.underline {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      border-block-end: 1px solid var(--border);
+      gap: 0;
+
+      & > :is(button, a) {
+        --bg: 0;
+        margin-block-end: -1px;
+        padding: 0.4em 0.85em;
+        border-radius: 0.4em 0.4em 0 0;
+        border-block-end: 2px solid transparent;
+      }
+      & > :is(button, a)[aria-selected="true"] {
+        --bg: 0;
+        --fg: 0.8;
+        border-block-end-color: currentColor;
+      }
+    }
+  }
+/* crumbs — breadcrumb trail. <a> for clickable steps,
+    <span aria-current="page"> for the current page. Separators
+    are rendered via ::before, painted with --border so they sit
+    quieter than the crumb labels.
+
+    Separator is set via --sep (default "/"). Override per-instance:
+      <nav class="crumbs" style="--sep: '>'">…</nav>
+      <nav class="crumbs" style="--sep: '|'">…</nav>
+      <nav class="crumbs" style="--sep: '\\'">…</nav>   backslash, escaped
+      <nav class="crumbs" style="--sep: '›'">…</nav>    any glyph works
+    Value must be a quoted string — `content` won't accept it otherwise.  */
+
+@layer component.simple {
+  .crumbs {
+    --sep: "/";
+
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: calc(0.25 * 1lh);
+
+    & > * {
+      --type: -1;
+      --fg: -0.55;
+      text-decoration: none;
+      line-height: 1;
+    }
+    & > a:hover {
+      --fg: 0.8;
+      --_interact-bg: 0;
+    }
+    & > [aria-current] {
+      --fg: -1;
+      font-weight: 600;
+    }
+    & > * + *::before {
+      content: var(--sep);
+      margin-inline-end: calc(0.25 * 1lh);
+      color: var(--border);
+    }
+  }
+}
+
+@layer component.simple {
+    /* avatar ───────────────────────────────────────────────── */
+    .avatar {
+      --bg: 0;
+      --fg: -1;
+      --type: 0;
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      block-size: 2.4lh;
+      aspect-ratio: 1;
+      border: 1px solid var(--border);
+      border-radius: var(--cfg-radius);
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      line-height: 1;
+
+      & * { --type: 1; }
+    }
+}
+
+@layer component.complex{
+  /* navbar — vertical navigation column. Fixed ~14em wide, stacks
+    <a> rows with icon + label. Optional .tag (right-aligned pill)
+    or .dot (corner notification) per row. Active state matches
+    .tabs default variant: filled pill via --bg/--fg flip.          */
+  .navbar {
+    --bg: 0;
+    display: flex;
+    flex-direction: column;
+    inline-size: 14em;
+    padding: 0.2em;
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+    gap: 0.15em;
+    line-height: 1;
+
+    & > a {
+      --bg: -1;
+      --fg: -0.55;
+      --type: -1;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6em;
+      block-size: 2.4lh;
+      padding-inline: 0.7em;
+      border: 0;
+      border-radius: max(0px, calc(var(--cfg-radius) - 0.2em));
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
+      user-select: none;
+      color: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      transition:
+        background-color calc(var(--cfg-motion) * 0.2s) ease-out,
+        color            calc(var(--cfg-motion) * 0.2s) ease-out;
+
+      & > svg {
+        flex: 0 0 auto;
+        inline-size: 1em;
+        block-size: 1em;
+        display: block;
+      }
+      & > p {
+        margin: 0;
+        flex: 1;
+        min-inline-size: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      & > .tag {
+        margin-inline-start: auto;
+      }
+      & > .dot {
+        position: absolute;
+        inset-block-start: 0.35em;
+        inset-inline-start: 1.15em;
+        inline-size: 0.5em;
+        block-size: 0.5em;
+        border-radius: 50%;
+        background: var(--cfg-bg-loud);
+      }
+
+      & * { --type: -1; }
+    }
+
+    & > a:hover { --fg: -1; }
+    & > a[aria-current="page"],
+    & > a[aria-selected="true"] {
+      --bg: var(--cfg-bg-loud);
+      --fg: -1;
+    }
+
+    @media (pointer: coarse) {
+      & > a { min-block-size: 44px; }
+    }
+  }
+}
+
+
+
+@layer component.simple {
+      /* progress — native <progress>. The parent runs both formulas
+      simultaneously: --bg computes the low-chromatic track, --fg
+      computes the high-chromatic fill. Track paints from --_bg, fill
+      paints from currentColor (the resolved --fg). Indeterminate
+      uses an animated gradient on the parent.                        */
+  progress {
+    --bg: 0.2;
+    --fg: 0.8;
+    appearance: none;
+    inline-size: 12em;
+    block-size: 0.5em;
+    border: 1px solid var(--border);
+    border-radius: 999em;
+    overflow: hidden;
+
+    &::-webkit-progress-bar {
+      background: var(--_bg);
+      border-radius: 999em;
+    }
+    &::-webkit-progress-value {
+      background: currentColor;
+      border-radius: 999em;
+      transition: inline-size 0.2s;
+    }
+    &::-moz-progress-bar {
+      background: currentColor;
+      border-radius: 999em;
+    }
+    &:indeterminate {
+      animation: progress-pulse 1.2s ease-in-out infinite;
+      &::-webkit-progress-bar { background: var(--_bg); }
+      &::-webkit-progress-value { background: currentColor; }
+      &::-moz-progress-bar { background: currentColor; }
+    }
+  }
+  @keyframes progress-pulse {
+    0%, 100% { opacity: 0.5 }
+    50%      { opacity: 1   }
+  }
+}
+
+@layer component.simple {
+      /* link — for in-prose anchors. Chromatic ink so the link reads
+      as clickable amid neutral text; underline sits in the quiet-
+      tone band so it whispers rather than competes with the word.
+      On hover, the underline brightens to currentColor.              */
+  .link {
+    --fg: 0.8;
+    text-decoration: underline;
+    text-decoration-color: var(--border);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+    transition: text-decoration-color 0.15s;
+
+    &:hover {
+      --_interact-bg: 0;
+      --fg: 1;
+      text-decoration-color: var(--Border);
+    }
+  }
+}
+
+@layer component.simple {
+  /* hr — divider. Defaults to horizontal; .vr flips to vertical.
+      Works automatically inside flex/grid parents via align-self/justify-self stretch. */
+  hr {
+    border: 0;
+    background: var(--border);
+    block-size: 1px;
+    inline-size: 100%;
+    margin-block: 1em;
+    margin-inline: 0;
+  }
+
+  hr.vr {
+    block-size: auto;
+    inline-size: 1px;
+    min-block-size: 1lh;
+    margin-block: 0;
+    margin-inline: calc(0.25 * 1lh);
+    align-self: stretch;
+    justify-self: stretch;
+  }
+
+  /* hr.text — divider with a centered label.
+      Usage: <hr class="text" data-text="OR"> */
+  hr.text {
+    /* reset the background-line approach; we draw lines via gradient */
+    background: linear-gradient(var(--border), var(--border)) center / 100% 1px no-repeat;
+    block-size: 1lh;
+    inline-size: 100%;
+    display: grid;
+    place-items: center;
+    overflow: visible;        /* let the label sit on top */
+  }
+
+  hr.text::after {
+    content: attr(data-text);
+    background: var(--bg);    /* mask the line behind the text */
+    padding-inline: calc(0.5 * 1lh);
+    color: var(--color);
+    font-size: 0.875em;       /* slightly smaller than body */
+    line-height: 1;
+  }
+}
+
+@layer component.simple {
+  .card {
+    padding: calc(0.25 * 1lh);
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+  }
+  .Card {
+    padding: calc(0.25 * 1lh);
+    border: 1px solid var(--Border);
+    border-radius: var(--cfg-radius);
+  }
+}
+
+@layer component.simple {
+  /* input — text inputs, textareas, selects. Same neutral surface
+    as .btn so they line up in forms. Block-size pinned to 2.4lh
+    to match .btn / .icon-btn / .tabs at any --type.
+
+    iOS auto-zoom prevention: iOS Safari zooms any input whose
+    computed font-size is < 16px on focus. Pin to 16px on coarse
+    pointers (touch) only, so desktop keeps the --type scale.      */
+  .input {
+    --bg: 0;
+    --fg: -1;
+    --type: -1;
+    block-size: 2.4lh;
+    padding-inline: 0.7em;
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+    font: inherit;
+    line-height: 1;
+    min-inline-size: 0;
+
+    & * { --type: -1; }
+    &:focus {
+      border-color: var(--Border);
+      outline: none;
+    }
+    &::placeholder { color: var(--border); }
+
+    @media (max-width: 480px) {
+      min-block-size: 44px;
+    }
+    @media (pointer: coarse) {
+      font-size: max(16px, 1em);
+    }
+  }
+}
+
+@layer component.simple {
+  /* select — strip native chevron, draw our own via --border color.
+    Inherits the coarse-pointer font-size floor from .input.       */
+  select.input {
+    appearance: none;
+    padding-inline-end: 1.8em;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6em center;
+  }
+}
+
+@layer component.simple {
+  /* textarea — natural multi-line block-size; opt out of the
+    2.4lh single-row height and restore prose line-height for
+    readable wrapped text. Inherits the coarse-pointer font-size
+    floor from .input.                                            */
+  textarea.input {
+    block-size: 6em;
+    resize: vertical;
+    line-height: 1.5;
+    padding-block: 0.4em;
+
+    @media (max-width: 480px) {
+      min-block-size: 6em;
+    }
+  }
+}
+
+@layer component.simple {
+  /* check — checkbox toggle indicator. */
+  .check {
+    --bg: 0;
+    appearance: none;
+    margin: 0;
+    inline-size: 1em;
+    block-size: 1em;
+    border: 1px solid var(--border);
+    border-radius: 0.25em;
+    flex-shrink: 0;
+    cursor: pointer;
+
+    &:checked {
+      --bg: var(--cfg-bg-loud);
+      --fg: -1;
+      border-color: transparent;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E");
+      background-size: 70%;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    &:focus-visible {
+      outline: 2px solid var(--Border);
+      outline-offset: 2px;
+    }
+  }
+}
+
+@layer component.simple {
+  /* radio — radio toggle indicator. */
+  .radio {
+    --bg: 0;
+    appearance: none;
+    margin: 0;
+    inline-size: 1em;
+    block-size: 1em;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    flex-shrink: 0;
+    cursor: pointer;
+
+    &:checked {
+      --bg: var(--cfg-bg-loud);
+      --fg: -1;
+      border-color: transparent;
+      background-image: radial-gradient(circle, currentColor 32%, transparent 36%);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--Border);
+      outline-offset: 2px;
+    }
+  }
+}
+
+@layer component.simple {
+  /* fieldset — semantic input grouping that lays out as a row of
+      equal-width siblings.                                          */
+  fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-inline-size: 0;
+    display: flex;
+    gap: 0.5em;
+
+    & > * {
+      flex: 1;
+      min-inline-size: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2em;
+    }
+  }
+
+  /* Form input auto-stretch — donut scope. */
+  @scope (form) to (fieldset) {
+    .input {
+      inline-size: -webkit-fill-available;
+      inline-size: -moz-available;
+      inline-size: stretch;
+    }
+  }
+}
+
+  /* ════════════════════════════════════════════════════════════
+      component.complex — .modal primitive
+
+      Centered focused-attention dialog. Subtle fade + slight scale
+      for an unobtrusive but felt open/close animation.
+
+      Pure CSS. Composes with .hero, .stage, .glass like .drawer does.
+      Works as both <dialog> (modal, with backdrop) and <div popover>
+      (non-modal), distinguished by element type — same convention as
+      .drawer.
+
+      The animation uses only transform and opacity — composite-only,
+      GPU-accelerated, smooth even with rich content inside.
+      ════════════════════════════════════════════════════════════ */
+  @layer component.complex {
+
+    .modal {
+      --_dur: calc(var(--cfg-motion) * 0.22s);
+
+      /* Open-state geometry */
+      position: fixed;
+      inset-block-start: 50%;
+      inset-inline-start: 50%;
+      margin: 0;
+      max-block-size: 85svh;
+      max-inline-size: none;
+      inline-size: min(600px, 90vw);
+      block-size: auto;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 0.6rem;
+
+      /* Open state — full size, fully visible */
+      transform: translate(-50%, -50%) scale(1);
+      transform-origin: center center;
+      opacity: 1;
+
+      /* Animation — composite-only properties */
+      transition:
+        transform calc(var(--_dur) * 1.1) cubic-bezier(0.16, 1, 0.3, 1),  /* ease-out-expo, slight overshoot feel */
+        opacity   var(--_dur)              ease-out,
+        display   var(--_dur)              allow-discrete,
+        overlay   var(--_dur)              allow-discrete;
+      will-change: transform, opacity;
+
+      /* Closed state — slightly smaller, slightly translucent, slightly lifted */
+      &:not(:is([open], :popover-open)) {
+        opacity: 0;
+        transform: translate(-50%, calc(-50% + 8px)) scale(0.96);
+      }
+
+      @starting-style {
+        &:is([open], :popover-open) {
+          opacity: 0;
+          transform: translate(-50%, calc(-50% + 8px)) scale(0.96);
         }
+      }
     }
 
-    @layer utility.important {
-        :where([hidden]) { display: none !important }
+    /* Backdrop dim — only for <dialog>.modal (modal interaction) */
+    dialog.modal {
+      --_dim: oklch(0% 0 0 / 0.5);
 
-        /* Responsive show/hide. The viewport class is a participation gate —
-           it has to win against any inline `@scope` rule that sets `display`
-           on the element to define its internal layout. `revert-layer` returns
-           the element to its natural display when it should be visible. */
-        :where(.mobile, .tablet, .desktop) { display: none !important }
-        @media (         width <   480px) { :where(.mobile)  { display: revert-layer !important } }
-        @media (480px <= width <  1024px) { :where(.tablet)  { display: revert-layer !important } }
-        @media (         width >= 1024px) { :where(.desktop) { display: revert-layer !important } }
-
-        /* No-print: hide an element when printing. */
-        @media print {
-            :where(.np) { display: none !important }
-        }
+      &::backdrop {
+        background: var(--_dim);
+        transition:
+          background-color var(--_dur) ease-out,
+          display          var(--_dur) allow-discrete,
+          overlay          var(--_dur) allow-discrete;
+      }
+      &:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
+      @starting-style {
+        &[open]::backdrop { background: oklch(0% 0 0 / 0); }
+      }
     }
-    
+  }
+
+
+/* ============================================================
+    utility.css — utility.layout + utility.exceptions + utility.important
+
+    Three small utility layers consolidated. Kept together because
+    each has only a handful of rules and they're conceptually
+    adjacent (small classes that tweak behavior).
+
+    utility.layout    — display/wrap helpers, responsive show/hide
+    utility.exceptions — buffer layer; intentionally near-empty
+    utility.important — !important rules for cascade-immune cases
+    ============================================================ */
+@layer utility.layout {
+
+  :where(.nowrap)   { white-space: nowrap; }
+  :where(.truncate) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  :where(.tr) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  :where(.tr:is(:hover, :focus, :focus-within)) {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+  :where(.select-all) { -webkit-user-select: all; user-select: all; }
+}
+
+@layer utility.exceptions {
+    /* Visually hidden — screen-reader-only content. */
+    :is(.vh) {
+        inline-size: 0;
+        block-size: 0;
+        overflow: hidden;
+    }
+}
+
+@layer utility.important {
+    :where([hidden]) { display: none !important }
+
+    /* Responsive show/hide. The viewport class is a participation gate —
+        it has to win against any inline `@scope` rule that sets `display`
+        on the element to define its internal layout. `revert-layer` returns
+        the element to its natural display when it should be visible. */
+    :where(.mobile, .tablet, .desktop) { display: none !important }
+    @media (         width <   480px) { :where(.mobile)  { display: revert-layer !important } }
+    @media (480px <= width <  1024px) { :where(.tablet)  { display: revert-layer !important } }
+    @media (         width >= 1024px) { :where(.desktop) { display: revert-layer !important } }
+
+    /* No-print: hide an element when printing. */
+    @media print {
+        :where(.np) { display: none !important }
+    }
+}
+
