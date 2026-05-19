@@ -1294,7 +1294,9 @@
 @layer component.complex {
   /* navbar-dynamic — same as .navbar at >=1024px. Under 1024px, each
      <a> collapses to a compact square block: icon centered above a
-     small truncated label, with .tag pinned to the top-right corner. */
+     small truncated label, with .tag pinned to the top-right corner.
+     Sizing borrowed from .icon-btn: square aspect against a fixed
+     block-size, content sized via cqb so nothing pushes the box.   */
   .navbar-dynamic {
     --bg: 0;
     display: flex;
@@ -1368,26 +1370,32 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 0.25em;
-        aspect-ratio: 1;
-        block-size: auto;
-        padding: 0.4em;
+        gap: 0;
+        inline-size: 4.5lh;
+        block-size: 4.5lh;
+        min-block-size: 0;
+        padding: 0;
+        container-type: size;
+        overflow: hidden;
 
         & > svg {
-          inline-size: 1.4em;
-          block-size: 1.4em;
+          inline-size: 30cqb;
+          block-size: 30cqb;
         }
         & > p {
           --type: -1;
           flex: 0 0 auto;
-          inline-size: 100%;
+          inline-size: 90cqi;
+          margin-block-start: 6cqb;
           text-align: center;
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         & > .tag {
           position: absolute;
-          inset-block-start: 0.25em;
-          inset-inline-end: 0.25em;
+          inset-block-start: 4cqb;
+          inset-inline-end: 4cqb;
           margin: 0;
         }
       }
