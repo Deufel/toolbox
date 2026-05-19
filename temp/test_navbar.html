@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>navbar-vert demo — page layout</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@dfa1197/css/style.css">
+</head>
+<body class="page">
+
+<div class="pg-banner">
+  <strong>Unreleased software</strong> — demo of <code>.navbar-vert</code> at commit <code>dfa1197</code>.
+</div>
+
+<header class="pg-header">
+  <h1>Momentum</h1>
+  <button class="btn" id="toggle-centered" type="button">Toggle .centered</button>
+</header>
+
+<div class="pg-subheader">
+  <div class="tabs" role="tablist"
+    ><a href="#" role="tab" aria-selected="true">Overview</a
+    ><a href="#" role="tab" aria-selected="false">Activity</a
+    ><a href="#" role="tab" aria-selected="false">Settings</a
+  ></div>
+</div>
+
+<nav class="pg-navigation navbar-vert" aria-label="Primary">
+
+  <a href="#home" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+    <p>Home</p>
+  </a>
+
+  <a href="#accounts">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+    <p>Accounts</p>
+  </a>
+
+  <a href="#inventory">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+      <line x1="12" y1="22.08" x2="12" y2="12"/>
+    </svg>
+    <p>Inventory</p>
+    <span class="tag"></span>
+  </a>
+
+  <a href="#reports">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="20" x2="12" y2="10"/>
+      <line x1="18" y1="20" x2="18" y2="4"/>
+      <line x1="6" y1="20" x2="6" y2="16"/>
+    </svg>
+    <p>Reports</p>
+  </a>
+
+  <a href="#orders">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 11H1l8-8 8 8h-8z"/>
+      <path d="M22 12l-3 9H5l-3-9"/>
+    </svg>
+    <p>Orders</p>
+    <span class="tag"></span>
+  </a>
+
+  <a href="#settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+    <p>Settings</p>
+  </a>
+
+</nav>
+
+<div class="pg-main-header">
+  <h2>Dashboard</h2>
+</div>
+
+<main class="pg-main">
+  <p>
+    Demo of <code>.navbar-vert</code> living in the <code>pg-navigation</code> slot.
+    Use the <strong>Toggle .centered</strong> button up top to flip the page into
+    its centered, max-width form and back.
+  </p>
+  <ol>
+    <li>Row one — main content scrolls inside its grid cell.</li>
+    <li>Row two — navigation scrolls independently on the left.</li>
+    <li>Row three — aside scrolls independently on the right.</li>
+    <li>Row four — banner, header, subheader, footer stay fixed.</li>
+    <li>Row five — try this with a small viewport to see overflow kick in.</li>
+    <li>Row six — filler to push main into overflow.</li>
+    <li>Row seven — keep going.</li>
+    <li>Row eight — still scrolling main only.</li>
+    <li>Row nine — nav is unaffected.</li>
+    <li>Row ten — final line of filler.</li>
+  </ol>
+</main>
+
+<div class="pg-main-footer">
+  <small>Main footer slot</small>
+</div>
+
+<aside class="pg-aside">
+  <h3>Aside</h3>
+  <p>Right-side panel for context, filters, or detail views.</p>
+</aside>
+
+<footer class="pg-footer">
+  <small>© Momentum — demo build (<code>dfa1197</code>)</small>
+</footer>
+
+<script>
+  // Active state on nav.
+  const nav = document.querySelector('.navbar-vert');
+  nav.addEventListener('click', (e) => {
+    const a = e.target.closest('a');
+    if (!a) return;
+    e.preventDefault();
+    nav.querySelectorAll('[aria-current]').forEach(el => el.removeAttribute('aria-current'));
+    a.setAttribute('aria-current', 'page');
+  });
+
+  // Toggle .centered on body.
+  document.getElementById('toggle-centered').addEventListener('click', () => {
+    document.body.classList.toggle('centered');
+  });
+</script>
+
+</body>
+</html>
