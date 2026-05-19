@@ -974,35 +974,38 @@
       }
     }
     
-    .btn {
-      --bg: 0;
-      --fg: -1;
-      --type: -1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4em;
-      block-size: 2.4lh;        /* was 2lh */
-      padding-inline: 0.7em;
-      border: 1px solid var(--border);
-      border-radius: var(--cfg-radius);
-      font-weight: 600;
-      line-height: 1;           /* was missing */
-      white-space: nowrap;
-      user-select: none;
+    @layer component.base {
+      .btn {
+        --bg: 0;
+        --fg: -1;
+        --type: -1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4em;
+        block-size: 2.4lh;        /* was 2lh */
+        padding-inline: 0.7em;
+        border: 1px solid var(--border);
+        border-radius: var(--cfg-radius);
+        font-weight: 600;
+        line-height: 1;           /* was missing */
+        white-space: nowrap;
+        user-select: none;
 
-      & * { --type: -1; }
-      & svg { inline-size: 1em; block-size: 1em; display: block; flex-shrink: 0; }
+        & * { --type: -1; }
+        & svg { inline-size: 1em; block-size: 1em; display: block; flex-shrink: 0; }
 
-      @media (max-width: 480px) {
-        min-block-size: 44px;
+        @media (max-width: 480px) {
+          min-block-size: 44px;
+        }
       }
     }
     
 
     @layer component.simple {
       /* icon-btn — square icon-only button. Same height as .btn (2.4lh)
-         with a square aspect ratio.                                     */
+        with a square aspect ratio. SVG sizes off the container via cqb
+        so the icon scales with the box on coarse-pointer touch targets. */
       .icon-btn {
         --bg: 0;
         --fg: -1;
@@ -1016,6 +1019,7 @@
         align-self: center;
         block-size: 2.4lh;
         aspect-ratio: 1;
+        container-type: size;
 
         border: 1px solid var(--border);
         border-radius: var(--cfg-radius);
@@ -1023,12 +1027,12 @@
         user-select: none;
 
         & svg {
-          inline-size: 1em;
-          block-size: 1em;
+          inline-size: 42cqb;
+          block-size: 42cqb;
           display: block;
         }
 
-        @media (max-width: 480px) {
+        @media (pointer: coarse) {
           min-block-size: 44px;
           min-inline-size: 44px;
         }
@@ -1082,6 +1086,7 @@
 
       /* tabs — segmented control. Outer container matches .btn height
          (2.4lh) so a tab strip aligns with adjacent buttons.            */
+    
       .tabs {
         --bg: 0;
         display: inline-flex;
@@ -1093,10 +1098,12 @@
         gap: 0.15em;
         line-height: 1;
 
-        & > button {
+        & > :is(button, a) {
           --bg: -1;
           --fg: -0.55;
           --type: -1;
+          display: inline-flex;
+          align-items: center;
           border: 0;
           padding-inline: 0.85em;
           border-radius: max(0px, calc(var(--cfg-radius) - 0.2em));
@@ -1104,14 +1111,17 @@
           line-height: 1;
           white-space: nowrap;
           user-select: none;
+          color: inherit;
+          text-decoration: none;
+          cursor: pointer;
           transition:
             background-color calc(var(--cfg-motion) * 0.2s) ease-out,
             color            calc(var(--cfg-motion) * 0.2s) ease-out,
             border-color     calc(var(--cfg-motion) * 0.2s) ease-out;
         }
-        & > button * { --type: -1; }
-        & > button:hover { --fg: -1; }
-        & > button[aria-selected="true"] {
+        & > :is(button, a) * { --type: -1; }
+        & > :is(button, a):hover { --fg: -1; }
+        & > :is(button, a)[aria-selected="true"] {
           --bg: var(--cfg-bg-loud);
           --fg: -1;
         }
@@ -1128,22 +1138,20 @@
           border-block-end: 1px solid var(--border);
           gap: 0;
 
-          & > button {
+          & > :is(button, a) {
             --bg: 0;
             margin-block-end: -1px;
             padding: 0.4em 0.85em;
             border-radius: 0.4em 0.4em 0 0;
             border-block-end: 2px solid transparent;
           }
-          & > button[aria-selected="true"] {
+          & > :is(button, a)[aria-selected="true"] {
             --bg: 0;
             --fg: 0.8;
             border-block-end-color: currentColor;
           }
         }
       }
-    }
-    
     /* crumbs — breadcrumb trail. <a> for clickable steps,
        <span aria-current="page"> for the current page. Separators
        are rendered via ::before, painted with --border so they sit
@@ -1333,8 +1341,12 @@
     
     @layer component.simple {
       /* input — text inputs, textareas, selects. Same neutral surface
-         as .btn so they line up in forms. Block-size pinned to 2.4lh
-         to match .btn / .icon-btn / .tabs at any --type.               */
+        as .btn so they line up in forms. Block-size pinned to 2.4lh
+        to match .btn / .icon-btn / .tabs at any --type.
+
+        iOS auto-zoom prevention: iOS Safari zooms any input whose
+        computed font-size is < 16px on focus. Pin to 16px on coarse
+        pointers (touch) only, so desktop keeps the --type scale.      */
       .input {
         --bg: 0;
         --fg: -1;
@@ -1357,9 +1369,15 @@
         @media (max-width: 480px) {
           min-block-size: 44px;
         }
+        @media (pointer: coarse) {
+          font-size: max(16px, 1em);
+        }
       }
+    }
 
-      /* select — strip native chevron, draw our own via --border color. */
+    @layer component.simple {
+      /* select — strip native chevron, draw our own via --border color.
+        Inherits the coarse-pointer font-size floor from .input.       */
       select.input {
         appearance: none;
         padding-inline-end: 1.8em;
@@ -1367,10 +1385,13 @@
         background-repeat: no-repeat;
         background-position: right 0.6em center;
       }
+    }
 
+    @layer component.simple {
       /* textarea — natural multi-line block-size; opt out of the
-         2.4lh single-row height and restore prose line-height for
-         readable wrapped text.                                        */
+        2.4lh single-row height and restore prose line-height for
+        readable wrapped text. Inherits the coarse-pointer font-size
+        floor from .input.                                            */
       textarea.input {
         block-size: 6em;
         resize: vertical;
@@ -1381,9 +1402,11 @@
           min-block-size: 6em;
         }
       }
+    }
 
-      /* check, radio — toggle indicators. */
-      .check, .radio {
+    @layer component.simple {
+      /* check — checkbox toggle indicator. */
+      .check {
         --bg: 0;
         appearance: none;
         margin: 0;
@@ -1398,22 +1421,41 @@
           --bg: var(--cfg-bg-loud);
           --fg: -1;
           border-color: transparent;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E");
+          background-size: 70%;
+          background-repeat: no-repeat;
+          background-position: center;
         }
         &:focus-visible {
           outline: 2px solid var(--Border);
           outline-offset: 2px;
         }
       }
-      .radio { border-radius: 50%; }
+    }
 
-      .check:checked {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E");
-        background-size: 70%;
-        background-repeat: no-repeat;
-        background-position: center;
-      }
-      .radio:checked {
-        background-image: radial-gradient(circle, currentColor 32%, transparent 36%);
+    @layer component.simple {
+      /* radio — radio toggle indicator. */
+      .radio {
+        --bg: 0;
+        appearance: none;
+        margin: 0;
+        inline-size: 1em;
+        block-size: 1em;
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        flex-shrink: 0;
+        cursor: pointer;
+
+        &:checked {
+          --bg: var(--cfg-bg-loud);
+          --fg: -1;
+          border-color: transparent;
+          background-image: radial-gradient(circle, currentColor 32%, transparent 36%);
+        }
+        &:focus-visible {
+          outline: 2px solid var(--Border);
+          outline-offset: 2px;
+        }
       }
     }
 
