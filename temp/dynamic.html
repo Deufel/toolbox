@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>navbar demo — page layout</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@e023102/css/style.css">
+<title>navbar-dynamic demo — page layout</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@e8211e5/css/style.css">
 </head>
 <body class="page">
 
 <div class="pg-banner">
-  <strong>Unreleased software</strong> — demo of <code>.navbar</code> at commit <code>790b9f6</code>.
+  <strong>Unreleased software</strong> — demo of <code>.navbar-dynamic</code> at commit <code>42a5e64</code>. Resize the viewport across the 1024px boundary to see the shape swap.
 </div>
 
 <header class="pg-header">
@@ -25,7 +25,7 @@
   ></div>
 </div>
 
-<nav class="pg-navigation navbar" aria-label="Primary">
+<nav class="pg-navigation navbar-dynamic" aria-label="Primary">
 
   <a href="#home" aria-current="page">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -73,6 +73,13 @@
     <span class="tag">New</span>
   </a>
 
+  <a href="#analytics">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+    </svg>
+    <p>Analytics dashboard</p>
+  </a>
+
   <a href="#settings">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="3"/>
@@ -89,23 +96,31 @@
 
 <main class="pg-main">
   <p>
-    Demo of <code>.navbar</code> at commit <code>790b9f6</code> — the component
-    now lives in <code>component.complex</code> rather than <code>component.simple</code>,
-    so its rules win cleanly against earlier component layers. Inventory and Orders
-    carry right-aligned <code>.tag</code> labels. Use the <strong>Toggle .centered</strong>
-    button up top to flip the page into its max-width centered form.
+    Demo of <code>.navbar-dynamic</code> at commit <code>42a5e64</code>.
+    Above 1024px, the nav looks identical to <code>.navbar</code> — full 14em
+    column, horizontal rows, icon + label + right-aligned tag. Below 1024px,
+    each row collapses to a square: icon centered above a truncated label,
+    with the tag pinned to the top-right corner.
+  </p>
+  <p>
+    The "Analytics dashboard" entry is deliberately long so you can see the
+    truncate behavior kick in at the collapsed shape — the label ellipsizes
+    rather than wrapping or breaking the square aspect ratio.
+  </p>
+  <p>
+    Try resizing across the 1024px boundary; the swap should be instant. Toggle
+    <strong>.centered</strong> at any viewport to confirm both shapes still work
+    inside a centered page.
   </p>
   <ol>
-    <li>Row one — main content scrolls inside its grid cell.</li>
-    <li>Row two — navigation scrolls independently on the left.</li>
-    <li>Row three — aside scrolls independently on the right.</li>
-    <li>Row four — banner, header, subheader, footer stay fixed.</li>
-    <li>Row five — try this with a small viewport to see overflow kick in.</li>
-    <li>Row six — filler to push main into overflow.</li>
-    <li>Row seven — keep going.</li>
-    <li>Row eight — still scrolling main only.</li>
-    <li>Row nine — nav is unaffected.</li>
-    <li>Row ten — final line of filler.</li>
+    <li>Row one — scroll the main region independently.</li>
+    <li>Row two — nav scrolls on its own column.</li>
+    <li>Row three — aside scrolls on the right.</li>
+    <li>Row four — page chrome stays pinned at all sizes.</li>
+    <li>Row five — filler to push overflow.</li>
+    <li>Row six — keep going.</li>
+    <li>Row seven — still scrolling main only.</li>
+    <li>Row eight — final line of filler.</li>
   </ol>
 </main>
 
@@ -119,12 +134,12 @@
 </aside>
 
 <footer class="pg-footer">
-  <small>© Momentum — demo build (<code>790b9f6</code>)</small>
+  <small>© Momentum — demo build (<code>42a5e64</code>)</small>
 </footer>
 
 <script>
   // Active state on nav.
-  const nav = document.querySelector('.navbar');
+  const nav = document.querySelector('.navbar-dynamic');
   nav.addEventListener('click', (e) => {
     const a = e.target.closest('a');
     if (!a) return;
