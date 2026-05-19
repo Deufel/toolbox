@@ -529,7 +529,8 @@
       ::highlight(css-comment),
       ::highlight(html-comment),
       ::highlight(python-comment),
-      ::highlight(javascript-comment) {
+      ::highlight(javascript-comment),
+      ::highlight(go-comment) {
         /* Light-mode comment: dark ink that's been mixed toward the surface.
            Dark-mode comment: light ink mixed toward the surface.
            Result: visibly dimmer than active code, but still legible. */
@@ -547,7 +548,8 @@
       ::highlight(css-string),
       ::highlight(html-value),
       ::highlight(python-string),
-      ::highlight(javascript-string) {
+      ::highlight(javascript-string),
+      ::highlight(go-string) {
         color: oklch(from var(--_bg)
           calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
           0.13
@@ -559,7 +561,8 @@
       ::highlight(css-number),
       ::highlight(css-unit),
       ::highlight(python-number),
-      ::highlight(javascript-number) {
+      ::highlight(javascript-number),
+      ::highlight(go-number) {
         color: oklch(from var(--_bg)
           calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
           0.13
@@ -573,7 +576,9 @@
       ::highlight(python-operator),
       ::highlight(python-punctuation),
       ::highlight(javascript-operator),
-      ::highlight(javascript-punctuation) {
+      ::highlight(javascript-punctuation),
+      ::highlight(go-operator),
+      ::highlight(go-punctuation) {
         color: oklch(from var(--_bg)
           calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
           0.10
@@ -602,7 +607,10 @@
       ::highlight(python-builtin),
       ::highlight(javascript-function),
       ::highlight(javascript-class),
-      ::highlight(javascript-builtin) {
+      ::highlight(javascript-builtin),
+      ::highlight(go-function),
+      ::highlight(go-class),
+      ::highlight(go-builtin) {
         color: oklch(from var(--_bg)
           calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
           0.14
@@ -615,7 +623,8 @@
       ::highlight(python-keyword),
       ::highlight(python-decorator),
       ::highlight(javascript-keyword),
-      ::highlight(javascript-decorator) {
+      ::highlight(javascript-decorator),
+      ::highlight(go-keyword) {
         color: oklch(from var(--_bg)
           calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
           0.15

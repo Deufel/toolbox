@@ -79,11 +79,48 @@ const JAVASCRIPT_LANG = [
   ['javascript-punctuation', /[{}()[\],;:]/g],
 ];
 
+const GO_KEYWORDS =
+  'break|case|chan|const|continue|default|defer|else|fallthrough|for|'
+  + 'func|go|goto|if|import|interface|map|package|range|return|select|'
+  + 'struct|switch|type|var';
+
+const GO_BUILTINS =
+  'true|false|nil|iota|'
+  + 'bool|byte|complex64|complex128|error|float32|float64|'
+  + 'int|int8|int16|int32|int64|rune|string|'
+  + 'uint|uint8|uint16|uint32|uint64|uintptr|any|comparable|'
+  + 'append|cap|close|complex|copy|delete|imag|len|make|new|'
+  + 'panic|print|println|real|recover|min|max|clear';
+
+const GO_LANG = [
+  // Raw strings first (backticks can contain newlines).
+  ['go-string',      /`[\s\S]*?`/g],
+  // Interpreted strings and rune literals.
+  ['go-string',      /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'/g],
+  // Comments (line + block).
+  ['go-comment',     /\/\/[^\n]*|\/\*[\s\S]*?\*\//g],
+  // Function declarations — name after `func`, optionally with a receiver.
+  // Pattern matches `func Name(` and `func (r *T) Name(`.
+  ['go-function',    /(?<=\bfunc\s+(?:\([^)]*\)\s+)?)[a-zA-Z_]\w*/g],
+  // Type declarations — name after `type`.
+  ['go-class',       /(?<=\btype\s+)[a-zA-Z_]\w*/g],
+  // Keywords.
+  ['go-keyword',     new RegExp(`\\b(?:${GO_KEYWORDS})\\b`, 'g')],
+  // Builtins and primitive types.
+  ['go-builtin',     new RegExp(`\\b(?:${GO_BUILTINS})\\b`, 'g')],
+  // Numbers — int, float, hex, octal, binary, with optional underscores and imaginary suffix.
+  ['go-number',      /\b(?:0[xX][\da-fA-F_]+|0[oO]?[0-7_]+|0[bB][01_]+|\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d+)?i?)\b/g],
+  // Operators — note <- (channel) and := (short var decl) are Go-distinctive.
+  ['go-operator',    /:=|<-|\.\.\.|==|!=|<=|>=|&&|\|\||<<|>>|&\^|\+\+|--|[+\-*\/%&|^<>=!~]/g],
+  ['go-punctuation', /[{}()[\],;.:]/g],
+];
+
 const languages = new Map([
   ['css',        CSS_LANG],
   ['html',       HTML_LANG],
   ['python',     PYTHON_LANG],
   ['javascript', JAVASCRIPT_LANG],
+  ['go',         GO_LANG],
 ]);
 
 function allTokenNames() {
