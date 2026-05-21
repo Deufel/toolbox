@@ -934,15 +934,362 @@
 
 }
 
-/* ============================================================
-    component-base.css — component.base
+/* ════════════════════════════════════════════════════════════════
+    CRT components for stick.css
 
-    Default styling for unclassed HTML elements.
-    ============================================================ */
+    Two components, both shipping the same glass-screen aesthetic:
+
+      .crt         — general-purpose wrapper. Apply to any element to
+                     give it the squircle-framed CRT screen treatment.
+                     Composable: works on cards, divs, asides, sections,
+                     anywhere you want a "vintage screen" surface.
+
+      pre <code>   — default style for any classed code block. Applies
+                     the same CRT treatment automatically, plus a
+                     language-derived hue, a glass chip label, and
+                     hue-aware selection. No wrapper class needed —
+                     just <pre><code class="lang">…</code></pre>.
+
+    Both rely on Chromium's corner-shape: squircle (Chrome 139+).
+    On unsupporting browsers, border-radius falls back to standard
+    elliptical corners — degraded but functional.
+
+    Both rely on these design tokens from core.color:
+      --bg          surface chromatic level [0, 1]
+      --fg          foreground ink level [-1, 1]
+      --hue         base hue
+      --_bg         resolved surface color (computed by formula)
+      --_loud-l     theme-aware loud lightness endpoint
+      --_loud-c     theme-aware loud chroma endpoint
+      --_h          resolved hue
+      --cfg-dark    theme switch [0=light, 1=dark]
+      --cfg-radius  base radius for the squircle calculation
+      --cfg-motion  motion multiplier for transitions
+   ════════════════════════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════════════════════════
+    .crt — general-purpose CRT-glass wrapper
+    component.simple layer
+   ════════════════════════════════════════════════════════════════ */
+
+@layer component.simple {
+  .crt {
+    /* Squircle frame. Radius derives from --cfg-radius scaled up because
+       superellipse curves need more radius to read as "squircular"
+       than circular ones do at the same value. Asymmetric ratio
+       (~1.3x taller) gives a slightly CRT-screen-like aspect to the curve. */
+    border-radius: calc(var(--cfg-radius) * 4) / calc(var(--cfg-radius) * 5.3);
+    corner-shape: squircle;
+
+    /* Positioning context for the texture overlays and any absolute
+       descendants. isolation: isolate prevents mix-blend-mode in the
+       scanline pseudo from leaking into the parent stacking context. */
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    /* Edge bend — inset shadow derived from the current surface,
+       darkened. Auto-adapts to theme: light surface → mid-gray shadow,
+       dark surface → near-black shadow (clamped). The outer shadow
+       lifts the card off the page. */
+    --_glass-shadow: oklch(from var(--_bg) calc(l - 0.4) c h / 0.65);
+    box-shadow:
+      inset 0 0 3em 0.5em var(--_glass-shadow),
+      inset 0 0 8em 1em   var(--_glass-shadow),
+      0 0 calc(2.5lh) calc(-0.5lh) var(--_glass-shadow);
+    border-color: transparent;
+
+    /* Hover state — "screen warming up." A single declaration triggers
+       the cascade to recompute every derived value (inset shadow,
+       scanlines, vignette, glow) with the new surface, producing a
+       chromatic lift. */
+    transition:
+      --bg calc(var(--cfg-motion) * 0.3s) ease-out,
+      box-shadow calc(var(--cfg-motion) * 0.3s) ease-out;
+  }
+  .crt:hover {
+    --_interact-bg: 0.08;
+  }
+
+  /* Soft scanlines via repeating-linear-gradient + mix-blend-mode.
+     Surface-derived color so it darkens correctly in both themes.
+     Stops interpolate (no hard edges) for a phosphor-mask feel. */
+  .crt::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      oklch(from var(--_bg) calc(l - 0.3) c h / 0.18) 1.5px,
+      transparent 3px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  /* Glare highlight (upper-left) + corner vignette. Both colors derive
+     from the resolved surface — glare is surface-lightened, vignette
+     is surface-darkened — so they auto-adapt to theme and hue. */
+  .crt::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 50% at 25% 15%,
+        oklch(from var(--_bg) calc(l + 0.5) c h / 0.10),
+        transparent 65%),
+      radial-gradient(ellipse at center,
+        transparent 55%,
+        oklch(from var(--_bg) calc(l - 0.35) c h / 0.30) 95%,
+        oklch(from var(--_bg) calc(l - 0.4)  c h / 0.50) 100%);
+  }
+
+  /* Direct children stack above the scanline (z:2) / vignette (z:3) layers
+     so content paints first and the glass effects overlay it. */
+  .crt > * { position: relative; z-index: 1 }
+
+  /* Phosphor glow on monospace descendants. Sharp 1px shadow reads as
+     ink-bleed in light mode; tight em-scaled halo at low alpha reads
+     as phosphor warmth in dark mode. */
+  .crt :is(code, pre, kbd) {
+    text-shadow:
+      0 0 1px currentColor,
+      0 0 0.06em oklch(from currentColor l c h / 0.4);
+  }
+  /* Code and kbd need transparent backgrounds so the syntax highlighter's
+     per-token background-color rectangles (via ::highlight()) show through
+     instead of being painted over by the formula's default surface. */
+  .crt :is(code, kbd) {
+    background: none;
+  }
+
+  /* Hue-aware selection. Cascade-aware: each .crt's --hue drives the
+     selection color, so a green .crt has green selections, etc. */
+  .crt ::selection {
+    background-color: oklch(var(--_loud-l) var(--_loud-c) var(--_h) / 0.9);
+    color: oklch(
+      calc(98% * (1 - var(--cfg-dark)) + 8% * var(--cfg-dark))
+      0.02
+      var(--_h)
+    );
+    text-shadow: 0 0 0.2em currentColor;
+  }
+  .crt ::-moz-selection {
+    background-color: oklch(var(--_loud-l) var(--_loud-c) var(--_h) / 0.9);
+    color: oklch(
+      calc(98% * (1 - var(--cfg-dark)) + 8% * var(--cfg-dark))
+      0.02
+      var(--_h)
+    );
+    text-shadow: 0 0 0.2em currentColor;
+  }
+
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+    pre <code class="lang"> — default styled code block
+    component.base layer
+
+    Any <pre><code class="lang">…</code></pre> on the page automatically
+    gets:
+      - CRT-glass treatment (squircle, scanlines, vignette, glow)
+      - Language-derived hue from the lookup table
+      - Glass chip language label in the top-left
+      - One-click select-all via user-select: all
+      - Hue-aware selection
+
+    Optional copy button: drop a <button> as a direct child of the <pre>,
+    after the <code>. Auto-positions to the top-right corner.
+
+    Usage:
+      <pre>
+        <code class="python">…</code>
+        <button>…copy icon or text…</button>   <!-- optional wire your own js ect.. -->
+      </pre>
+   ════════════════════════════════════════════════════════════════ */
 
 @layer component.base {
-  /* (filled in as the system grows) */
+
+  /* Language hue lookup. Each language's --hue cascades down into every
+     descendant, so the scanlines, inset shadow, vignette, glow, and
+     selection all pick up the language's phosphor color automatically. */
+  pre:has(code[class="go"])     { --hue: 220 } /* Gopher cyan */
+  pre:has(code[class="python"]) { --hue: 95  } /* Python yellow */
+  pre:has(code[class="html"])   { --hue: 40  } /* HTML5 orange */
+  pre:has(code[class="css"])    { --hue: 305 } /* Rebecca Purple */
+  pre:has(code[class="javascript"]),
+  pre:has(code[class="js"])     { --hue: 50  } /* JS yellow-orange */
+  pre:has(code[class="rust"])   { --hue: 25  } /* Rust orange-red */
+  pre:has(code[class="ruby"])   { --hue: 5   } /* Ruby red */
+  pre:has(code[class="bash"]),
+  pre:has(code[class="sh"])     { --hue: 130 } /* terminal green */
+
+  /* The default code block. Squircle frame, glass effects, padding tuned
+     so the chip+button live in the top-edge band above the code. */
+  pre:has(code[class]) {
+    border-radius: calc(var(--cfg-radius) * 4) / calc(var(--cfg-radius) * 5.3);
+    corner-shape: squircle;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    --_glass-shadow: oklch(from var(--_bg) calc(l - 0.4) c h / 0.65);
+    box-shadow:
+      inset 0 0 3em 0.5em var(--_glass-shadow),
+      inset 0 0 8em 1em   var(--_glass-shadow),
+      0 0 calc(2.5lh) calc(-0.5lh) var(--_glass-shadow);
+
+    font-family: var(--font-mono);
+    --type: -1;
+    /* Top padding leaves room for the chip + copy button strip.
+       Sides and bottom are tight (no decorative chrome there). */
+    padding: 1.5lh calc(0.6 * 1lh) calc(0.6 * 1lh);
+    overflow-x: auto;
+
+    /* Click anywhere → entire block selected. The .select-all utility
+       behavior promoted to default for code blocks. */
+    -webkit-user-select: all;
+    user-select: all;
+
+    transition:
+      --bg calc(var(--cfg-motion) * 0.3s) ease-out,
+      box-shadow calc(var(--cfg-motion) * 0.3s) ease-out;
+  }
+  pre:has(code[class]):hover {
+    --_interact-bg: 0.08;
+  }
+
+  /* Hue-aware selection on default code blocks. Mirrors the .crt rule
+     so each language's selection picks up its own phosphor color.
+     Required separately because these blocks aren't .crt instances. */
+  pre:has(code[class]) ::selection {
+    background-color: oklch(var(--_loud-l) var(--_loud-c) var(--_h) / 0.9);
+    color: oklch(
+      calc(98% * (1 - var(--cfg-dark)) + 8% * var(--cfg-dark))
+      0.02
+      var(--_h)
+    );
+    text-shadow: 0 0 0.2em currentColor;
+  }
+  pre:has(code[class]) ::-moz-selection {
+    background-color: oklch(var(--_loud-l) var(--_loud-c) var(--_h) / 0.9);
+    color: oklch(
+      calc(98% * (1 - var(--cfg-dark)) + 8% * var(--cfg-dark))
+      0.02
+      var(--_h)
+    );
+    text-shadow: 0 0 0.2em currentColor;
+  }
+
+  /* Scanlines (same as .crt::before). */
+  pre:has(code[class])::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      oklch(from var(--_bg) calc(l - 0.3) c h / 0.18) 1.5px,
+      transparent 3px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  /* Glare + vignette (same as .crt::after). */
+  pre:has(code[class])::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 50% at 25% 15%,
+        oklch(from var(--_bg) calc(l + 0.5) c h / 0.10),
+        transparent 65%),
+      radial-gradient(ellipse at center,
+        transparent 55%,
+        oklch(from var(--_bg) calc(l - 0.35) c h / 0.30) 95%,
+        oklch(from var(--_bg) calc(l - 0.4)  c h / 0.50) 100%);
+  }
+
+  /* The code element. display: block makes it a proper layout box so
+     descendant pseudos can position cleanly. background: none lets the
+     syntax highlighter's per-token background-color rectangles show.
+     Phosphor glow on tokens. */
+  pre:has(code[class]) > code {
+    display: block;
+    z-index: 1;
+    font-family: inherit;
+    --type: -1;
+    background: none;
+    text-shadow:
+      0 0 1px currentColor,
+      0 0 0.06em oklch(from currentColor l c h / 0.4);
+  }
+
+  /* Language label content. Lowercase, per the convention that
+     identifiers like "html" and "css" read more naturally without
+     forced capitalization. Aliases share content via comma selectors. */
+  pre code[class="go"]::after         { content: "go" }
+  pre code[class="python"]::after     { content: "python" }
+  pre code[class="html"]::after       { content: "html" }
+  pre code[class="css"]::after        { content: "css" }
+  pre code[class="javascript"]::after,
+  pre code[class="js"]::after         { content: "javascript" }
+  pre code[class="rust"]::after       { content: "rust" }
+  pre code[class="ruby"]::after       { content: "ruby" }
+  pre code[class="bash"]::after,
+  pre code[class="sh"]::after         { content: "bash" }
+
+  /* Language label styling. Glass chip in the top-left of the <pre>.
+     Anchors to <pre> because <code> isn't position: relative — the
+     pseudo's containing block falls back to the next positioned
+     ancestor, which is the <pre>. */
+  pre:has(code[class]) > code[class]::after {
+    position: absolute;
+    top: calc(0.4 * 1lh);
+    left: calc(0.4 * 1lh);
+    z-index: 4;
+    --type: -2;
+    --fg: -0.3;
+    --bg: 0.15;
+    --cfg-color-alpha: 0.65;
+    padding: 0.2em 0.6em;
+    border: 1px solid var(--border);
+    border-radius: 999em;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-weight: 600;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* Optional copy button. A real <button> dropped inside the <pre>
+     after the <code> auto-positions to the top-right corner. The
+     framework handles position only; the button's content (SVG, text)
+     and click handler are up to the developer.
+
+     Why inside the <pre>: the <pre> is position: relative, so any
+     absolute child anchors to it directly. No wrapper, no anchor
+     positioning, no extra markup. */
+  pre:has(code[class]) > button {
+    position: absolute;
+    top: calc(0.4 * 1lh);
+    right: calc(0.4 * 1lh);
+    z-index: 5;
+    user-select: none;
+    -webkit-user-select: none;
+  }
 }
+
 
 @layer component.base {
   /* kbd — keyboard key marker. Mono surface that evokes a physical
