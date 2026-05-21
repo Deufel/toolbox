@@ -31,9 +31,11 @@
     }
 
     /* Local: small color-swatch helper for inline demos.
-       Just a fixed-size box that paints whatever --bg/--fg the cascade gives it.
-       This is page-local; the framework doesn't need a .swatch primitive
-       because most uses of color tokens are on real components, not swatches. */
+       .swatch        — paints a surface box (for --bg demos)
+       .swatch.ink    — no surface; the digits themselves render in the
+                        --fg color so the ink contrast is what's shown.
+       This is page-local; the framework doesn't ship a .swatch primitive
+       because most real uses of color tokens land on actual components. */
     @scope {
       .swatch {
         display: inline-grid;
@@ -44,6 +46,10 @@
         font-family: var(--font-mono);
         --type: -2;
         text-align: center;
+      }
+      .swatch.ink {
+        border-radius: 0;
+        font-weight: 700;
       }
       .swatch-row {
         display: flex;
@@ -140,10 +146,20 @@
 
       <hr>
 
+      <!-- Framing — what you actually reach for day to day -->
+      <section class="column" id="start-here">
+        <h3 style="--type: 2">Start here</h3>
+        <p>For most work you only need two things: the <code>.stage</code> class for any region that should paint a surface, and the <code>--fg</code> knob to tune ink contrast on text and icons.</p>
+        <p><code>--bg</code> is the third tool, and it earns its place — but use it sparingly. It paints a single element directly, which is right for a lone tag or an accent block, and wrong for anything a <code>.stage</code> would carry better. If you find yourself setting <code>--bg</code> on several nearby elements, reach for a <code>.stage</code> instead.</p>
+        <p style="--fg: -0.5">Rule of thumb: <strong>regions get <code>.stage</code>, text gets <code>--fg</code>, and <code>--bg</code> is for the occasional element that needs to paint on its own.</strong></p>
+      </section>
+
+      <hr>
+
       <!-- Surface — --bg -->
       <section class="column" id="bg">
         <h3 style="--type: 2"><code>--bg</code> &nbsp;<span style="--fg: -0.5; --type: 0; font-weight: 400">surface presence, 0 → 1</span></h3>
-        <p>Higher values paint a louder, more chromatic surface. Default 0 (transparent on the parent).</p>
+        <p>Higher values paint a louder, more chromatic surface. Default 0 (transparent on the parent). Use it for single painted elements — a tag, an accent — not for content regions.</p>
 
         <div class="swatch-row">
           <span class="swatch" style="--bg: 0">0</span>
@@ -160,15 +176,15 @@
       <!-- Ink — --fg -->
       <section class="column" id="fg">
         <h3 style="--type: 2"><code>--fg</code> &nbsp;<span style="--fg: -0.5; --type: 0; font-weight: 400">ink contrast, −1 → 1</span></h3>
-        <p>Negative values are neutral ink (body, secondary, captions). Positive values are chromatic ink (accents, links, emphasis).</p>
+        <p>Negative values are neutral ink (body, secondary, captions). Positive values are chromatic ink (accents, links, emphasis). This is the knob you reach for most.</p>
 
         <div class="swatch-row">
-          <span class="swatch" style="--fg: -1; --bg: 0.1">−1</span>
-          <span class="swatch" style="--fg: -0.5; --bg: 0.1">−0.5</span>
-          <span class="swatch" style="--fg: 0; --bg: 0.1">0</span>
-          <span class="swatch" style="--fg: 0.5; --bg: 0.1">0.5</span>
-          <span class="swatch" style="--fg: 0.8; --bg: 0.1">0.8</span>
-          <span class="swatch" style="--fg: 1; --bg: 0.1">1</span>
+          <span class="swatch ink" style="--fg: -1">−1</span>
+          <span class="swatch ink" style="--fg: -0.5">−0.5</span>
+          <span class="swatch ink" style="--fg: 0">0</span>
+          <span class="swatch ink" style="--fg: 0.5">0.5</span>
+          <span class="swatch ink" style="--fg: 0.8">0.8</span>
+          <span class="swatch ink" style="--fg: 1">1</span>
         </div>
 
         <pre><code class="html">&lt;span style="--fg: 0.8"&gt;chromatic accent&lt;/span&gt;</code></pre>
@@ -253,6 +269,7 @@
   <!-- ── pg-aside — on-page TOC ─────────────────────────────── -->
   <aside class="pg-aside toc column tablet desktop">
     <span class="toc-label">On this page</span>
+    <a href="#start-here">Start here</a>
     <a href="#bg">--bg</a>
     <a href="#fg">--fg</a>
     <a href="#hue">Hue</a>
