@@ -113,7 +113,7 @@
           <li><strong>Apply the API.</strong> Use <code>@scope</code> to set the public tokens — <code>--bg</code>, <code>--fg</code>, <code>--type</code>, <code>--hue</code> and the rest — on the tags, locally and without classes.</li>
           <li><strong>Wire state with ARIA.</strong> Selected, current, pressed — these are attribute selectors on ARIA state, not classes.</li>
         </ol>
-        <p>Two things to hold onto before we start. <strong>Layout lives in the markup, as classes.</strong> The composition primitives are how you build shape — always. And <strong><code>@scope</code> is never a layout tool.</strong> It cannot make a layout decision the primitives don't already give you. It exists for one job: applying the public API to tags, locally, without inventing a class to hang it on.</p>
+        <p>Two things to hold onto before we start. <strong>Layout lives in the markup, as classes.</strong> The composition primitives are how you build shape — always. And <strong><code>@scope</code> is never a layout tool.</strong> It cannot make a layout decision the primitives don't already give you. Its job is applying the public API to tags — locally, without inventing a class to hang it on.</p>
       </section>
 
       <hr>
@@ -198,9 +198,9 @@
 
         <p>The discipline of <code>@scope</code> is four rules:</p>
         <ul style="--fg: -0.5; padding-inline-start: 1.4em; display: flex; flex-direction: column; gap: 0.3lh">
-          <li><strong>It only sets the public API.</strong> <code>--bg</code>, <code>--fg</code>, <code>--hue</code>, <code>--hue-shift</code>, <code>--hue-lock</code>, <code>--type</code>, <code>--scale</code>. Never <code>display</code>, never a <code>grid-template</code>, never layout. Layout is the primitives — <code>@scope</code> cannot make a layout decision.</li>
+          <li><strong>Reach for the core API first.</strong> <code>--bg</code>, <code>--fg</code>, <code>--hue</code>, <code>--hue-shift</code>, <code>--hue-lock</code>, <code>--type</code>, <code>--scale</code> — these are the default tools, and most of a <code>@scope</code> block is just these. Other properties are allowed when the component genuinely needs one — the heat chart later uses <code>aspect-ratio</code> to stop empty cells collapsing — but they are the exception, not the habit. If a block fills up with non-token properties, that is the signal to stop and rethink. The one hard line: never <code>display</code>, never a <code>grid-template</code>, never layout. Layout is the primitives — <code>@scope</code> cannot make a layout decision.</li>
           <li><strong>It targets by structure first.</strong> You are inside the component; reach the elements by tag and position — <code>small</code>, <code>time</code>. Distinct semantic tags mean you rarely need anything else.</li>
-          <li><strong>A small focused class only when structure and ARIA can't.</strong> "A day from a neighbouring month" is not an ARIA state — ARIA has no honest attribute for it. That is the one case a narrow class earns its place: <code>.muted</code>, used only here, carrying only API tokens. State that <em>is</em> an ARIA concern uses the attribute instead (next step).</li>
+          <li><strong>A small focused class only when structure and ARIA can't.</strong> "A day from a neighbouring month" is not an ARIA state — ARIA has no honest attribute for it. That is the one case a narrow class earns its place: <code>.muted</code>, used only here. State that <em>is</em> an ARIA concern uses the attribute instead (next step).</li>
           <li><strong>One block, on the outermost tag.</strong> A local component has a single <code>@scope</code>, written on its eldest element, reaching everything inside. Not one per sub-part — one, at the top.</li>
         </ul>
       </section>
@@ -265,29 +265,10 @@
           </div>
         </section>
 
-        <p style="--fg: -0.5">Toggle the theme — today's surface, the selected day, the muted days all hold, because every one is a token, not a fixed colour. The grid is <code>.ngrid</code>, the header is <code>.lcr</code>, the depth ramp between panel and days is automatic. The only authored CSS is one <code>@scope</code> block on the outermost tag, and it sets nothing but the public API.</p>
-      </section>
-
-
-      <hr>
-
-      <!-- --align : a coming token -->
-      <section class="column" id="align">
-        <h3 style="--type: 2">A note on <code>--align</code></h3>
-        <span class="tag" style="--hue-shift: 30; align-self: start">Next version</span>
-        <p>You may have noticed the calendar's <code>@scope</code> block reach for <code>text-align</code> to centre the weekday labels — and <code>text-align</code> is not one of the public API tokens. That is a real gap, and it is being closed.</p>
-        <p>Text alignment is a <em>flow</em> concern, not a composition one — it belongs to the element itself, the way <code>--type</code> and <code>--fg</code> do, not to a layout primitive. So a class is the wrong shape for it, and a raw <code>text-align</code> in <code>@scope</code> breaks the rule that <code>@scope</code> sets only the API. The fix is to make alignment <em>part of</em> the API.</p>
-        <p>The next version adds <code>--align</code> as an eighth public token:</p>
-        <ul style="--fg: -0.5; padding-inline-start: 1.4em; display: flex; flex-direction: column; gap: 0.3lh">
-          <li><strong>Logical, not physical.</strong> Its values are <code>start</code>, <code>center</code>, <code>end</code> — never <code>left</code> or <code>right</code>. Alignment stays correct under right-to-left writing modes by construction; the token makes the wrong thing unsayable.</li>
-          <li><strong>Default <code>start</code>.</strong> Matches normal text flow, so most elements never set it.</li>
-          <li><strong>Set anywhere the API is set.</strong> Inline in markup, or in a <code>@scope</code> block — it is a token like the others.</li>
-        </ul>
-        <p>Once it lands, the calendar's <code>@scope</code> sets <code>--align: center</code> on the labels instead of <code>text-align</code>, and the block is purely public API again — the rule holds with no exception. That is the bar for an eighth token: not convenience, but closing a gap that would otherwise force the rule to bend.</p>
+        <p style="--fg: -0.5">Toggle the theme — today's surface, the selected day, the muted days all hold, because every one is a token, not a fixed colour. The grid is <code>.ngrid</code>, the header is <code>.lcr</code>, the depth ramp between panel and days is automatic. The only authored CSS is one <code>@scope</code> block on the outermost tag — almost all of it core API tokens, applied to tags by structure.</p>
       </section>
 
       <hr>
-
       <!-- Second worked example: heat chart -->
       <section class="column" id="heat">
         <h3 style="--type: 2">A second component — a heat chart</h3>
@@ -357,7 +338,6 @@
     <a href="#step-5">Step 5 — apply the API</a>
     <a href="#step-6">Step 6 — state with ARIA</a>
     <a href="#result">The result</a>
-    <a href="#align">A note on --align</a>
     <a href="#heat">A second component</a>
   </aside>
 
