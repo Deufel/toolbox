@@ -10,6 +10,25 @@
 
   <style>
     /* .toc — see code-blocks.html for full notes */
+    /*
+      .ngrid registered properties.
+
+      @property rules must sit at brace depth 0 — outside any @layer.
+
+      --cols is an ordinary registered property: a real integer with a
+      default of 1.
+
+      --rows uses the system's guaranteed-invalid pattern, the same one
+      --hue-lock uses. syntax "*" with no initial-value means any
+      var(--rows) reference is invalid until the author sets it. So the
+      grid-template-rows declaration that reads it simply drops while
+      --rows is unset, and rows flow through grid-auto-rows instead.
+      Set --rows to an integer and the declaration becomes valid.
+    */
+    @property --cols { syntax: "<integer>"; inherits: false; initial-value: 1 }
+    @property --rows { syntax: "*";         inherits: false }
+  </style>
+  <style>
     @layer component.simple {
       .toc {
         --type: -1; display: flex; flex-direction: column; gap: 0.2lh; padding: 0.5lh;
@@ -26,31 +45,53 @@
         & > a:hover { --fg: -1; border-inline-start-color: var(--border); }
         & > a[aria-current="true"] { --fg: 0.8; border-inline-start-color: currentColor; }
       }
+
+      /*
+        .ngrid — explicit-size grid.
+
+        The companion to .grid. Where .grid is auto-fit and responsive
+        — you don't say how many columns, it works them out from
+        --grid-min — .ngrid is explicit: you state the count.
+
+        Public knobs:
+          --cols   number of columns. Defaults to 1.
+          --rows   number of rows. Optional — omit it and rows flow
+                   automatically as children fill in. Set it only when
+                   you want a fixed row count.
+
+        grid-template-rows reads var(--rows); while --rows is unset that
+        declaration is invalid and drops, so grid-auto-rows governs.
+        Both knobs take a bare integer, so --cols and --rows read as a
+        matched pair.
+
+        Defined here under component.simple for the walkthrough; a
+        candidate for layout.css alongside .grid.
+      */
+      .ngrid {
+        display: grid;
+        grid-template-columns: repeat(var(--cols), 1fr);
+        grid-template-rows: repeat(var(--rows), 1fr);
+        grid-auto-rows: auto;
+        gap: calc(0.25 * 1lh);
+      }
     }
 
     /*
       The calendar being built in this walkthrough.
 
-      This block is the running example — it grows section by section as
-      the page introduces each idea. It is shown here in full so the page
-      stays self-contained; the prose explains how each part was reached.
-
-      It follows the system's own authoring discipline:
-        - layout via composition primitives and one scoped grid
-        - colour via tokens (--bg, --fg), never literal values
-        - sizing via --type and lh, never pixels
-        - structure targeted inside @scope, no invented class names
+      The grid itself is not here — it comes from the .ngrid layout
+      primitive (.ngrid with --cols: 7). What remains in this scoped
+      block is only cell appearance: the weekday labels and the day
+      cells. That is genuinely calendar-specific — it is not a layout
+      gap, so it does not belong in a primitive — and it is small,
+      co-located with its markup, and styled by structure. No invented
+      configuration variables: a cell's "today" state is just a class
+      that raises --bg, a muted day just lowers --fg.
     */
     @scope {
       :scope .cal {
         inline-size: 100%;
         max-inline-size: 22rem;
-      }
-      /* the month grid: seven columns, one per weekday */
-      :scope .cal-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 0.15lh;
       }
       /* weekday header cells */
       :scope .cal-grid > .cal-wd {
@@ -178,119 +219,108 @@
       <!-- The method -->
       <section class="column" id="method">
         <h3 style="--type: 2">The method</h3>
-        <p>Before writing anything, know the order of preference. It keeps custom work small and predictable:</p>
-        <ol style="--fg: -0.5; padding-inline-start: 1.4em; display: flex; flex-direction: column; gap: 0.3lh">
-          <li><strong>Compose primitives first.</strong> <code>.row</code>, <code>.column</code>, <code>.grid</code> and the rest cover most layouts.</li>
-          <li><strong>Reach for a scoped block</strong> when a section needs a shape no primitive gives — a one-off grid template. Co-locate the CSS with the markup using <code>@scope</code>.</li>
-          <li><strong>Lift to a component</strong> only when the same scoped block appears three times. Until then, scoped is the right home.</li>
-        </ol>
-        <p>A calendar is a good test: it needs a real grid (a primitive won't do), it needs token-driven color for today and muted days, and it is the kind of thing you would eventually lift into a component. We will walk all three stages.</p>
+        <p>The layout primitives are meant to cover what you need. <code>.row</code>, <code>.column</code>, <code>.grid</code>, <code>.ngrid</code>, <code>.lcr</code>, <code>.hero</code> and the rest are the toolkit — most interfaces are built entirely by composing them, and that is the intended path.</p>
+        <p>Sometimes a real, specific requirement resists every primitive — a one-off layout a particular customer needs. When that happens, the recommendation is to reach for <code>@scope</code> rather than scatter a handful of throwaway utility classes across the codebase.</p>
+        <p style="--fg: -0.5">This is a guard against CSS technical debt. A scoped block stays co-located with its markup and never leaks vocabulary into the global namespace — the one-off stays a one-off. A pile of single-use utility classes does the opposite: it spreads, and the next person reuses a class that was never meant to be reused. Quarantining the exception is how the system matures responsibly.</p>
+        <p>We will build a calendar. It turns out to need no <code>@scope</code> for layout at all — and seeing why is the lesson.</p>
       </section>
 
       <hr>
 
-      <!-- Step 1 -->
+      <!-- Step 1 — recognise the shape -->
       <section class="column" id="step-1">
-        <h3 style="--type: 2">Step 1 — sketch the shape</h3>
-        <p>A month is a seven-column grid: one column per weekday, a row of weekday labels on top, then the day numbers. That is the whole structure. A layout primitive can't express "seven equal columns," so this is a legitimate case for a scoped grid.</p>
-        <p>Start with the scope and the wrapper. The system's rule is to never style <code>:scope</code> directly — put the grid on a child so viewport and page-slot classes on the outer element don't collide with it.</p>
+        <h3 style="--type: 2">Step 1 — recognise the shape</h3>
+        <p>A month is a seven-column grid: one column per weekday, a row of weekday labels, then the day numbers. So the question is which primitive gives an explicit seven-column grid.</p>
+        <p><code>.grid</code> is the responsive one — it auto-fits as many columns as fit above <code>--grid-min</code>, and you don't say how many. That is the wrong tool here; a calendar is <em>always</em> seven columns. The right tool is <code>.ngrid</code>, the explicit-size companion: you state the count with <code>--cols</code>.</p>
 
-        <pre><code class="html">&lt;section&gt;
-  &lt;style&gt;
-    @scope {
-      :scope .cal-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 0.15lh;
-      }
-    }
-  &lt;/style&gt;
-  &lt;div class="cal"&gt;
-    &lt;div class="cal-grid"&gt;…&lt;/div&gt;
-  &lt;/div&gt;
-&lt;/section&gt;</code></pre>
+        <pre><code class="html">&lt;div class="ngrid" style="--cols: 7"&gt;
+  &lt;!-- 7 columns, exactly --&gt;
+&lt;/div&gt;</code></pre>
 
-        <p style="--fg: -0.5">The gap is <code>0.15lh</code> — derived from line-height, like every gap in the system. No pixel value, no spacing token.</p>
+        <p style="--fg: -0.5">If the framework had lacked an explicit-grid primitive, that absence would be the real finding — the honest fix would be to add <code>.ngrid</code> to the system, not to write a scoped grid on this one page. A missing primitive is a framework gap; closing it with a primitive keeps every future calendar a one-liner.</p>
       </section>
 
       <hr>
 
-      <!-- Step 2 -->
+      <!-- Step 2 — the cells -->
       <section class="column" id="step-2">
-        <h3 style="--type: 2">Step 2 — the weekday header and the days</h3>
-        <p>Fill the grid. Seven weekday labels, then the day numbers as cells. Each cell type is targeted by structure inside the scope — <code>.cal-wd</code> for the labels, <code>.cal-day</code> for the days — no invented styling hooks beyond the two the markup genuinely needs.</p>
+        <h3 style="--type: 2">Step 2 — the cells</h3>
+        <p>The grid is composition. What is left is genuinely calendar-specific: a square day cell with a centred number, and a quieter weekday label above it. That is not a layout gap — no primitive should know what a "day cell" is — and it is small. This is the legitimate, contained use of <code>@scope</code>.</p>
+        <p>Target by structure, and do not manufacture configuration variables. A day cell is just a cell; styling it does not need a <code>--day-size</code> or a <code>--cell-radius</code> knob, because nothing downstream varies. Write the values where they are used.</p>
 
-        <pre><code class="css">:scope .cal-grid > .cal-wd {
-  --type: -2;            /* smaller than the day numbers */
-  --fg: -0.5;            /* quiet — these are labels      */
-  text-align: center;
-  padding-block: 0.3lh;
-}
-:scope .cal-grid > .cal-day {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1;       /* square cells                  */
-  --type: -1;
-  border-radius: var(--cfg-radius);
+        <pre><code class="css">@scope {
+  /* weekday labels — quiet, small */
+  :scope .cal-grid &gt; .cal-wd {
+    --type: -2;
+    --fg: -0.5;
+    text-align: center;
+    padding-block: 0.3lh;
+  }
+  /* day cells — square, centred number */
+  :scope .cal-grid &gt; .cal-day {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    --type: -1;
+    border-radius: var(--cfg-radius);
+  }
 }</code></pre>
 
-        <p>The day cell is <code>aspect-ratio: 1</code> — square regardless of column width — with the number centered by a one-line grid. Sizing is <code>--type</code>, the corner is the system's radius token.</p>
+        <p style="--fg: -0.5">Targeted by structure — <code>.cal-wd</code>, <code>.cal-day</code> — with no invented hooks beyond the two the markup genuinely needs. Sizing is <code>--type</code>, the corner is the system's radius token. No pixels, no dummy variables.</p>
       </section>
 
       <hr>
 
-      <!-- Step 3 -->
+      <!-- Step 3 — color with tokens -->
       <section class="column" id="step-3">
         <h3 style="--type: 2">Step 3 — color with tokens</h3>
-        <p>A calendar has two special days: ones outside the current month, and today. Neither needs a literal color. Muted days lower the ink with <code>--fg</code>; today paints a surface with <code>--bg</code>. Both adapt to theme and brand hue for free.</p>
+        <p>A calendar has two special days: ones spilling in from a neighbouring month, and today. Neither needs a literal color or a variable. A muted day is just lower ink; today is just a painted surface. They are plain classes that nudge <code>--fg</code> and <code>--bg</code>.</p>
 
-        <pre><code class="css">/* days spilling in from the neighbouring month */
-:scope .cal-grid > .cal-day.cal-muted { --fg: -0.3; }
+        <pre><code class="css">/* days from the neighbouring month — quiet ink */
+:scope .cal-grid &gt; .cal-day.cal-muted { --fg: -0.3; }
 
-/* today — a painted surface, loud */
-:scope .cal-grid > .cal-day.cal-today {
+/* today — a loud painted surface */
+:scope .cal-grid &gt; .cal-day.cal-today {
   --bg: 0.8;
   --fg: -1;
   font-weight: 700;
 }
 
 /* hover — a soft surface lift */
-:scope .cal-grid > .cal-day:hover { --bg: 0.15; }</code></pre>
+:scope .cal-grid &gt; .cal-day:hover { --bg: 0.15; }</code></pre>
 
-        <p>Nothing here names a color. "Today" is just a cell with a loud surface; "muted" is just dimmer ink. Switch the theme or change <code>--hue</code> and the calendar follows, because the cells were described in the system's terms, not in hex.</p>
+        <p>Nothing here names a color. "Today" is a cell with a loud surface; "muted" is dimmer ink. Switch the theme or change <code>--hue</code> and the calendar follows, because the cells were described in the system's terms.</p>
       </section>
 
       <hr>
 
-      <!-- Step 4 -->
+      <!-- Step 4 — the header -->
       <section class="column" id="step-4">
-        <h3 style="--type: 2">Step 4 — the header, from a primitive</h3>
-        <p>The month label and the previous/next controls don't need scoped CSS at all — that is a left/right arrangement, and <code>.lcr</code> already does it. Reach for the primitive before writing anything.</p>
+        <h3 style="--type: 2">Step 4 — the header</h3>
+        <p>The month label with previous/next controls is a left/centre/right arrangement, and <code>.lcr</code> already does that. No scoped CSS, no thought — the primitive fits, so the primitive is the answer.</p>
 
-        <pre><code class="html">&lt;div class="cal-head lcr"&gt;
+        <pre><code class="html">&lt;div class="lcr"&gt;
   &lt;button class="icon-btn" aria-label="previous month"&gt;‹&lt;/button&gt;
   &lt;strong&gt;March 2026&lt;/strong&gt;
   &lt;button class="icon-btn" aria-label="next month"&gt;›&lt;/button&gt;
 &lt;/div&gt;</code></pre>
-
-        <p style="--fg: -0.5">No scope entry was needed for the header. When a primitive fits, the primitive wins — that is step one of the method, applied.</p>
       </section>
 
       <hr>
 
-      <!-- Step 5 — the result -->
+      <!-- The result -->
       <section class="column" id="result">
         <h3 style="--type: 2">The result</h3>
-        <p>Header from <code>.lcr</code>, grid from one scoped block, every color and size from a token. Here it is, running:</p>
+        <p>Grid from <code>.ngrid</code>, header from <code>.lcr</code>, every colour and size from a token. The only bespoke CSS is the small scoped block for cell appearance — and even that invents nothing. Here it is, running:</p>
 
         <div class="card stage" style="padding: 1lh">
           <div class="cal column" style="gap: 0.6lh">
-            <div class="cal-head lcr">
+            <div class="lcr">
               <button class="icon-btn" aria-label="previous month">‹</button>
               <strong>March 2026</strong>
               <button class="icon-btn" aria-label="next month">›</button>
             </div>
-            <div class="cal-grid">
+            <div class="cal-grid ngrid" style="--cols: 7; gap: 0.15lh">
               <div class="cal-wd">Mo</div><div class="cal-wd">Tu</div><div class="cal-wd">We</div><div class="cal-wd">Th</div><div class="cal-wd">Fr</div><div class="cal-wd">Sa</div><div class="cal-wd">Su</div>
               <div class="cal-day cal-muted">23</div><div class="cal-day cal-muted">24</div><div class="cal-day cal-muted">25</div><div class="cal-day cal-muted">26</div><div class="cal-day cal-muted">27</div><div class="cal-day cal-muted">28</div><div class="cal-day">1</div>
               <div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div>
@@ -302,38 +332,40 @@
           </div>
         </div>
 
-        <p style="--fg: -0.5">Toggle the theme — the muted days, today's surface, and the hover all hold, because not one of them was a fixed color.</p>
+        <p style="--fg: -0.5">Toggle the theme — the muted days, today's surface, and the hover all hold, because not one of them was a fixed colour.</p>
       </section>
 
       <hr>
 
-      <!-- Step 6 — when to lift -->
-      <section class="column" id="lift">
-        <h3 style="--type: 2">When to lift it into a component</h3>
-        <p>The calendar above lives in a scoped block on one page. That is the correct home for it — for now. The signal to promote it to a real component is repetition: the same scoped block copied into a second page, then a third.</p>
-        <p>At that point, move the rules out of <code>@scope</code> and into the framework's component layer under a class — the markup stops carrying a <code>&lt;style&gt;</code> block and just uses <code>.cal</code>. Nothing about the CSS changes; only its home does. Lifting early — before the third use — adds a component nobody else needs yet.</p>
-
-        <pre><code class="css">/* once it has earned its place: */
-@layer component.complex {
-  .calendar { … }   /* the same rules, now framework-wide */
-}</code></pre>
-
-        <p style="--fg: -0.5">Compose first, scope when a primitive won't reach, lift when it repeats. That order is the whole method — the calendar was just a place to watch it work.</p>
+      <!-- When @scope is the right call -->
+      <section class="column" id="scope">
+        <h3 style="--type: 2">When <code>@scope</code> is the right call</h3>
+        <p>The calendar needed <code>@scope</code> only for cell appearance — small, contained, no layout gap. But some requirements are larger one-offs: a print résumé, a specific report layout, a fixed-format document a single client asked for. A layout that exists exactly once, that no primitive was built for.</p>
+        <p>That is what <code>@scope</code> is for, and the discipline is the same as the calendar's, scaled up:</p>
+        <ul style="--fg: -0.5; padding-inline-start: 1.4em; display: flex; flex-direction: column; gap: 0.3lh">
+          <li><strong>Co-locate it.</strong> The <code>&lt;style&gt;</code> block sits inside the element it styles. The CSS travels with the markup; it is obvious it belongs to that one section.</li>
+          <li><strong>Target by structure.</strong> Style <code>article h3</code>, <code>article ul</code>, <code>article &gt; div span</code> — real elements by their place in the tree. Do not invent class names to hang styles on.</li>
+          <li><strong>Do not manufacture variables.</strong> A one-off has nothing downstream to vary and nothing to override. A value used once, in one place, is just a value — write it inline. Lean on the units and tokens that are already inherited; do not build a configuration surface for something with a single instance.</li>
+          <li><strong>Never style <code>:scope</code> directly.</strong> Put layout on a child — <code>:scope &gt; div</code> — so viewport classes and page-slot classes on the outer element do not collide with it.</li>
+        </ul>
+        <p>The point is not that scoped CSS is elegant. It is that the one-off stays <em>contained</em>: co-located, namespaced to its subtree, impossible to reuse by accident. That is why it beats a scatter of utility classes — the debt is quarantined, not spread.</p>
+        <p style="--fg: -0.5">If you find yourself reaching for <code>@scope</code> often, that is the signal — not that you are using it wrong, but that the framework has a gap. A recurring need is a missing primitive. Close it the way <code>.ngrid</code> closed the explicit-grid gap, and the next person never has to scope it at all.</p>
       </section>
 
     </article>
+  </main>
   </main>
 
   <!-- ── pg-aside — on-page TOC ─────────────────────────────── -->
   <aside class="pg-aside toc column tablet desktop">
     <span class="toc-label">On this page</span>
     <a href="#method">The method</a>
-    <a href="#step-1">Step 1 — sketch the shape</a>
-    <a href="#step-2">Step 2 — header and days</a>
+    <a href="#step-1">Step 1 — recognise the shape</a>
+    <a href="#step-2">Step 2 — the cells</a>
     <a href="#step-3">Step 3 — color with tokens</a>
     <a href="#step-4">Step 4 — the header</a>
     <a href="#result">The result</a>
-    <a href="#lift">When to lift it</a>
+    <a href="#scope">When @scope is the right call</a>
   </aside>
 
   <!-- ── pg-footer ──────────────────────────────────────────── -->
