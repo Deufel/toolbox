@@ -5,124 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Authoring — stick.css</title>
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/css/style.css">
-  <script src="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/js/highlight.js"></script>
-
-  <style>
-    /* .toc — see code-blocks.html for full notes */
-    /*
-      .ngrid registered properties.
-
-      @property rules must sit at brace depth 0 — outside any @layer.
-
-      --cols is an ordinary registered property: a real integer with a
-      default of 1.
-
-      --rows uses the system's guaranteed-invalid pattern, the same one
-      --hue-lock uses. syntax "*" with no initial-value means any
-      var(--rows) reference is invalid until the author sets it. So the
-      grid-template-rows declaration that reads it simply drops while
-      --rows is unset, and rows flow through grid-auto-rows instead.
-      Set --rows to an integer and the declaration becomes valid.
-    */
-    @property --cols { syntax: "<integer>"; inherits: false; initial-value: 1 }
-    @property --rows { syntax: "*";         inherits: false }
-  </style>
-  <style>
-    @layer component.simple {
-      .toc {
-        --type: -1; display: flex; flex-direction: column; gap: 0.2lh; padding: 0.5lh;
-        & > .toc-label {
-          --type: -2; --fg: -0.5; text-transform: uppercase; letter-spacing: 0.1em;
-          margin-block-end: 0.3lh;
-        }
-        & > a {
-          --fg: -0.5; text-decoration: none; padding-block: 0.25em;
-          border-inline-start: 2px solid transparent; padding-inline-start: 0.6em;
-          transition: color calc(var(--cfg-motion) * 0.15s) ease-out,
-                      border-color calc(var(--cfg-motion) * 0.15s) ease-out;
-        }
-        & > a:hover { --fg: -1; border-inline-start-color: var(--border); }
-        & > a[aria-current="true"] { --fg: 0.8; border-inline-start-color: currentColor; }
-      }
-
-      /*
-        .ngrid — explicit-size grid.
-
-        The companion to .grid. Where .grid is auto-fit and responsive
-        — you don't say how many columns, it works them out from
-        --grid-min — .ngrid is explicit: you state the count.
-
-        Public knobs:
-          --cols   number of columns. Defaults to 1.
-          --rows   number of rows. Optional — omit it and rows flow
-                   automatically as children fill in. Set it only when
-                   you want a fixed row count.
-
-        grid-template-rows reads var(--rows); while --rows is unset that
-        declaration is invalid and drops, so grid-auto-rows governs.
-        Both knobs take a bare integer, so --cols and --rows read as a
-        matched pair.
-
-        Defined here under component.simple for the walkthrough; a
-        candidate for layout.css alongside .grid.
-      */
-      .ngrid {
-        display: grid;
-        grid-template-columns: repeat(var(--cols), 1fr);
-        grid-template-rows: repeat(var(--rows), 1fr);
-        grid-auto-rows: auto;
-        gap: calc(0.25 * 1lh);
-      }
-    }
-
-    /*
-      The calendar being built in this walkthrough.
-
-      The grid itself is not here — it comes from the .ngrid layout
-      primitive (.ngrid with --cols: 7). What remains in this scoped
-      block is only cell appearance: the weekday labels and the day
-      cells. That is genuinely calendar-specific — it is not a layout
-      gap, so it does not belong in a primitive — and it is small,
-      co-located with its markup, and styled by structure. No invented
-      configuration variables: a cell's "today" state is just a class
-      that raises --bg, a muted day just lowers --fg.
-    */
-    @scope {
-      :scope .cal {
-        inline-size: 100%;
-        max-inline-size: 22rem;
-      }
-      /* weekday header cells */
-      :scope .cal-grid > .cal-wd {
-        --type: -2;
-        --fg: -0.5;
-        text-align: center;
-        padding-block: 0.3lh;
-        font-weight: 600;
-      }
-      /* day cells — square, centred number */
-      :scope .cal-grid > .cal-day {
-        display: grid;
-        place-items: center;
-        aspect-ratio: 1;
-        --type: -1;
-        border-radius: var(--cfg-radius);
-        cursor: pointer;
-        transition: background-color calc(var(--cfg-motion) * 0.15s) ease-out;
-      }
-      /* days outside the current month — quiet ink */
-      :scope .cal-grid > .cal-day.cal-muted { --fg: -0.3; }
-      /* today — a painted surface */
-      :scope .cal-grid > .cal-day.cal-today {
-        --bg: 0.8;
-        --fg: -1;
-        font-weight: 700;
-      }
-      :scope .cal-grid > .cal-day:hover { --bg: 0.15; }
-      :scope .cal-grid > .cal-day.cal-today:hover { --bg: 0.8; }
-    }
-  </style>
+  <!-- pinned commit: .ngrid and .toc both ship in the framework at 50dff5f -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@50dff5f/css/style.css">
+  <script src="https://cdn.jsdelivr.net/gh/Deufel/toolbox@50dff5f/js/highlight.js"></script>
 </head>
 
 <body class="page stage centered">
@@ -211,7 +96,7 @@
       <header class="column" style="gap: 0.3lh">
         <span style="--type: -1; --fg: -0.5; text-transform: uppercase; letter-spacing: 0.1em">Guide</span>
         <h2 style="--type: 3">Authoring your own components</h2>
-        <p style="--fg: -0.5">The system covers most needs with primitives and components. When you need something it doesn't ship — here, a calendar — this is the method. We build one, step by step.</p>
+        <p style="--fg: -0.5">How to build a component with the system. We build a calendar — and the whole of it is composition, stages, and the public API. Nothing else.</p>
       </header>
 
       <hr>
@@ -219,91 +104,129 @@
       <!-- The method -->
       <section class="column" id="method">
         <h3 style="--type: 2">The method</h3>
-        <p>The layout primitives are meant to cover what you need. <code>.row</code>, <code>.column</code>, <code>.grid</code>, <code>.ngrid</code>, <code>.lcr</code>, <code>.hero</code> and the rest are the toolkit — most interfaces are built entirely by composing them, and that is the intended path.</p>
-        <p>Sometimes a real, specific requirement resists every primitive — a one-off layout a particular customer needs. When that happens, the recommendation is to reach for <code>@scope</code> rather than scatter a handful of throwaway utility classes across the codebase.</p>
-        <p style="--fg: -0.5">This is a guard against CSS technical debt. A scoped block stays co-located with its markup and never leaks vocabulary into the global namespace — the one-off stays a one-off. A pile of single-use utility classes does the opposite: it spreads, and the next person reuses a class that was never meant to be reused. Quarantining the exception is how the system matures responsibly.</p>
-        <p>We will build a calendar. It turns out to need no <code>@scope</code> for layout at all — and seeing why is the lesson.</p>
+        <p>Authoring a component is six steps. They never change:</p>
+        <ol style="--fg: -0.5; padding-inline-start: 1.4em; display: flex; flex-direction: column; gap: 0.3lh">
+          <li><strong>Pick the layout structure.</strong> What shape is this thing.</li>
+          <li><strong>Choose the compositions.</strong> Which layout primitives build that shape, and hold it across every screen size.</li>
+          <li><strong>Separate content from stages.</strong> Decide what is a painted region and what is just content sitting on it.</li>
+          <li><strong>Place the stages.</strong> Put <code>.stage</code> on the tags that need a back-paint. Stages auto-nest, so a stage inside a stage reads as forward of it.</li>
+          <li><strong>Apply the API.</strong> Use <code>@scope</code> to set the public tokens — <code>--bg</code>, <code>--fg</code>, <code>--type</code>, <code>--hue</code> and the rest — on the tags, locally and without classes.</li>
+          <li><strong>Wire state with ARIA.</strong> Selected, current, pressed — these are attribute selectors on ARIA state, not classes.</li>
+        </ol>
+        <p>Two things to hold onto before we start. <strong>Layout lives in the markup, as classes.</strong> The composition primitives are how you build shape — always. And <strong><code>@scope</code> is never a layout tool.</strong> It cannot make a layout decision the primitives don't already give you. It exists for one job: applying the public API to tags, locally, without inventing a class to hang it on.</p>
       </section>
 
       <hr>
 
-      <!-- Step 1 — recognise the shape -->
+      <!-- Step 1 -->
       <section class="column" id="step-1">
-        <h3 style="--type: 2">Step 1 — recognise the shape</h3>
-        <p>A month is a seven-column grid: one column per weekday, a row of weekday labels, then the day numbers. So the question is which primitive gives an explicit seven-column grid.</p>
-        <p><code>.grid</code> is the responsive one — it auto-fits as many columns as fit above <code>--grid-min</code>, and you don't say how many. That is the wrong tool here; a calendar is <em>always</em> seven columns. The right tool is <code>.ngrid</code>, the explicit-size companion: you state the count with <code>--cols</code>.</p>
+        <h3 style="--type: 2">Step 1 — the structure</h3>
+        <p>A calendar is a header — a month label between previous and next controls — above a grid of day cells, seven across, one column per weekday.</p>
+        <p>That is two shapes: a three-part header bar, and a fixed seven-column grid. Both are things the system already builds.</p>
+      </section>
 
-        <pre><code class="html">&lt;div class="ngrid" style="--cols: 7"&gt;
-  &lt;!-- 7 columns, exactly --&gt;
+      <hr>
+
+      <!-- Step 2 -->
+      <section class="column" id="step-2">
+        <h3 style="--type: 2">Step 2 — the compositions</h3>
+        <p>The header is left / centre / right — that is <code>.lcr</code>. The grid is always seven columns, never more or fewer; that is the explicit-size primitive <code>.ngrid</code> with <code>--cols: 7</code>. (Its responsive sibling <code>.grid</code> would be wrong here — a calendar must not reflow to six columns or eight.)</p>
+        <p>Wrap the two in a <code>.column</code> so they stack. The whole layout, in markup:</p>
+
+        <pre><code class="html">&lt;div class="column"&gt;
+  &lt;div class="lcr"&gt;
+    &lt;button class="icon-btn" aria-label="previous month"&gt;‹&lt;/button&gt;
+    &lt;strong&gt;March 2026&lt;/strong&gt;
+    &lt;button class="icon-btn" aria-label="next month"&gt;›&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="ngrid" style="--cols: 7"&gt;
+    &lt;!-- 7 weekday labels, then the day cells --&gt;
+  &lt;/div&gt;
 &lt;/div&gt;</code></pre>
 
-        <p style="--fg: -0.5">If the framework had lacked an explicit-grid primitive, that absence would be the real finding — the honest fix would be to add <code>.ngrid</code> to the system, not to write a scoped grid on this one page. A missing primitive is a framework gap; closing it with a primitive keeps every future calendar a one-liner.</p>
+        <p style="--fg: -0.5">No custom CSS. The shape is three composition classes — <code>.column</code>, <code>.lcr</code>, <code>.ngrid</code> — and it already holds at every width.</p>
       </section>
 
       <hr>
 
-      <!-- Step 2 — the cells -->
-      <section class="column" id="step-2">
-        <h3 style="--type: 2">Step 2 — the cells</h3>
-        <p>The grid is composition. What is left is genuinely calendar-specific: a square day cell with a centred number, and a quieter weekday label above it. That is not a layout gap — no primitive should know what a "day cell" is — and it is small. This is the legitimate, contained use of <code>@scope</code>.</p>
-        <p>Target by structure, and do not manufacture configuration variables. A day cell is just a cell; styling it does not need a <code>--day-size</code> or a <code>--cell-radius</code> knob, because nothing downstream varies. Write the values where they are used.</p>
+      <!-- Step 3 -->
+      <section class="column" id="step-3">
+        <h3 style="--type: 2">Step 3 — content versus stages</h3>
+        <p>Look at what should paint a surface. The calendar as a whole is a panel — it sits on the page as its own region, so it is a stage. Each day cell is also a small surface the eye lands on, distinct from the gaps around it — so each day is a stage too.</p>
+        <p>The weekday labels and the month header are not surfaces. They are content — text resting on the stages. They get no <code>.stage</code>.</p>
+      </section>
+
+      <hr>
+
+      <!-- Step 4 -->
+      <section class="column" id="step-4">
+        <h3 style="--type: 2">Step 4 — place the stages, with semantic tags</h3>
+        <p>Add <code>.stage</code> to the calendar panel and to each day cell. Stages auto-nest, so the day cells — stages inside the panel stage — render one step forward of it. The depth ramp is automatic.</p>
+        <p>Choose tags by meaning. The calendar is a <code>&lt;section&gt;</code>. A weekday label is a quiet inline abbreviation — a <code>&lt;small&gt;</code>. A day cell genuinely <em>is</em> a date, so it is a <code>&lt;time&gt;</code> with a machine-readable <code>datetime</code> — correct for the content, and it gives a screen reader a real date. Two distinct tags, each right for what it holds, and — usefully — each targetable by structure later.</p>
+
+        <pre><code class="html">&lt;section class="column stage"&gt;          &lt;!-- the calendar panel --&gt;
+  &lt;div class="lcr"&gt;…&lt;/div&gt;
+  &lt;div class="ngrid" style="--cols: 7"&gt;
+    &lt;small&gt;Mo&lt;/small&gt; … &lt;small&gt;Su&lt;/small&gt;          &lt;!-- labels: content --&gt;
+    &lt;time datetime="2026-03-01" class="stage"&gt;1&lt;/time&gt;  &lt;!-- each day: a stage --&gt;
+    &lt;time datetime="2026-03-02" class="stage"&gt;2&lt;/time&gt;
+    …
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- Step 5 -->
+      <section class="column" id="step-5">
+        <h3 style="--type: 2">Step 5 — apply the API with <code>@scope</code></h3>
+        <p>The structure is done. What is left is tuning: the weekday labels want smaller, quieter text; the day cells want their own size; days spilling in from a neighbouring month want dimmer ink. Every one of those is a public token — <code>--type</code>, <code>--fg</code> — set on a tag.</p>
+        <p>Setting them inline, <code>style="--type: -2; --fg: -0.5"</code> repeated on seven labels and forty-something cells, is repetition. Instead, one <code>@scope</code> block applies the tokens by structure. A <code>@scope</code> rule is a <code>&lt;style&gt;</code> that lives <em>inside</em> the element it styles — and there is exactly one per component, on its outermost tag:</p>
+
+        <pre><code class="html">&lt;section class="column stage"&gt;
+  &lt;style&gt;
+    @scope {
+      small  { --type: -2; --fg: -0.5; }   /* weekday labels */
+      time   { --type: -1; }               /* day cells      */
+      .muted { --fg: -0.3; }               /* neighbouring month */
+    }
+  &lt;/style&gt;
+
+  &lt;div class="lcr"&gt;…&lt;/div&gt;
+  &lt;div class="ngrid" style="--cols: 7"&gt;…&lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+        <p>The discipline of <code>@scope</code> is four rules:</p>
+        <ul style="--fg: -0.5; padding-inline-start: 1.4em; display: flex; flex-direction: column; gap: 0.3lh">
+          <li><strong>It only sets the public API.</strong> <code>--bg</code>, <code>--fg</code>, <code>--hue</code>, <code>--hue-shift</code>, <code>--hue-lock</code>, <code>--type</code>, <code>--scale</code>. Never <code>display</code>, never a <code>grid-template</code>, never layout. Layout is the primitives — <code>@scope</code> cannot make a layout decision.</li>
+          <li><strong>It targets by structure first.</strong> You are inside the component; reach the elements by tag and position — <code>small</code>, <code>time</code>. Distinct semantic tags mean you rarely need anything else.</li>
+          <li><strong>A small focused class only when structure and ARIA can't.</strong> "A day from a neighbouring month" is not an ARIA state — ARIA has no honest attribute for it. That is the one case a narrow class earns its place: <code>.muted</code>, used only here, carrying only API tokens. State that <em>is</em> an ARIA concern uses the attribute instead (next step).</li>
+          <li><strong>One block, on the outermost tag.</strong> A local component has a single <code>@scope</code>, written on its eldest element, reaching everything inside. Not one per sub-part — one, at the top.</li>
+        </ul>
+      </section>
+
+      <hr>
+
+      <!-- Step 6 -->
+      <section class="column" id="step-6">
+        <h3 style="--type: 2">Step 6 — state with ARIA</h3>
+        <p>A calendar has a selected day and a current day. These are <em>states</em>, and a state with an ARIA attribute uses that attribute — not a class. Mark today with <code>aria-current="date"</code> and the chosen day with <code>aria-selected="true"</code>, then style those attributes from the same one <code>@scope</code> block, still touching only the API:</p>
 
         <pre><code class="css">@scope {
-  /* weekday labels — quiet, small */
-  :scope .cal-grid &gt; .cal-wd {
-    --type: -2;
-    --fg: -0.5;
-    text-align: center;
-    padding-block: 0.3lh;
-  }
-  /* day cells — square, centred number */
-  :scope .cal-grid &gt; .cal-day {
-    display: grid;
-    place-items: center;
-    aspect-ratio: 1;
-    --type: -1;
-    border-radius: var(--cfg-radius);
-  }
+  small  { --type: -2; --fg: -0.5; }
+  time   { --type: -1; }
+  .muted { --fg: -0.3; }
+  /* today — a louder surface */
+  [aria-current="date"]  { --bg: 0.4; }
+  /* the selected day — loudest */
+  [aria-selected="true"] { --bg: 0.8; --fg: -1; }
 }</code></pre>
 
-        <p style="--fg: -0.5">Targeted by structure — <code>.cal-wd</code>, <code>.cal-day</code> — with no invented hooks beyond the two the markup genuinely needs. Sizing is <code>--type</code>, the corner is the system's radius token. No pixels, no dummy variables.</p>
-      </section>
+        <p>The rule of thumb, in order: <strong>structure, then ARIA, then a small class.</strong> A distinction the tags already express needs nothing. A genuine state ARIA can name uses the attribute — accessible by construction, one source of truth. Only a distinction neither can express falls to a focused class.</p>
 
-      <hr>
-
-      <!-- Step 3 — color with tokens -->
-      <section class="column" id="step-3">
-        <h3 style="--type: 2">Step 3 — color with tokens</h3>
-        <p>A calendar has two special days: ones spilling in from a neighbouring month, and today. Neither needs a literal color or a variable. A muted day is just lower ink; today is just a painted surface. They are plain classes that nudge <code>--fg</code> and <code>--bg</code>.</p>
-
-        <pre><code class="css">/* days from the neighbouring month — quiet ink */
-:scope .cal-grid &gt; .cal-day.cal-muted { --fg: -0.3; }
-
-/* today — a loud painted surface */
-:scope .cal-grid &gt; .cal-day.cal-today {
-  --bg: 0.8;
-  --fg: -1;
-  font-weight: 700;
-}
-
-/* hover — a soft surface lift */
-:scope .cal-grid &gt; .cal-day:hover { --bg: 0.15; }</code></pre>
-
-        <p>Nothing here names a color. "Today" is a cell with a loud surface; "muted" is dimmer ink. Switch the theme or change <code>--hue</code> and the calendar follows, because the cells were described in the system's terms.</p>
-      </section>
-
-      <hr>
-
-      <!-- Step 4 — the header -->
-      <section class="column" id="step-4">
-        <h3 style="--type: 2">Step 4 — the header</h3>
-        <p>The month label with previous/next controls is a left/centre/right arrangement, and <code>.lcr</code> already does that. No scoped CSS, no thought — the primitive fits, so the primitive is the answer.</p>
-
-        <pre><code class="html">&lt;div class="lcr"&gt;
-  &lt;button class="icon-btn" aria-label="previous month"&gt;‹&lt;/button&gt;
-  &lt;strong&gt;March 2026&lt;/strong&gt;
-  &lt;button class="icon-btn" aria-label="next month"&gt;›&lt;/button&gt;
-&lt;/div&gt;</code></pre>
+        <pre><code class="html">&lt;time datetime="2026-03-11" class="stage"&gt;11&lt;/time&gt;
+&lt;time datetime="2026-03-12" class="stage" aria-current="date"&gt;12&lt;/time&gt;
+&lt;time datetime="2026-03-13" class="stage" aria-selected="true"&gt;13&lt;/time&gt;</code></pre>
       </section>
 
       <hr>
@@ -311,61 +234,54 @@
       <!-- The result -->
       <section class="column" id="result">
         <h3 style="--type: 2">The result</h3>
-        <p>Grid from <code>.ngrid</code>, header from <code>.lcr</code>, every colour and size from a token. The only bespoke CSS is the small scoped block for cell appearance — and even that invents nothing. Here it is, running:</p>
+        <p>Composition for the shape, <code>.stage</code> for the surfaces, one <code>@scope</code> block applying the API by structure, ARIA for state. Here it is, running:</p>
 
-        <div class="card stage" style="padding: 1lh">
-          <div class="cal column" style="gap: 0.6lh">
-            <div class="lcr">
-              <button class="icon-btn" aria-label="previous month">‹</button>
-              <strong>March 2026</strong>
-              <button class="icon-btn" aria-label="next month">›</button>
-            </div>
-            <div class="cal-grid ngrid" style="--cols: 7; gap: 0.15lh">
-              <div class="cal-wd">Mo</div><div class="cal-wd">Tu</div><div class="cal-wd">We</div><div class="cal-wd">Th</div><div class="cal-wd">Fr</div><div class="cal-wd">Sa</div><div class="cal-wd">Su</div>
-              <div class="cal-day cal-muted">23</div><div class="cal-day cal-muted">24</div><div class="cal-day cal-muted">25</div><div class="cal-day cal-muted">26</div><div class="cal-day cal-muted">27</div><div class="cal-day cal-muted">28</div><div class="cal-day">1</div>
-              <div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div>
-              <div class="cal-day">9</div><div class="cal-day">10</div><div class="cal-day">11</div><div class="cal-day cal-today">12</div><div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day">15</div>
-              <div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div>
-              <div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div>
-              <div class="cal-day">30</div><div class="cal-day">31</div><div class="cal-day cal-muted">1</div><div class="cal-day cal-muted">2</div><div class="cal-day cal-muted">3</div><div class="cal-day cal-muted">4</div><div class="cal-day cal-muted">5</div>
-            </div>
+        <section class="column stage" style="gap: 0.6lh; padding: 1lh; max-inline-size: 22rem">
+          <style>
+            @scope {
+              small {
+                --type: -2; --fg: -0.5;
+                text-align: center; font-weight: 600;
+              }
+              time { --type: -1; }
+              .muted { --fg: -0.3; }
+              [aria-current="date"]  { --bg: 0.4; font-weight: 700; }
+              [aria-selected="true"] { --bg: 0.8; --fg: -1; font-weight: 700; }
+            }
+          </style>
+          <div class="lcr">
+            <button class="icon-btn" aria-label="previous month">‹</button>
+            <strong>March 2026</strong>
+            <button class="icon-btn" aria-label="next month">›</button>
           </div>
-        </div>
+          <div class="ngrid" style="--cols: 7; gap: 0.15lh">
+            <small>Mo</small><small>Tu</small><small>We</small><small>Th</small><small>Fr</small><small>Sa</small><small>Su</small>
+            <time datetime="2026-02-23" class="stage muted">23</time><time datetime="2026-02-24" class="stage muted">24</time><time datetime="2026-02-25" class="stage muted">25</time><time datetime="2026-02-26" class="stage muted">26</time><time datetime="2026-02-27" class="stage muted">27</time><time datetime="2026-02-28" class="stage muted">28</time><time datetime="2026-03-01" class="stage">1</time>
+            <time datetime="2026-03-02" class="stage">2</time><time datetime="2026-03-03" class="stage">3</time><time datetime="2026-03-04" class="stage">4</time><time datetime="2026-03-05" class="stage">5</time><time datetime="2026-03-06" class="stage">6</time><time datetime="2026-03-07" class="stage">7</time><time datetime="2026-03-08" class="stage">8</time>
+            <time datetime="2026-03-09" class="stage">9</time><time datetime="2026-03-10" class="stage">10</time><time datetime="2026-03-11" class="stage">11</time><time datetime="2026-03-12" class="stage" aria-current="date">12</time><time datetime="2026-03-13" class="stage" aria-selected="true">13</time><time datetime="2026-03-14" class="stage">14</time><time datetime="2026-03-15" class="stage">15</time>
+            <time datetime="2026-03-16" class="stage">16</time><time datetime="2026-03-17" class="stage">17</time><time datetime="2026-03-18" class="stage">18</time><time datetime="2026-03-19" class="stage">19</time><time datetime="2026-03-20" class="stage">20</time><time datetime="2026-03-21" class="stage">21</time><time datetime="2026-03-22" class="stage">22</time>
+            <time datetime="2026-03-23" class="stage">23</time><time datetime="2026-03-24" class="stage">24</time><time datetime="2026-03-25" class="stage">25</time><time datetime="2026-03-26" class="stage">26</time><time datetime="2026-03-27" class="stage">27</time><time datetime="2026-03-28" class="stage">28</time><time datetime="2026-03-29" class="stage">29</time>
+            <time datetime="2026-03-30" class="stage">30</time><time datetime="2026-03-31" class="stage">31</time><time datetime="2026-04-01" class="stage muted">1</time><time datetime="2026-04-02" class="stage muted">2</time><time datetime="2026-04-03" class="stage muted">3</time><time datetime="2026-04-04" class="stage muted">4</time><time datetime="2026-04-05" class="stage muted">5</time>
+          </div>
+        </section>
 
-        <p style="--fg: -0.5">Toggle the theme — the muted days, today's surface, and the hover all hold, because not one of them was a fixed colour.</p>
-      </section>
-
-      <hr>
-
-      <!-- When @scope is the right call -->
-      <section class="column" id="scope">
-        <h3 style="--type: 2">When <code>@scope</code> is the right call</h3>
-        <p>The calendar needed <code>@scope</code> only for cell appearance — small, contained, no layout gap. But some requirements are larger one-offs: a print résumé, a specific report layout, a fixed-format document a single client asked for. A layout that exists exactly once, that no primitive was built for.</p>
-        <p>That is what <code>@scope</code> is for, and the discipline is the same as the calendar's, scaled up:</p>
-        <ul style="--fg: -0.5; padding-inline-start: 1.4em; display: flex; flex-direction: column; gap: 0.3lh">
-          <li><strong>Co-locate it.</strong> The <code>&lt;style&gt;</code> block sits inside the element it styles. The CSS travels with the markup; it is obvious it belongs to that one section.</li>
-          <li><strong>Target by structure.</strong> Style <code>article h3</code>, <code>article ul</code>, <code>article &gt; div span</code> — real elements by their place in the tree. Do not invent class names to hang styles on.</li>
-          <li><strong>Do not manufacture variables.</strong> A one-off has nothing downstream to vary and nothing to override. A value used once, in one place, is just a value — write it inline. Lean on the units and tokens that are already inherited; do not build a configuration surface for something with a single instance.</li>
-          <li><strong>Never style <code>:scope</code> directly.</strong> Put layout on a child — <code>:scope &gt; div</code> — so viewport classes and page-slot classes on the outer element do not collide with it.</li>
-        </ul>
-        <p>The point is not that scoped CSS is elegant. It is that the one-off stays <em>contained</em>: co-located, namespaced to its subtree, impossible to reuse by accident. That is why it beats a scatter of utility classes — the debt is quarantined, not spread.</p>
-        <p style="--fg: -0.5">If you find yourself reaching for <code>@scope</code> often, that is the signal — not that you are using it wrong, but that the framework has a gap. A recurring need is a missing primitive. Close it the way <code>.ngrid</code> closed the explicit-grid gap, and the next person never has to scope it at all.</p>
+        <p style="--fg: -0.5">Toggle the theme — today's surface, the selected day, the muted days all hold, because every one is a token, not a fixed colour. The grid is <code>.ngrid</code>, the header is <code>.lcr</code>, the depth ramp between panel and days is automatic. The only authored CSS is one <code>@scope</code> block on the outermost tag, and it sets nothing but the public API.</p>
       </section>
 
     </article>
-  </main>
   </main>
 
   <!-- ── pg-aside — on-page TOC ─────────────────────────────── -->
   <aside class="pg-aside toc column tablet desktop">
     <span class="toc-label">On this page</span>
     <a href="#method">The method</a>
-    <a href="#step-1">Step 1 — recognise the shape</a>
-    <a href="#step-2">Step 2 — the cells</a>
-    <a href="#step-3">Step 3 — color with tokens</a>
-    <a href="#step-4">Step 4 — the header</a>
+    <a href="#step-1">Step 1 — the structure</a>
+    <a href="#step-2">Step 2 — the compositions</a>
+    <a href="#step-3">Step 3 — content vs stages</a>
+    <a href="#step-4">Step 4 — place the stages</a>
+    <a href="#step-5">Step 5 — apply the API</a>
+    <a href="#step-6">Step 6 — state with ARIA</a>
     <a href="#result">The result</a>
-    <a href="#scope">When @scope is the right call</a>
   </aside>
 
   <!-- ── pg-footer ──────────────────────────────────────────── -->
