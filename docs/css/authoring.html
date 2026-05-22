@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en" data-ui-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Authoring — stick.css</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/css/style.css">
+  <script src="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/js/highlight.js"></script>
+
+  <style>
+    /* .toc — see code-blocks.html for full notes */
+    @layer component.simple {
+      .toc {
+        --type: -1; display: flex; flex-direction: column; gap: 0.2lh; padding: 0.5lh;
+        & > .toc-label {
+          --type: -2; --fg: -0.5; text-transform: uppercase; letter-spacing: 0.1em;
+          margin-block-end: 0.3lh;
+        }
+        & > a {
+          --fg: -0.5; text-decoration: none; padding-block: 0.25em;
+          border-inline-start: 2px solid transparent; padding-inline-start: 0.6em;
+          transition: color calc(var(--cfg-motion) * 0.15s) ease-out,
+                      border-color calc(var(--cfg-motion) * 0.15s) ease-out;
+        }
+        & > a:hover { --fg: -1; border-inline-start-color: var(--border); }
+        & > a[aria-current="true"] { --fg: 0.8; border-inline-start-color: currentColor; }
+      }
+    }
+
+    /*
+      The calendar being built in this walkthrough.
+
+      This block is the running example — it grows section by section as
+      the page introduces each idea. It is shown here in full so the page
+      stays self-contained; the prose explains how each part was reached.
+
+      It follows the system's own authoring discipline:
+        - layout via composition primitives and one scoped grid
+        - colour via tokens (--bg, --fg), never literal values
+        - sizing via --type and lh, never pixels
+        - structure targeted inside @scope, no invented class names
+    */
+    @scope {
+      :scope .cal {
+        inline-size: 100%;
+        max-inline-size: 22rem;
+      }
+      /* the month grid: seven columns, one per weekday */
+      :scope .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.15lh;
+      }
+      /* weekday header cells */
+      :scope .cal-grid > .cal-wd {
+        --type: -2;
+        --fg: -0.5;
+        text-align: center;
+        padding-block: 0.3lh;
+        font-weight: 600;
+      }
+      /* day cells — square, centred number */
+      :scope .cal-grid > .cal-day {
+        display: grid;
+        place-items: center;
+        aspect-ratio: 1;
+        --type: -1;
+        border-radius: var(--cfg-radius);
+        cursor: pointer;
+        transition: background-color calc(var(--cfg-motion) * 0.15s) ease-out;
+      }
+      /* days outside the current month — quiet ink */
+      :scope .cal-grid > .cal-day.cal-muted { --fg: -0.3; }
+      /* today — a painted surface */
+      :scope .cal-grid > .cal-day.cal-today {
+        --bg: 0.8;
+        --fg: -1;
+        font-weight: 700;
+      }
+      :scope .cal-grid > .cal-day:hover { --bg: 0.15; }
+      :scope .cal-grid > .cal-day.cal-today:hover { --bg: 0.8; }
+    }
+  </style>
+</head>
+
+<body class="page stage centered">
+
+  <!-- ── pg-banner ──────────────────────────────────────────── -->
+  <div class="pg-banner flank-end" style="--hue-shift: 30; --bg: 0.55; --fg: -1; --type: -0.5">
+    <span><strong>Unreleased software</strong> — APIs may change without notice.</span>
+    <button class="icon-btn" aria-label="dismiss" onclick="this.parentElement.remove()">✕</button>
+  </div>
+
+  <!-- ── pg-header ──────────────────────────────────────────── -->
+  <div class="pg-header lcr">
+    <div class="row">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 12-9.373 9.373a1 1 0 0 1-3.001-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172v-.344a2 2 0 0 0-.586-1.414l-1.657-1.657A6 6 0 0 0 12.516 3H9l1.243 1.243A6 6 0 0 1 12 8.485V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/></svg>
+      <h1 class="tablet desktop" style="--type: 3">toolbox</h1>
+    </div>
+    <div class="tabs underline" role="tablist">
+      <button role="tab" aria-selected="false" onclick="location.href='../'">Home</button>
+      <button role="tab" aria-selected="true"  onclick="location.href='./'">CSS</button>
+      <button role="tab" aria-selected="false" onclick="location.href='../js/'">JS</button>
+    </div>
+    <div class="row">
+      <a href="https://github.com/Deufel/toolbox" target="_blank" rel="noopener">GitHub</a>
+      <hr class="vr">
+      <button class="icon-btn" id="theme-toggle" aria-label="toggle theme" title="toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── pg-subheader — breadcrumbs ─────────────────────────── -->
+  <nav class="pg-subheader crumbs" aria-label="breadcrumb">
+    <a href="../">Home</a>
+    <a href="./">CSS</a>
+    <span aria-current="page">Authoring</span>
+  </nav>
+
+  <!-- ── pg-navigation ──────────────────────────────────────── -->
+  <nav class="pg-navigation navbar-dynamic">
+    <a href="./">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <p>Overview</p>
+    </a>
+    <a href="./color.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+      <p>Color</p>
+    </a>
+    <a href="./scale.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16"/><path d="M15.697 14h5.606"/><path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16"/><path d="M3.304 13h6.392"/></svg>
+      <p>Scale</p>
+    </a>
+    <a href="./stage.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+      <p>Stage</p>
+    </a>
+    <a href="./layout.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+      <p>Layout</p>
+    </a>
+    <a href="./drawers.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2"/><path d="M3 8v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
+      <p>Drawers</p>
+    </a>
+    <a href="./components.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.536 11.293a1 1 0 0 0 0 1.414l2.376 2.377a1 1 0 0 0 1.414 0l2.377-2.377a1 1 0 0 0 0-1.414l-2.377-2.377a1 1 0 0 0-1.414 0z"/><path d="M2.297 11.293a1 1 0 0 0 0 1.414l2.377 2.377a1 1 0 0 0 1.414 0l2.377-2.377a1 1 0 0 0 0-1.414L6.088 8.916a1 1 0 0 0-1.414 0z"/><path d="M8.916 17.912a1 1 0 0 0 0 1.415l2.377 2.376a1 1 0 0 0 1.414 0l2.377-2.376a1 1 0 0 0 0-1.415l-2.377-2.376a1 1 0 0 0-1.414 0z"/><path d="M8.916 4.674a1 1 0 0 0 0 1.414l2.377 2.376a1 1 0 0 0 1.414 0l2.377-2.376a1 1 0 0 0 0-1.414l-2.377-2.377a1 1 0 0 0-1.414 0z"/></svg>
+      <p>Components</p>
+    </a>
+    <a href="./code-blocks.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg>
+      <p>Code blocks</p>
+    </a>
+    <a href="./authoring.html" aria-current="page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+      <p>Authoring</p>
+    </a>
+    <a href="./reference.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <p>Reference</p>
+    </a>
+  </nav>
+
+  <!-- ── pg-main ────────────────────────────────────────────── -->
+  <main class="pg-main stage">
+    <article class="column" style="padding-block: 2lh; gap: 1.5lh">
+
+      <header class="column" style="gap: 0.3lh">
+        <span style="--type: -1; --fg: -0.5; text-transform: uppercase; letter-spacing: 0.1em">Guide</span>
+        <h2 style="--type: 3">Authoring your own components</h2>
+        <p style="--fg: -0.5">The system covers most needs with primitives and components. When you need something it doesn't ship — here, a calendar — this is the method. We build one, step by step.</p>
+      </header>
+
+      <hr>
+
+      <!-- The method -->
+      <section class="column" id="method">
+        <h3 style="--type: 2">The method</h3>
+        <p>Before writing anything, know the order of preference. It keeps custom work small and predictable:</p>
+        <ol style="--fg: -0.5; padding-inline-start: 1.4em; display: flex; flex-direction: column; gap: 0.3lh">
+          <li><strong>Compose primitives first.</strong> <code>.row</code>, <code>.column</code>, <code>.grid</code> and the rest cover most layouts.</li>
+          <li><strong>Reach for a scoped block</strong> when a section needs a shape no primitive gives — a one-off grid template. Co-locate the CSS with the markup using <code>@scope</code>.</li>
+          <li><strong>Lift to a component</strong> only when the same scoped block appears three times. Until then, scoped is the right home.</li>
+        </ol>
+        <p>A calendar is a good test: it needs a real grid (a primitive won't do), it needs token-driven color for today and muted days, and it is the kind of thing you would eventually lift into a component. We will walk all three stages.</p>
+      </section>
+
+      <hr>
+
+      <!-- Step 1 -->
+      <section class="column" id="step-1">
+        <h3 style="--type: 2">Step 1 — sketch the shape</h3>
+        <p>A month is a seven-column grid: one column per weekday, a row of weekday labels on top, then the day numbers. That is the whole structure. A layout primitive can't express "seven equal columns," so this is a legitimate case for a scoped grid.</p>
+        <p>Start with the scope and the wrapper. The system's rule is to never style <code>:scope</code> directly — put the grid on a child so viewport and page-slot classes on the outer element don't collide with it.</p>
+
+        <pre><code class="html">&lt;section&gt;
+  &lt;style&gt;
+    @scope {
+      :scope .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.15lh;
+      }
+    }
+  &lt;/style&gt;
+  &lt;div class="cal"&gt;
+    &lt;div class="cal-grid"&gt;…&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+        <p style="--fg: -0.5">The gap is <code>0.15lh</code> — derived from line-height, like every gap in the system. No pixel value, no spacing token.</p>
+      </section>
+
+      <hr>
+
+      <!-- Step 2 -->
+      <section class="column" id="step-2">
+        <h3 style="--type: 2">Step 2 — the weekday header and the days</h3>
+        <p>Fill the grid. Seven weekday labels, then the day numbers as cells. Each cell type is targeted by structure inside the scope — <code>.cal-wd</code> for the labels, <code>.cal-day</code> for the days — no invented styling hooks beyond the two the markup genuinely needs.</p>
+
+        <pre><code class="css">:scope .cal-grid > .cal-wd {
+  --type: -2;            /* smaller than the day numbers */
+  --fg: -0.5;            /* quiet — these are labels      */
+  text-align: center;
+  padding-block: 0.3lh;
+}
+:scope .cal-grid > .cal-day {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;       /* square cells                  */
+  --type: -1;
+  border-radius: var(--cfg-radius);
+}</code></pre>
+
+        <p>The day cell is <code>aspect-ratio: 1</code> — square regardless of column width — with the number centered by a one-line grid. Sizing is <code>--type</code>, the corner is the system's radius token.</p>
+      </section>
+
+      <hr>
+
+      <!-- Step 3 -->
+      <section class="column" id="step-3">
+        <h3 style="--type: 2">Step 3 — color with tokens</h3>
+        <p>A calendar has two special days: ones outside the current month, and today. Neither needs a literal color. Muted days lower the ink with <code>--fg</code>; today paints a surface with <code>--bg</code>. Both adapt to theme and brand hue for free.</p>
+
+        <pre><code class="css">/* days spilling in from the neighbouring month */
+:scope .cal-grid > .cal-day.cal-muted { --fg: -0.3; }
+
+/* today — a painted surface, loud */
+:scope .cal-grid > .cal-day.cal-today {
+  --bg: 0.8;
+  --fg: -1;
+  font-weight: 700;
+}
+
+/* hover — a soft surface lift */
+:scope .cal-grid > .cal-day:hover { --bg: 0.15; }</code></pre>
+
+        <p>Nothing here names a color. "Today" is just a cell with a loud surface; "muted" is just dimmer ink. Switch the theme or change <code>--hue</code> and the calendar follows, because the cells were described in the system's terms, not in hex.</p>
+      </section>
+
+      <hr>
+
+      <!-- Step 4 -->
+      <section class="column" id="step-4">
+        <h3 style="--type: 2">Step 4 — the header, from a primitive</h3>
+        <p>The month label and the previous/next controls don't need scoped CSS at all — that is a left/right arrangement, and <code>.lcr</code> already does it. Reach for the primitive before writing anything.</p>
+
+        <pre><code class="html">&lt;div class="cal-head lcr"&gt;
+  &lt;button class="icon-btn" aria-label="previous month"&gt;‹&lt;/button&gt;
+  &lt;strong&gt;March 2026&lt;/strong&gt;
+  &lt;button class="icon-btn" aria-label="next month"&gt;›&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+
+        <p style="--fg: -0.5">No scope entry was needed for the header. When a primitive fits, the primitive wins — that is step one of the method, applied.</p>
+      </section>
+
+      <hr>
+
+      <!-- Step 5 — the result -->
+      <section class="column" id="result">
+        <h3 style="--type: 2">The result</h3>
+        <p>Header from <code>.lcr</code>, grid from one scoped block, every color and size from a token. Here it is, running:</p>
+
+        <div class="card stage" style="padding: 1lh">
+          <div class="cal column" style="gap: 0.6lh">
+            <div class="cal-head lcr">
+              <button class="icon-btn" aria-label="previous month">‹</button>
+              <strong>March 2026</strong>
+              <button class="icon-btn" aria-label="next month">›</button>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-wd">Mo</div><div class="cal-wd">Tu</div><div class="cal-wd">We</div><div class="cal-wd">Th</div><div class="cal-wd">Fr</div><div class="cal-wd">Sa</div><div class="cal-wd">Su</div>
+              <div class="cal-day cal-muted">23</div><div class="cal-day cal-muted">24</div><div class="cal-day cal-muted">25</div><div class="cal-day cal-muted">26</div><div class="cal-day cal-muted">27</div><div class="cal-day cal-muted">28</div><div class="cal-day">1</div>
+              <div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div>
+              <div class="cal-day">9</div><div class="cal-day">10</div><div class="cal-day">11</div><div class="cal-day cal-today">12</div><div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day">15</div>
+              <div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div>
+              <div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div>
+              <div class="cal-day">30</div><div class="cal-day">31</div><div class="cal-day cal-muted">1</div><div class="cal-day cal-muted">2</div><div class="cal-day cal-muted">3</div><div class="cal-day cal-muted">4</div><div class="cal-day cal-muted">5</div>
+            </div>
+          </div>
+        </div>
+
+        <p style="--fg: -0.5">Toggle the theme — the muted days, today's surface, and the hover all hold, because not one of them was a fixed color.</p>
+      </section>
+
+      <hr>
+
+      <!-- Step 6 — when to lift -->
+      <section class="column" id="lift">
+        <h3 style="--type: 2">When to lift it into a component</h3>
+        <p>The calendar above lives in a scoped block on one page. That is the correct home for it — for now. The signal to promote it to a real component is repetition: the same scoped block copied into a second page, then a third.</p>
+        <p>At that point, move the rules out of <code>@scope</code> and into the framework's component layer under a class — the markup stops carrying a <code>&lt;style&gt;</code> block and just uses <code>.cal</code>. Nothing about the CSS changes; only its home does. Lifting early — before the third use — adds a component nobody else needs yet.</p>
+
+        <pre><code class="css">/* once it has earned its place: */
+@layer component.complex {
+  .calendar { … }   /* the same rules, now framework-wide */
+}</code></pre>
+
+        <p style="--fg: -0.5">Compose first, scope when a primitive won't reach, lift when it repeats. That order is the whole method — the calendar was just a place to watch it work.</p>
+      </section>
+
+    </article>
+  </main>
+
+  <!-- ── pg-aside — on-page TOC ─────────────────────────────── -->
+  <aside class="pg-aside toc column tablet desktop">
+    <span class="toc-label">On this page</span>
+    <a href="#method">The method</a>
+    <a href="#step-1">Step 1 — sketch the shape</a>
+    <a href="#step-2">Step 2 — header and days</a>
+    <a href="#step-3">Step 3 — color with tokens</a>
+    <a href="#step-4">Step 4 — the header</a>
+    <a href="#result">The result</a>
+    <a href="#lift">When to lift it</a>
+  </aside>
+
+  <!-- ── pg-footer ──────────────────────────────────────────── -->
+  <div class="pg-footer flank-end tablet desktop" style="--scale: 0.75; --fg: -0.4">
+    <span>© 2026 toolbox</span>
+    <a href="https://github.com/Deufel/toolbox" target="_blank" rel="noopener" style="color: inherit">github.com/Deufel/toolbox</a>
+  </div>
+
+  <script>
+    const themeBtn = document.getElementById('theme-toggle');
+    themeBtn.addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-ui-theme') || 'dark';
+      document.documentElement.setAttribute('data-ui-theme', cur === 'dark' ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>
