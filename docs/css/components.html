@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en" data-ui-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Components — stick.css</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/css/style.css">
+  <script src="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/js/highlight.js"></script>
+
+  <!-- .toc — see code-blocks.html for full notes -->
+  <style>
+    @layer component.simple {
+      .toc {
+        --type: -1; display: flex; flex-direction: column; gap: 0.2lh; padding: 0.5lh;
+        & > .toc-label {
+          --type: -2; --fg: -0.5; text-transform: uppercase; letter-spacing: 0.1em;
+          margin-block-end: 0.3lh;
+        }
+        & > a {
+          --fg: -0.5; text-decoration: none; padding-block: 0.25em;
+          border-inline-start: 2px solid transparent; padding-inline-start: 0.6em;
+          transition: color calc(var(--cfg-motion) * 0.15s) ease-out,
+                      border-color calc(var(--cfg-motion) * 0.15s) ease-out;
+        }
+        & > a:hover { --fg: -1; border-inline-start-color: var(--border); }
+        & > a[aria-current="true"] {
+          --fg: 0.8; border-inline-start-color: currentColor;
+        }
+      }
+    }
+  </style>
+</head>
+
+<body class="page stage centered">
+
+  <!-- ── pg-banner ──────────────────────────────────────────── -->
+  <div class="pg-banner flank-end" style="--hue-shift: 30; --bg: 0.55; --fg: -1; --type: -0.5">
+    <span><strong>Unreleased software</strong> — APIs may change without notice.</span>
+    <button class="icon-btn" aria-label="dismiss" onclick="this.parentElement.remove()">✕</button>
+  </div>
+
+  <!-- ── pg-header ──────────────────────────────────────────── -->
+  <div class="pg-header lcr">
+    <div class="row">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 12-9.373 9.373a1 1 0 0 1-3.001-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172v-.344a2 2 0 0 0-.586-1.414l-1.657-1.657A6 6 0 0 0 12.516 3H9l1.243 1.243A6 6 0 0 1 12 8.485V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/></svg>
+      <h1 class="tablet desktop" style="--type: 3">toolbox</h1>
+    </div>
+
+    <div class="tabs underline" role="tablist">
+      <button role="tab" aria-selected="false" onclick="location.href='../'">Home</button>
+      <button role="tab" aria-selected="true"  onclick="location.href='./'">CSS</button>
+      <button role="tab" aria-selected="false" onclick="location.href='../js/'">JS</button>
+    </div>
+
+    <div class="row">
+      <a href="https://github.com/Deufel/toolbox" target="_blank" rel="noopener">GitHub</a>
+      <hr class="vr">
+      <button class="icon-btn" id="theme-toggle" aria-label="toggle theme" title="toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── pg-subheader — breadcrumbs ─────────────────────────── -->
+  <nav class="pg-subheader crumbs" aria-label="breadcrumb">
+    <a href="../">Home</a>
+    <a href="./">CSS</a>
+    <span aria-current="page">Components</span>
+  </nav>
+
+  <!-- ── pg-navigation ──────────────────────────────────────── -->
+  <nav class="pg-navigation navbar-dynamic">
+    <a href="./">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <p>Overview</p>
+    </a>
+    <a href="./color.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+      <p>Color</p>
+    </a>
+    <a href="./scale.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16"/><path d="M15.697 14h5.606"/><path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16"/><path d="M3.304 13h6.392"/></svg>
+      <p>Scale</p>
+    </a>
+    <a href="./stage.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+      <p>Stage</p>
+    </a>
+    <a href="./layout.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+      <p>Layout</p>
+    </a>
+    <a href="./components.html" aria-current="page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.536 11.293a1 1 0 0 0 0 1.414l2.376 2.377a1 1 0 0 0 1.414 0l2.377-2.377a1 1 0 0 0 0-1.414l-2.377-2.377a1 1 0 0 0-1.414 0z"/><path d="M2.297 11.293a1 1 0 0 0 0 1.414l2.377 2.377a1 1 0 0 0 1.414 0l2.377-2.377a1 1 0 0 0 0-1.414L6.088 8.916a1 1 0 0 0-1.414 0z"/><path d="M8.916 17.912a1 1 0 0 0 0 1.415l2.377 2.376a1 1 0 0 0 1.414 0l2.377-2.376a1 1 0 0 0 0-1.415l-2.377-2.376a1 1 0 0 0-1.414 0z"/><path d="M8.916 4.674a1 1 0 0 0 0 1.414l2.377 2.376a1 1 0 0 0 1.414 0l2.377-2.376a1 1 0 0 0 0-1.414l-2.377-2.377a1 1 0 0 0-1.414 0z"/></svg>
+      <p>Components</p>
+    </a>
+    <a href="./code-blocks.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg>
+      <p>Code blocks</p>
+    </a>
+    <a href="./reference.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <p>Reference</p>
+    </a>
+  </nav>
+
+  <!-- ── pg-main ────────────────────────────────────────────── -->
+  <main class="pg-main stage">
+    <article class="column" style="padding-block: 2lh; gap: 1.5lh">
+
+      <header class="column" style="gap: 0.3lh">
+        <span style="--type: -1; --fg: -0.5; text-transform: uppercase; letter-spacing: 0.1em">Reference</span>
+        <h2 style="--type: 3">Components</h2>
+        <p style="--fg: -0.5">Ready-made elements, each composed from the tokens and primitives. Drop them in.</p>
+      </header>
+
+      <hr>
+
+      <!-- Buttons -->
+      <section class="column" id="button">
+        <h3 style="--type: 2">Button</h3>
+        <p><code>.btn</code> for a labeled button, <code>.icon-btn</code> for a square icon-only one. Raise <code>--bg</code> for a chromatic primary action.</p>
+
+        <div class="row" style="align-items: center">
+          <button class="btn">Default</button>
+          <button class="btn" style="--bg: var(--cfg-bg-loud); --fg: -1; border-color: transparent">Primary</button>
+          <button class="icon-btn" aria-label="example icon button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          </button>
+        </div>
+
+        <pre><code class="html">&lt;button class="btn"&gt;Default&lt;/button&gt;
+&lt;button class="btn" style="--bg: var(--cfg-bg-loud); --fg: -1;
+        border-color: transparent"&gt;Primary&lt;/button&gt;
+&lt;button class="icon-btn"&gt;&lt;svg&gt;…&lt;/svg&gt;&lt;/button&gt;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- Tag -->
+      <section class="column" id="tag">
+        <h3 style="--type: 2">Tag</h3>
+        <p>A labeled chip. As a <code>&lt;span&gt;</code> it is static; as a <code>&lt;button&gt;</code> with <code>aria-pressed</code> it is a toggle. The semantic helpers — <code>suc inf wrn dgr bw</code> — set its color.</p>
+
+        <div class="row" style="align-items: center">
+          <span class="tag">NEW</span>
+          <span class="tag suc">live</span>
+          <span class="tag inf">info</span>
+          <span class="tag wrn">beta</span>
+          <span class="tag dgr">down</span>
+        </div>
+
+        <div class="row" style="align-items: center">
+          <button class="tag" aria-pressed="false">toggle off</button>
+          <button class="tag" aria-pressed="true">toggle on</button>
+        </div>
+
+        <pre><code class="html">&lt;span class="tag"&gt;NEW&lt;/span&gt;
+&lt;span class="tag suc"&gt;live&lt;/span&gt;
+
+&lt;button class="tag" aria-pressed="false"&gt;toggle&lt;/button&gt;
+&lt;button class="tag" aria-pressed="true"&gt;toggle&lt;/button&gt;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- Tabs -->
+      <section class="column" id="tabs">
+        <h3 style="--type: 2">Tabs</h3>
+        <p>A row of <code>role="tab"</code> buttons. <code>aria-selected</code> marks the active one. Add <code>.underline</code> for the understated variant.</p>
+
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true">Overview</button>
+          <button role="tab" aria-selected="false">Activity</button>
+          <button role="tab" aria-selected="false">Settings</button>
+        </div>
+
+        <div class="tabs underline" role="tablist">
+          <button role="tab" aria-selected="true">Overview</button>
+          <button role="tab" aria-selected="false">Activity</button>
+          <button role="tab" aria-selected="false">Settings</button>
+        </div>
+
+        <pre><code class="html">&lt;div class="tabs" role="tablist"&gt;
+  &lt;button role="tab" aria-selected="true"&gt;Overview&lt;/button&gt;
+  &lt;button role="tab" aria-selected="false"&gt;Activity&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="tabs underline" role="tablist"&gt;…&lt;/div&gt;</code></pre>
+
+        <p style="--fg: -0.5">A small generic handler swaps <code>aria-selected</code> on click — one listener covers every <code>.tabs</code> group on the page.</p>
+      </section>
+
+      <hr>
+
+      <!-- Card -->
+      <section class="column" id="card">
+        <h3 style="--type: 2">Card</h3>
+        <p><code>.card</code> draws a quiet border, <code>.Card</code> a louder one. Add <code>.stage</code> for a card that paints its own background.</p>
+
+        <div class="grid" style="--grid-min: 12rem">
+          <div class="card column" style="padding: 1lh">
+            <strong>.card</strong>
+            <span style="--fg: -0.5">Quiet border.</span>
+          </div>
+          <div class="Card column" style="padding: 1lh">
+            <strong>.Card</strong>
+            <span style="--fg: -0.5">Louder border.</span>
+          </div>
+          <div class="card stage column" style="padding: 1lh">
+            <strong>.card.stage</strong>
+            <span style="--fg: -0.5">Painted surface.</span>
+          </div>
+        </div>
+
+        <pre><code class="html">&lt;div class="card"&gt;…&lt;/div&gt;
+&lt;div class="Card"&gt;…&lt;/div&gt;
+&lt;div class="card stage"&gt;…&lt;/div&gt;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- Inputs -->
+      <section class="column" id="input">
+        <h3 style="--type: 2">Input</h3>
+        <p><code>.input</code> styles text fields, selects, and textareas alike. Inside a <code>&lt;form&gt;</code> they stretch to full width; inside a <code>&lt;fieldset&gt;</code> they arrange as flex children.</p>
+
+        <form class="column" style="max-inline-size: 26rem">
+          <div>
+            <label>Email</label>
+            <input class="input" type="email" placeholder="you@example.com">
+          </div>
+          <fieldset>
+            <div><label>First</label><input class="input" placeholder="Maria"></div>
+            <div><label>Last</label><input class="input" placeholder="Diaz"></div>
+          </fieldset>
+          <div>
+            <label>Role</label>
+            <select class="input">
+              <option>Engineer</option>
+              <option>Designer</option>
+            </select>
+          </div>
+          <div>
+            <label>Notes</label>
+            <textarea class="input" rows="2" placeholder="Anything else…"></textarea>
+          </div>
+        </form>
+
+        <pre><code class="html">&lt;form&gt;
+  &lt;div&gt;&lt;label&gt;Email&lt;/label&gt;&lt;input class="input" type="email"&gt;&lt;/div&gt;
+  &lt;fieldset&gt;
+    &lt;div&gt;&lt;label&gt;First&lt;/label&gt;&lt;input class="input"&gt;&lt;/div&gt;
+    &lt;div&gt;&lt;label&gt;Last&lt;/label&gt;&lt;input class="input"&gt;&lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/form&gt;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- Check / radio -->
+      <section class="column" id="check-radio">
+        <h3 style="--type: 2">Check &amp; radio</h3>
+        <p><code>.check</code> on a checkbox, <code>.radio</code> on a radio input.</p>
+
+        <div class="row" style="gap: 1.5lh; flex-wrap: wrap">
+          <label class="row" style="align-items: center; gap: 0.4em">
+            <input class="check" type="checkbox" checked> Subscribed
+          </label>
+          <label class="row" style="align-items: center; gap: 0.4em">
+            <input class="check" type="checkbox"> Unsubscribed
+          </label>
+          <label class="row" style="align-items: center; gap: 0.4em">
+            <input class="radio" type="radio" name="demo-plan" checked> Monthly
+          </label>
+          <label class="row" style="align-items: center; gap: 0.4em">
+            <input class="radio" type="radio" name="demo-plan"> Yearly
+          </label>
+        </div>
+
+        <pre><code class="html">&lt;input class="check" type="checkbox"&gt;
+&lt;input class="radio" type="radio" name="plan"&gt;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- Avatar -->
+      <section class="column" id="avatar">
+        <h3 style="--type: 2">Avatar</h3>
+        <p>An initials chip. Size it with <code>--type</code>, vary its color with <code>--hue-shift</code>.</p>
+
+        <div class="row" style="align-items: center">
+          <span class="avatar">MD</span>
+          <span class="avatar" style="--hue-shift: 90">JM</span>
+          <span class="avatar" style="--hue-shift: 200">PK</span>
+          <span class="avatar" style="--type: 1">AB</span>
+        </div>
+
+        <pre><code class="html">&lt;span class="avatar"&gt;MD&lt;/span&gt;
+&lt;span class="avatar" style="--hue-shift: 90"&gt;JM&lt;/span&gt;
+&lt;span class="avatar" style="--type: 1"&gt;AB&lt;/span&gt;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- Crumbs -->
+      <section class="column" id="crumbs">
+        <h3 style="--type: 2">Crumbs</h3>
+        <p>A breadcrumb trail. Separators render automatically between children. This page's subheader is a <code>.crumbs</code>.</p>
+
+        <nav class="crumbs" aria-label="example breadcrumb">
+          <a href="#">Home</a>
+          <a href="#">Library</a>
+          <a href="#">Data</a>
+          <span aria-current="page">Current</span>
+        </nav>
+
+        <pre><code class="html">&lt;nav class="crumbs"&gt;
+  &lt;a href="#"&gt;Home&lt;/a&gt;
+  &lt;a href="#"&gt;Library&lt;/a&gt;
+  &lt;span aria-current="page"&gt;Current&lt;/span&gt;
+&lt;/nav&gt;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- Link -->
+      <section class="column" id="link">
+        <h3 style="--type: 2">Link</h3>
+        <p><code>.link</code> styles an anchor as an inline text link.</p>
+
+        <p>Read the <a class="link" href="#">full changelog</a> or jump to the <a class="link" href="#">latest release</a>.</p>
+
+        <pre><code class="html">&lt;a class="link" href="#"&gt;full changelog&lt;/a&gt;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- Progress -->
+      <section class="column" id="progress">
+        <h3 style="--type: 2">Progress</h3>
+        <p>A native <code>&lt;progress&gt;</code>. Give it a <code>value</code> for a determinate bar; omit it for an indeterminate pulse.</p>
+
+        <div class="column" style="gap: 0.6lh; max-inline-size: 26rem">
+          <progress value="65" max="100"></progress>
+          <progress></progress>
+        </div>
+
+        <pre><code class="html">&lt;progress value="65" max="100"&gt;&lt;/progress&gt;
+&lt;progress&gt;&lt;/progress&gt;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- kbd -->
+      <section class="column" id="kbd">
+        <h3 style="--type: 2">kbd</h3>
+        <p>A keyboard key. Use the native <code>&lt;kbd&gt;</code> element.</p>
+
+        <p>Press <kbd>⌘</kbd> <kbd>K</kbd> to open search, or <kbd>Esc</kbd> to close it.</p>
+
+        <pre><code class="html">Press &lt;kbd&gt;⌘&lt;/kbd&gt; &lt;kbd&gt;K&lt;/kbd&gt; to open search.</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- hr -->
+      <section class="column" id="hr">
+        <h3 style="--type: 2">Rule</h3>
+        <p>A native <code>&lt;hr&gt;</code> draws a horizontal divider. Add <code>.vr</code> for a vertical one — useful between inline items.</p>
+
+        <hr>
+
+        <div class="row" style="align-items: center">
+          <span>Profile</span>
+          <hr class="vr">
+          <span>Billing</span>
+          <hr class="vr">
+          <span>Sign out</span>
+        </div>
+
+        <pre><code class="html">&lt;hr&gt;
+
+&lt;div class="row"&gt;
+  &lt;span&gt;Profile&lt;/span&gt;
+  &lt;hr class="vr"&gt;
+  &lt;span&gt;Billing&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+
+      <hr>
+
+      <!-- Navbar -->
+      <section class="column" id="navbar">
+        <h3 style="--type: 2">Navbar</h3>
+        <p>A vertical navigation column. Each link is an <code>&lt;a&gt;</code> holding an icon and a <code>&lt;p&gt;</code> label. <code>aria-current="page"</code> marks the active entry. The rail on the left of this page is a <code>.navbar-dynamic</code> — same component, collapsing to icon-only cells on narrow screens.</p>
+
+        <nav class="navbar" style="max-inline-size: 16rem">
+          <a href="#" aria-current="page">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            <p>Dashboard</p>
+          </a>
+          <a href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></svg>
+            <p>Reports</p>
+          </a>
+          <a href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-3-8a5 5 0 0 0-.45-8.3"/></svg>
+            <p>Team</p>
+            <span class="tag">3</span>
+          </a>
+          <a href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <p>Settings</p>
+          </a>
+        </nav>
+
+        <pre><code class="html">&lt;nav class="navbar"&gt;
+  &lt;a href="#" aria-current="page"&gt;
+    &lt;svg&gt;…&lt;/svg&gt;
+    &lt;p&gt;Dashboard&lt;/p&gt;
+  &lt;/a&gt;
+  &lt;a href="#"&gt;
+    &lt;svg&gt;…&lt;/svg&gt;
+    &lt;p&gt;Team&lt;/p&gt;
+    &lt;span class="tag"&gt;3&lt;/span&gt;
+  &lt;/a&gt;
+&lt;/nav&gt;</code></pre>
+
+        <p style="--fg: -0.5">An optional <code>.tag</code> after the label pins to the right. Use <code>.navbar-dynamic</code> instead of <code>.navbar</code> for the variant that collapses to icon cells below 1024px.</p>
+      </section>
+
+      <hr>
+
+      <!-- Text utilities -->
+      <section class="column" id="text">
+        <h3 style="--type: 2">Text utilities</h3>
+        <p><code>.nowrap</code> keeps text on one line. <code>.truncate</code> ellipsizes overflow — it needs a constrained width to work against.</p>
+
+        <div class="column" style="gap: 0.5lh; max-inline-size: 18rem">
+          <div class="card" style="padding: 0.5lh 0.8lh">
+            <span class="truncate" style="display: block">This sentence is far too long for its container and will be cut with an ellipsis.</span>
+          </div>
+          <div class="card" style="padding: 0.5lh 0.8lh; overflow: auto">
+            <span class="nowrap">This sentence never wraps — it scrolls instead.</span>
+          </div>
+        </div>
+
+        <pre><code class="html">&lt;span class="truncate"&gt;long text ellipsized…&lt;/span&gt;
+&lt;span class="nowrap"&gt;never wraps&lt;/span&gt;</code></pre>
+      </section>
+
+    </article>
+  </main>
+
+  <!-- ── pg-aside — on-page TOC ─────────────────────────────── -->
+  <aside class="pg-aside toc column tablet desktop">
+    <span class="toc-label">On this page</span>
+    <a href="#button">Button</a>
+    <a href="#tag">Tag</a>
+    <a href="#tabs">Tabs</a>
+    <a href="#card">Card</a>
+    <a href="#input">Input</a>
+    <a href="#check-radio">Check &amp; radio</a>
+    <a href="#avatar">Avatar</a>
+    <a href="#crumbs">Crumbs</a>
+    <a href="#link">Link</a>
+    <a href="#progress">Progress</a>
+    <a href="#kbd">kbd</a>
+    <a href="#hr">Rule</a>
+    <a href="#navbar">Navbar</a>
+    <a href="#text">Text utilities</a>
+  </aside>
+
+  <!-- ── pg-footer ──────────────────────────────────────────── -->
+  <div class="pg-footer flank-end tablet desktop" style="--scale: 0.75; --fg: -0.4">
+    <span>© 2026 toolbox</span>
+    <a href="https://github.com/Deufel/toolbox" target="_blank" rel="noopener" style="color: inherit">github.com/Deufel/toolbox</a>
+  </div>
+
+  <script>
+    const themeBtn = document.getElementById('theme-toggle');
+    themeBtn.addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-ui-theme') || 'dark';
+      document.documentElement.setAttribute('data-ui-theme', cur === 'dark' ? 'light' : 'dark');
+    });
+
+    // Generic tabs handler — applies to every .tabs group on the page.
+    document.querySelectorAll('.tabs').forEach(group => {
+      const buttons = group.querySelectorAll('button');
+      buttons.forEach(btn => btn.addEventListener('click', () =>
+        buttons.forEach(b => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'))));
+    });
+  </script>
+</body>
+</html>
