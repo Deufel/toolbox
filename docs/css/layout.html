@@ -28,6 +28,46 @@
           --fg: 0.8; border-inline-start-color: currentColor;
         }
       }
+
+      /*
+        .debug — a dotted outline that makes a layout region's extent
+        visible. Drop it on any primitive demo on this page to see the
+        box the primitive actually occupies. Uses var(--Border) — the
+        louder, slightly chromatic border tone — so the outline reads
+        as deliberate diagnostic chrome, not a real border.
+
+        Page-local for now; a candidate for the framework as a layout
+        debugging utility.
+      */
+      .debug {
+        outline: 1px dotted var(--Border);
+        outline-offset: 2px;
+      }
+
+      /*
+        .tag-glass — a translucent label chip for overlaying on imagery.
+        Like .tag, but built to sit on top of photos: a blurred glass
+        surface so the label stays legible over any background. Used
+        here for the camera-viewfinder HUD demo.
+
+        Page-local; a candidate for the framework alongside .tag.
+      */
+      .tag-glass {
+        --type: -2;
+        --fg: -1;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4em;
+        padding: 0.35em 0.7em;
+        border-radius: 999em;
+        border: 1px solid oklch(from var(--_bg) calc(l + 0.4) c h / 0.3);
+        background: oklch(from var(--_bg) calc(l - 0.15) c h / 0.45);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        font-family: var(--font-mono);
+        font-weight: 600;
+        white-space: nowrap;
+      }
     }
 
     /*
@@ -173,13 +213,13 @@
         <p>Wrap your application root in <code>body.page</code> to get an eleven-slot grid. Only <code>pg-main</code> is required — omit any other slot and its track collapses. This very page uses it: banner, header, subheader, navigation, main, aside, footer.</p>
 
         <div class="page-map">
-          <div class="box" style="grid-area: banner">pg-banner</div>
-          <div class="box" style="grid-area: header">pg-header</div>
-          <div class="box" style="grid-area: subhdr">pg-subheader</div>
-          <div class="box" style="grid-area: nav">pg-navigation</div>
-          <div class="box" style="grid-area: main">pg-main</div>
-          <div class="box" style="grid-area: aside">pg-aside</div>
-          <div class="box" style="grid-area: footer">pg-footer</div>
+          <div class="box debug" style="grid-area: banner">pg-banner</div>
+          <div class="box debug" style="grid-area: header">pg-header</div>
+          <div class="box debug" style="grid-area: subhdr">pg-subheader</div>
+          <div class="box debug" style="grid-area: nav">pg-navigation</div>
+          <div class="box debug" style="grid-area: main">pg-main</div>
+          <div class="box debug" style="grid-area: aside">pg-aside</div>
+          <div class="box debug" style="grid-area: footer">pg-footer</div>
         </div>
 
         <pre><code class="html">&lt;body class="page stage"&gt;
@@ -205,7 +245,7 @@
         <div class="split" style="gap: 1lh">
           <div class="demo">
             <span style="--type: -2; --fg: -0.5; font-family: var(--font-mono); display: block; margin-block-end: 0.4lh">.row</span>
-            <div class="row">
+            <div class="row debug">
               <div class="box">one</div>
               <div class="box">two</div>
               <div class="box">three</div>
@@ -213,7 +253,7 @@
           </div>
           <div class="demo">
             <span style="--type: -2; --fg: -0.5; font-family: var(--font-mono); display: block; margin-block-end: 0.4lh">.column</span>
-            <div class="column">
+            <div class="column debug">
               <div class="box">one</div>
               <div class="box">two</div>
               <div class="box">three</div>
@@ -232,14 +272,14 @@
         <div class="column" style="gap: 1lh">
           <div class="demo">
             <span style="--type: -2; --fg: -0.5; font-family: var(--font-mono); display: block; margin-block-end: 0.4lh">.split — exactly 50/50</span>
-            <div class="split">
+            <div class="split debug">
               <div class="box">half</div>
               <div class="box">half</div>
             </div>
           </div>
           <div class="demo">
             <span style="--type: -2; --fg: -0.5; font-family: var(--font-mono); display: block; margin-block-end: 0.4lh">.spread — content-sized, slack in the gap</span>
-            <div class="spread">
+            <div class="spread debug">
               <div class="box">left</div>
               <div class="box">right</div>
             </div>
@@ -257,7 +297,7 @@
         <div class="split" style="gap: 1lh">
           <div class="demo">
             <span style="--type: -2; --fg: -0.5; font-family: var(--font-mono); display: block; margin-block-end: 0.4lh">.lcr</span>
-            <div class="lcr">
+            <div class="lcr debug">
               <div class="box">left</div>
               <div class="box">center</div>
               <div class="box">right</div>
@@ -265,7 +305,7 @@
           </div>
           <div class="demo">
             <span style="--type: -2; --fg: -0.5; font-family: var(--font-mono); display: block; margin-block-end: 0.4lh">.tmb</span>
-            <div class="tmb" style="min-block-size: 9lh">
+            <div class="tmb debug" style="min-block-size: 9lh">
               <div class="box">top</div>
               <div class="box">middle</div>
               <div class="box">bottom</div>
@@ -284,14 +324,14 @@
         <div class="column" style="gap: 1lh">
           <div class="demo">
             <span style="--type: -2; --fg: -0.5; font-family: var(--font-mono); display: block; margin-block-end: 0.4lh">.flank — first fixed, last fills</span>
-            <div class="flank">
+            <div class="flank debug">
               <div class="box">fixed</div>
               <div class="box">fills the rest</div>
             </div>
           </div>
           <div class="demo">
             <span style="--type: -2; --fg: -0.5; font-family: var(--font-mono); display: block; margin-block-end: 0.4lh">.flank-end — first fills, last fixed</span>
-            <div class="flank-end">
+            <div class="flank-end debug">
               <div class="box">fills the rest</div>
               <div class="box">fixed</div>
             </div>
@@ -308,7 +348,7 @@
 
         <div class="demo">
           <span style="--type: -2; --fg: -0.5; font-family: var(--font-mono); display: block; margin-block-end: 0.4lh">.grid &nbsp; --grid-min: 8rem</span>
-          <div class="grid" style="--grid-min: 8rem">
+          <div class="grid debug" style="--grid-min: 8rem">
             <div class="box tall">1</div>
             <div class="box tall">2</div>
             <div class="box tall">3</div>
@@ -324,27 +364,30 @@
       <!-- HUD -->
       <section class="column" id="hud">
         <h3 style="--type: 2">HUD — floating anchors</h3>
-        <p><code>.hud-overlay</code> stacks every child in one shared cell, each pinned by a directional class. Siblings are independent — a big corner panel cannot push a centered child off-axis.</p>
+        <p><code>.hud-overlay</code> stacks every child in one shared cell, each pinned by a directional class. Siblings are independent — a big corner panel cannot push a centered child off-axis. It needs a sized container to anchor against; here, an image.</p>
 
-        <div class="hud-overlay stage" style="min-block-size: 14lh; padding: 0.6lh">
-          <span class="box" style="--type: -2">↖</span>
-          <span class="box" style="--type: -2">↑</span>
-          <span class="box" style="--type: -2">↗</span>
-          <span class="box" style="--type: -2">←</span>
-          <span class="box" style="--type: -2">•</span>
-          <span class="box" style="--type: -2">→</span>
-          <span class="box" style="--type: -2">↙</span>
-          <span class="box" style="--type: -2">↓</span>
-          <span class="box" style="--type: -2">↘</span>
+        <div class="hud-overlay debug" style="aspect-ratio: 16 / 9; border-radius: var(--cfg-radius); overflow: hidden">
+          <img src="https://picsum.photos/seed/steamboat-powder/1280/720"
+               alt="fresh powder on a Steamboat ski run"
+               style="inline-size: 100%; block-size: 100%; object-fit: cover">
+
+          <span class="↖ tag-glass">REC ●</span>
+          <span class="↗ tag-glass">4K · 60fps</span>
+          <span class="← tag-glass">ISO 200</span>
+          <span class="→ tag-glass">f/2.8</span>
+          <span class="↙ tag-glass">Steamboat · CO</span>
+          <span class="↘ tag-glass">−2.5 °F</span>
+          <span class="• tag-glass">⊹ focus</span>
         </div>
 
         <pre><code class="html">&lt;div class="hud-overlay"&gt;
-  &lt;span class="↖"&gt;top-left&lt;/span&gt;
-  &lt;span class="•"&gt;center&lt;/span&gt;
-  &lt;span class="↘"&gt;bottom-right&lt;/span&gt;
+  &lt;img src="…"&gt;
+  &lt;span class="↖"&gt;REC ●&lt;/span&gt;
+  &lt;span class="•"&gt;focus&lt;/span&gt;
+  &lt;span class="↘"&gt;−2.5 °F&lt;/span&gt;
 &lt;/div&gt;</code></pre>
 
-        <p style="--fg: -0.5">The same nine anchor classes — <code>↖ ↑ ↗ ← • → ↙ ↓ ↘</code> — also drive <code>.hud-grid</code>, which gives each child its own cell instead of overlaying them.</p>
+        <p style="--fg: -0.5">The image gives the overlay its dimensions; the chips float at their anchors on top. The same nine anchor classes — <code>↖ ↑ ↗ ← • → ↙ ↓ ↘</code> — also drive <code>.hud-grid</code>, which gives each child its own cell instead of overlaying them.</p>
       </section>
 
       <hr>
@@ -354,7 +397,7 @@
         <h3 style="--type: 2">Hero — 5-slot panel</h3>
         <p>A panel with optional top, bottom, left, right, and a scrolling main. Omit any edge slot and its track collapses. Use inside drawers, modals, or any container that needs chrome around scrolling content.</p>
 
-        <div class="hero stage" style="min-block-size: 16lh; padding: 0.4lh">
+        <div class="hero stage debug" style="min-block-size: 16lh; padding: 0.4lh">
           <div class="top box">top</div>
           <div class="left box">left</div>
           <div class="main box">main</div>
