@@ -268,6 +268,73 @@
         <p style="--fg: -0.5">Toggle the theme — today's surface, the selected day, the muted days all hold, because every one is a token, not a fixed colour. The grid is <code>.ngrid</code>, the header is <code>.lcr</code>, the depth ramp between panel and days is automatic. The only authored CSS is one <code>@scope</code> block on the outermost tag, and it sets nothing but the public API.</p>
       </section>
 
+
+      <hr>
+
+      <!-- --align : a coming token -->
+      <section class="column" id="align">
+        <h3 style="--type: 2">A note on <code>--align</code></h3>
+        <span class="tag" style="--hue-shift: 30; align-self: start">Next version</span>
+        <p>You may have noticed the calendar's <code>@scope</code> block reach for <code>text-align</code> to centre the weekday labels — and <code>text-align</code> is not one of the public API tokens. That is a real gap, and it is being closed.</p>
+        <p>Text alignment is a <em>flow</em> concern, not a composition one — it belongs to the element itself, the way <code>--type</code> and <code>--fg</code> do, not to a layout primitive. So a class is the wrong shape for it, and a raw <code>text-align</code> in <code>@scope</code> breaks the rule that <code>@scope</code> sets only the API. The fix is to make alignment <em>part of</em> the API.</p>
+        <p>The next version adds <code>--align</code> as an eighth public token:</p>
+        <ul style="--fg: -0.5; padding-inline-start: 1.4em; display: flex; flex-direction: column; gap: 0.3lh">
+          <li><strong>Logical, not physical.</strong> Its values are <code>start</code>, <code>center</code>, <code>end</code> — never <code>left</code> or <code>right</code>. Alignment stays correct under right-to-left writing modes by construction; the token makes the wrong thing unsayable.</li>
+          <li><strong>Default <code>start</code>.</strong> Matches normal text flow, so most elements never set it.</li>
+          <li><strong>Set anywhere the API is set.</strong> Inline in markup, or in a <code>@scope</code> block — it is a token like the others.</li>
+        </ul>
+        <p>Once it lands, the calendar's <code>@scope</code> sets <code>--align: center</code> on the labels instead of <code>text-align</code>, and the block is purely public API again — the rule holds with no exception. That is the bar for an eighth token: not convenience, but closing a gap that would otherwise force the rule to bend.</p>
+      </section>
+
+      <hr>
+
+      <!-- Second worked example: heat chart -->
+      <section class="column" id="heat">
+        <h3 style="--type: 2">A second component — a heat chart</h3>
+        <p>The same six steps, a different component: a contribution heat chart, the kind that tracks activity over a year. It is worth building because of what its data turns out to be.</p>
+
+        <p><strong>Structure and composition (steps 1–2).</strong> A heat chart is a fixed grid — seven rows, one per weekday — that reads down each column, a column per week. That is <code>.ngrid</code> again, this time with <code>--rows: 7</code>: the explicit-size primitive, filling column by column.</p>
+
+        <p><strong>Content and stages (steps 3–4).</strong> The panel is a <code>.stage</code>. Each cell is a <code>.stage</code> too. And here is the point of the whole exercise — a cell's <em>heat is its <code>--bg</code></em>. A quiet day is <code>--bg: 0</code> and recedes into the panel; a busy day is <code>--bg: 1</code> and sits loud and forward. The activity value, 0 to 1, <em>is</em> the surface presence. There is no colour scale to define, no legend to map — the data is already in the system's units.</p>
+
+        <p><strong>Applying the API (step 5).</strong> This is the instructive difference from the calendar. The per-cell <code>--bg</code> is <em>data</em> — it varies from cell to cell — so it cannot live in a <code>@scope</code> rule, because a rule sets every matching element the same. Per-cell data goes inline in the markup, which is exactly what API-in-markup is for:</p>
+
+        <pre><code class="html">&lt;div class="ngrid" style="--rows: 7"&gt;
+  &lt;div class="stage" style="--bg: 0"&gt;&lt;/div&gt;     &lt;!-- a quiet day --&gt;
+  &lt;div class="stage" style="--bg: 0.75"&gt;&lt;/div&gt;  &lt;!-- a busy day  --&gt;
+  …
+&lt;/div&gt;</code></pre>
+
+        <p>So the heat chart's <code>@scope</code> is nearly empty — it has no uniform per-tag tuning to do; the data carries everything. That is honest, and it is the lesson: <code>@scope</code> does as much or as little as the component needs. Here, almost nothing.</p>
+
+        <p><strong>State (step 6) — there isn't any.</strong> A heat chart has no selected or current cell to style. Not every component has state, and when it doesn't, the ARIA step is simply skipped. The method bends to the component, not the other way around.</p>
+
+        <p>Sixteen weeks of it, running — every cell an identical <code>&lt;div class="stage"&gt;</code> carrying one inline <code>--bg</code>:</p>
+
+        <div class="column stage" style="gap: 0.5lh; padding: 1lh; overflow-x: auto">
+          <div class="ngrid" style="--rows: 7; grid-auto-flow: column; gap: 0.2lh; min-inline-size: 30rem">
+              <div class="stage" style="--bg: 0.75" title="week 1, day 1: 0.75"></div><div class="stage" style="--bg: 0.0" title="week 1, day 2: 0.0"></div><div class="stage" style="--bg: 0.25" title="week 1, day 3: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 1, day 4: 0.25"></div><div class="stage" style="--bg: 0.75" title="week 1, day 5: 0.75"></div><div class="stage" style="--bg: 0.25" title="week 1, day 6: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 1, day 7: 0.25"></div>
+              <div class="stage" style="--bg: 0.0" title="week 2, day 1: 0.0"></div><div class="stage" style="--bg: 0.5" title="week 2, day 2: 0.5"></div><div class="stage" style="--bg: 0.0" title="week 2, day 3: 0.0"></div><div class="stage" style="--bg: 0.25" title="week 2, day 4: 0.25"></div><div class="stage" style="--bg: 0.5" title="week 2, day 5: 0.5"></div><div class="stage" style="--bg: 0.0" title="week 2, day 6: 0.0"></div><div class="stage" style="--bg: 0.0" title="week 2, day 7: 0.0"></div>
+              <div class="stage" style="--bg: 0.75" title="week 3, day 1: 0.75"></div><div class="stage" style="--bg: 0.5" title="week 3, day 2: 0.5"></div><div class="stage" style="--bg: 0.25" title="week 3, day 3: 0.25"></div><div class="stage" style="--bg: 0.5" title="week 3, day 4: 0.5"></div><div class="stage" style="--bg: 0.75" title="week 3, day 5: 0.75"></div><div class="stage" style="--bg: 0.0" title="week 3, day 6: 0.0"></div><div class="stage" style="--bg: 0.25" title="week 3, day 7: 0.25"></div>
+              <div class="stage" style="--bg: 0.75" title="week 4, day 1: 0.75"></div><div class="stage" style="--bg: 0.25" title="week 4, day 2: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 4, day 3: 0.25"></div><div class="stage" style="--bg: 1.0" title="week 4, day 4: 1.0"></div><div class="stage" style="--bg: 0.25" title="week 4, day 5: 0.25"></div><div class="stage" style="--bg: 0.0" title="week 4, day 6: 0.0"></div><div class="stage" style="--bg: 0.0" title="week 4, day 7: 0.0"></div>
+              <div class="stage" style="--bg: 0.75" title="week 5, day 1: 0.75"></div><div class="stage" style="--bg: 0.5" title="week 5, day 2: 0.5"></div><div class="stage" style="--bg: 0.75" title="week 5, day 3: 0.75"></div><div class="stage" style="--bg: 0.75" title="week 5, day 4: 0.75"></div><div class="stage" style="--bg: 0.5" title="week 5, day 5: 0.5"></div><div class="stage" style="--bg: 0.5" title="week 5, day 6: 0.5"></div><div class="stage" style="--bg: 0.25" title="week 5, day 7: 0.25"></div>
+              <div class="stage" style="--bg: 0.5" title="week 6, day 1: 0.5"></div><div class="stage" style="--bg: 0.75" title="week 6, day 2: 0.75"></div><div class="stage" style="--bg: 0.5" title="week 6, day 3: 0.5"></div><div class="stage" style="--bg: 0.75" title="week 6, day 4: 0.75"></div><div class="stage" style="--bg: 0.5" title="week 6, day 5: 0.5"></div><div class="stage" style="--bg: 0.25" title="week 6, day 6: 0.25"></div><div class="stage" style="--bg: 0.0" title="week 6, day 7: 0.0"></div>
+              <div class="stage" style="--bg: 0.25" title="week 7, day 1: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 7, day 2: 0.25"></div><div class="stage" style="--bg: 0.0" title="week 7, day 3: 0.0"></div><div class="stage" style="--bg: 0.25" title="week 7, day 4: 0.25"></div><div class="stage" style="--bg: 0.0" title="week 7, day 5: 0.0"></div><div class="stage" style="--bg: 0.0" title="week 7, day 6: 0.0"></div><div class="stage" style="--bg: 0.25" title="week 7, day 7: 0.25"></div>
+              <div class="stage" style="--bg: 0.25" title="week 8, day 1: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 8, day 2: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 8, day 3: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 8, day 4: 0.25"></div><div class="stage" style="--bg: 1.0" title="week 8, day 5: 1.0"></div><div class="stage" style="--bg: 0.25" title="week 8, day 6: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 8, day 7: 0.25"></div>
+              <div class="stage" style="--bg: 0.25" title="week 9, day 1: 0.25"></div><div class="stage" style="--bg: 0.75" title="week 9, day 2: 0.75"></div><div class="stage" style="--bg: 0.25" title="week 9, day 3: 0.25"></div><div class="stage" style="--bg: 0.5" title="week 9, day 4: 0.5"></div><div class="stage" style="--bg: 1.0" title="week 9, day 5: 1.0"></div><div class="stage" style="--bg: 0.25" title="week 9, day 6: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 9, day 7: 0.25"></div>
+              <div class="stage" style="--bg: 0.75" title="week 10, day 1: 0.75"></div><div class="stage" style="--bg: 0.75" title="week 10, day 2: 0.75"></div><div class="stage" style="--bg: 0.75" title="week 10, day 3: 0.75"></div><div class="stage" style="--bg: 0.25" title="week 10, day 4: 0.25"></div><div class="stage" style="--bg: 0.0" title="week 10, day 5: 0.0"></div><div class="stage" style="--bg: 0.25" title="week 10, day 6: 0.25"></div><div class="stage" style="--bg: 0.0" title="week 10, day 7: 0.0"></div>
+              <div class="stage" style="--bg: 0.25" title="week 11, day 1: 0.25"></div><div class="stage" style="--bg: 1.0" title="week 11, day 2: 1.0"></div><div class="stage" style="--bg: 1.0" title="week 11, day 3: 1.0"></div><div class="stage" style="--bg: 0.25" title="week 11, day 4: 0.25"></div><div class="stage" style="--bg: 0.75" title="week 11, day 5: 0.75"></div><div class="stage" style="--bg: 0.25" title="week 11, day 6: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 11, day 7: 0.25"></div>
+              <div class="stage" style="--bg: 0.5" title="week 12, day 1: 0.5"></div><div class="stage" style="--bg: 0.25" title="week 12, day 2: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 12, day 3: 0.25"></div><div class="stage" style="--bg: 0.5" title="week 12, day 4: 0.5"></div><div class="stage" style="--bg: 0.25" title="week 12, day 5: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 12, day 6: 0.25"></div><div class="stage" style="--bg: 0.25" title="week 12, day 7: 0.25"></div>
+              <div class="stage" style="--bg: 0.5" title="week 13, day 1: 0.5"></div><div class="stage" style="--bg: 0.25" title="week 13, day 2: 0.25"></div><div class="stage" style="--bg: 1.0" title="week 13, day 3: 1.0"></div><div class="stage" style="--bg: 0.5" title="week 13, day 4: 0.5"></div><div class="stage" style="--bg: 0.0" title="week 13, day 5: 0.0"></div><div class="stage" style="--bg: 0.0" title="week 13, day 6: 0.0"></div><div class="stage" style="--bg: 0.0" title="week 13, day 7: 0.0"></div>
+              <div class="stage" style="--bg: 0.75" title="week 14, day 1: 0.75"></div><div class="stage" style="--bg: 0.75" title="week 14, day 2: 0.75"></div><div class="stage" style="--bg: 0.5" title="week 14, day 3: 0.5"></div><div class="stage" style="--bg: 0.0" title="week 14, day 4: 0.0"></div><div class="stage" style="--bg: 0.5" title="week 14, day 5: 0.5"></div><div class="stage" style="--bg: 0.5" title="week 14, day 6: 0.5"></div><div class="stage" style="--bg: 0.25" title="week 14, day 7: 0.25"></div>
+              <div class="stage" style="--bg: 1.0" title="week 15, day 1: 1.0"></div><div class="stage" style="--bg: 0.75" title="week 15, day 2: 0.75"></div><div class="stage" style="--bg: 0.0" title="week 15, day 3: 0.0"></div><div class="stage" style="--bg: 0.75" title="week 15, day 4: 0.75"></div><div class="stage" style="--bg: 0.75" title="week 15, day 5: 0.75"></div><div class="stage" style="--bg: 0.25" title="week 15, day 6: 0.25"></div><div class="stage" style="--bg: 0.0" title="week 15, day 7: 0.0"></div>
+              <div class="stage" style="--bg: 0.75" title="week 16, day 1: 0.75"></div><div class="stage" style="--bg: 0.0" title="week 16, day 2: 0.0"></div><div class="stage" style="--bg: 0.5" title="week 16, day 3: 0.5"></div><div class="stage" style="--bg: 0.5" title="week 16, day 4: 0.5"></div><div class="stage" style="--bg: 1.0" title="week 16, day 5: 1.0"></div><div class="stage" style="--bg: 0.25" title="week 16, day 6: 0.25"></div><div class="stage" style="--bg: 0.0" title="week 16, day 7: 0.0"></div>
+          </div>
+          <small style="--fg: -0.5">Each column is a week; each row a weekday. Quiet days recede, busy days come forward — and the only thing set per cell is <code>--bg</code>.</small>
+        </div>
+
+        <p style="--fg: -0.5">No colour was chosen anywhere in this component. The heat is surface presence, the surface is a token, the token took the data directly. That is the system working as intended — and a sign that when a component fights you, the question to ask is which primitive is missing, not which class to invent.</p>
+      </section>
     </article>
   </main>
 
@@ -282,6 +349,8 @@
     <a href="#step-5">Step 5 — apply the API</a>
     <a href="#step-6">Step 6 — state with ARIA</a>
     <a href="#result">The result</a>
+    <a href="#align">A note on --align</a>
+    <a href="#heat">A second component</a>
   </aside>
 
   <!-- ── pg-footer ──────────────────────────────────────────── -->
