@@ -824,7 +824,11 @@
     grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min, 16rem)), 1fr));
   }
 
-  .ngrid { display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr); grid-auto-rows: auto; gap: calc(0.25 * 1lh); }
+  .ngrid { 
+    display: grid; grid-template-columns: repeat(var(--cols), 1fr); 
+    grid-template-rows: repeat(var(--rows), 1fr); grid-auto-rows: auto; 
+    gap: calc(0.25 * 1lh);
+  }
 
   .stack {
     display: grid;

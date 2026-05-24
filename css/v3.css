@@ -1,0 +1,728 @@
+/* ════════════════════════════════════════════════════════════════
+    UI system — layer order is the table of contents.
+
+    reset.*      spec fixes + structural opinions
+    styleAPI.*   the two public-knob systems. The style attribute
+                 becomes a function call: color(--bg,--fg,--hue),
+                 space(--type,--scale). These are the API.
+    classAPI.*   reusable vocabulary built on the styleAPI knobs.
+    components   reserved seam — empty today, beats classAPI,
+                 loses to theme. Component CSS declares into here.
+    theme        project-level overrides — wins over everything.
+    ════════════════════════════════════════════════════════════ */
+
+@layer
+  reset.fix,
+  reset.opinion,
+  styleAPI.color,
+  styleAPI.space,
+  classAPI.color,
+  classAPI.space,
+  components,
+  theme;
+
+
+/* ════════════════════════════════════════════════════════════════
+    global config — consumed across layers, owned by none.
+    @property must live outside @layer (spec requirement).
+    --cfg-radius : read by classAPI.space + components
+    --cfg-motion : read by classAPI.space + theme
+    ════════════════════════════════════════════════════════════ */
+@property --cfg-radius { syntax: "<length>"; inherits: true; initial-value: 6px }
+@property --cfg-motion { syntax: "<number>"; inherits: true; initial-value: 1 }
+
+
+/* ════════════════════════════════════════════════════════════════
+    reset.fix    — spec-correctness fixes only. No taste.
+    reset.opinion — structural project-wide preferences. NO styleAPI
+                    token consumption (no --_bg, --type, --scale).
+                    Visual rules that consume tokens go to theme.
+    ════════════════════════════════════════════════════════════ */
+
+@layer reset.fix {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; background-repeat: no-repeat; }
+  :root { interpolate-size: allow-keywords; }
+  :where(html) { -moz-text-size-adjust: none; -webkit-text-size-adjust: none; text-size-adjust: none; }
+  :where(body, figure, blockquote, dl, dd, p) { margin-block-end: 0; }
+  :where(img, picture, svg) { max-width: 100%; display: block; height: auto; }
+  :where(input, button, textarea, select) { font: inherit; }
+}
+
+@layer reset.opinion {
+  :where(body) {
+      overflow-wrap: break-word;
+      /* The document root MUST set --bg so the contrast-flip's
+          IACVT-inherit chain terminates on a real, theme-correct
+          background. --bg:0 is a valid "set" value — it paints the
+          stage surface (theme-aware via --_stage-l), not nothing.
+          Without this, body's --_bg falls through to the @property
+          initial value, which is a fixed colour and wrong in dark
+          theme. Any descendant that paints nothing inherits body's
+          --_bg, so this one declaration anchors the whole tree. */
+      --bg: 0;
+  }
+
+  :where(html) { scrollbar-width: thin; }
+  :where(p) { text-wrap: pretty; }
+  :where(h1, h2, h3, h4, h5, h6) { text-wrap: balance; }
+
+  :where(svg) { color: currentColor; }
+
+  :where(button, [role="button"], summary, label[for],
+          input[type="file"]::file-selector-button) {
+      cursor: pointer; user-select: none; -webkit-user-select: none; }
+
+  :where(:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
+  :where(table) { border-collapse: collapse; }
+  :where(fieldset) { border: 0; padding: 0; margin: 0; min-inline-size: 0; }
+  :where(legend) { padding: 0; }
+  :where(textarea) { resize: vertical; }
+  :where(textarea:not([rows])) { min-block-size: 10em; }
+  :where(abbr[title]) { cursor: help; text-decoration: underline dotted; }
+  :where(summary) { list-style: none; }
+  :where(ul, ol):where([role="list"]) { list-style: none; padding: 0; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+    consumed by styleAPI.color — the color formula (stage-anchored).
+
+    Public API (5 knobs):
+      --bg          [0, 1]   stage surface (0) → max chroma (1)
+      --fg          [-1, 1]  neutral ink (-1) → 0 → chromatic ink (1)
+      --hue         [0, 360] base hue
+      --hue-shift   delta added to --hue (semantic palettes, charts)
+      --hue-lock    overrides hue+shift when set (branded content)
+
+    The chromatic ramp is one shape, evaluated twice. --bg drives the
+    element background; positive --fg drives chromatic ink. Both run
+    the identical stage-to-max pipeline (floor → curve → lerp) — only
+    the input token and the output property differ. Negative --fg is
+    a separate system: neutral ink + the contrast-pole flip.
+
+    Neither --bg nor --fg inherits — both are per-element decisions.
+    A child that sets no knob takes the initial value (--bg:0 → paints
+    nothing; --fg:-1 → neutral ink). This is safe because the knobs do
+    not carry color: every element re-runs the formula in :where(*),
+    deriving --_bg / color locally from the tokens that DO inherit
+    (--hue, --hue-shift, --hue-lock, --cfg-*, and the stage's --_stage-l).
+    So a region's hue, theme, and stage still cascade and reflow whole
+    subtrees; only the bg/fg *intensity* is local. Non-inheriting --fg
+    also keeps it in step with --_interact-fg-mul, and --bg with
+    --_interact-bg — interaction terms are combined with the knobs, so
+    they must share inheritance or hover/active desyncs.
+
+    Stage vocabulary borrows from theater: stage 0 is the front,
+    closest to the audience and brightest; stage 3 is the back,
+    deepest. front/back name the depth=0 and depth=3 endpoints.
+
+    Configuration: cfg-* tokens for theme tuning.
+    Curves and floor are hardcoded system constants.
+    ════════════════════════════════════════════════════════════ */
+
+/* ── public API ─────────────────────────────────────────────── */
+/* --bg — per-element knob, the background level. Registered,
+    non-inheriting, initial 0. Setting --bg only computes a colour
+    (--_own-bg); it does NOT make an element paint. Painting is
+    granted by the .stage class. So --bg means "the surface colour
+    this element would have IF it is a stage". */
+@property --bg         { syntax: "<number>"; inherits: false; initial-value: 0 }
+@property --fg         { syntax: "<number>"; inherits: false; initial-value: -1 }
+@property --hue        { syntax: "<number>"; inherits: true; initial-value: 180 }
+@property --hue-lock   { syntax: "*";        inherits: true }
+@property --hue-shift  { syntax: "<number>"; inherits: true; initial-value: 0 }
+
+/* ── configuration: theme switch ────────────────────────────── */
+@property --cfg-dark { syntax: "<number>"; inherits: true; initial-value: 0 }
+
+/* ── configuration: chroma ramp max endpoint ────────────────── */
+@property --cfg-chroma-max-l-light { syntax: "<percentage>"; inherits: true; initial-value: 50% }
+@property --cfg-chroma-max-c-light { syntax: "<number>";     inherits: true; initial-value: 0.22 }
+@property --cfg-chroma-max-l-dark  { syntax: "<percentage>"; inherits: true; initial-value: 70% }
+@property --cfg-chroma-max-c-dark  { syntax: "<number>";     inherits: true; initial-value: 0.22 }
+@property --cfg-stage-chroma       { syntax: "<number>";     inherits: true; initial-value: 0.018 }
+@property --cfg-fg-tint            { syntax: "<number>";     inherits: true; initial-value: 0.02 }
+@property --cfg-color-alpha        { syntax: "<number>";     inherits: true; initial-value: 1 }
+
+/* ── configuration: stage ramp ──────────────────────────────── */
+@property --cfg-stage-front-light { syntax: "<number>"; inherits: true; initial-value: 97 }
+@property --cfg-stage-back-light  { syntax: "<number>"; inherits: true; initial-value: 90 }
+@property --cfg-stage-front-dark  { syntax: "<number>"; inherits: true; initial-value: 28 }
+@property --cfg-stage-back-dark   { syntax: "<number>"; inherits: true; initial-value: 10 }
+
+/* ── configuration: contrast flip ───────────────────────────── */
+@property --cfg-fg-flip { syntax: "<number>"; inherits: true; initial-value: 0.7 }
+
+/* ── configuration: ramp floor — the smallest --bg that still
+      produces a visible chromatic step. "Just barely visible" is a
+      perceptual constant, so this is one theme-equal knob. */
+@property --cfg-floor { syntax: "<number>"; inherits: true; initial-value: 0.06 }
+
+/* ── configuration: chroma curve exponent — shapes how chroma builds
+      across the ramp. Lightness keeps a fixed exponent (OKLCH L is
+      already perceptual); chroma is theme-aware because equal chroma
+      reads hotter against a dark background, so dark gets a higher
+      exponent to calm the mid-ramp. */
+@property --cfg-chroma-exp-light { syntax: "<number>"; inherits: true; initial-value: 1.5 }
+@property --cfg-chroma-exp-dark  { syntax: "<number>"; inherits: true; initial-value: 1.8 }
+
+/* ── configuration: interaction states ──────────────────────── */
+@property --cfg-hover-bg-shift  { syntax: "<number>"; inherits: true; initial-value: 0.12 }
+@property --cfg-active-bg-shift { syntax: "<number>"; inherits: true; initial-value: -0.06 }
+@property --cfg-active-fg-mul   { syntax: "<number>"; inherits: true; initial-value: 0.7 }
+
+/* ── configuration: loud-bg threshold — reserved, consumed by components ── */
+@property --cfg-bg-loud { syntax: "<number>"; inherits: true; initial-value: 0.55 }
+
+/* ── shared ramp constants — both ramps MUST read these so the
+      curve and floor cannot drift between bg and fg.
+      Lightness exponent is fixed (OKLCH L is already perceptual);
+      chroma exponent is theme-resolved (see --cfg-chroma-exp-*). */
+@property --_l-exp { syntax: "<number>"; inherits: false; initial-value: 1.5 }
+@property --_c-exp { syntax: "<number>"; inherits: false; initial-value: 1.5 }
+
+/* ── structural ─────────────────────────────────────────────── */
+@property --depth { syntax: "<number>"; inherits: false; initial-value: 0 }
+
+/* ── private intermediates ──────────────────────────────────── */
+/* --_bg MUST keep an initial-value: a registered <color> property
+    cannot omit it (only syntax:"*" may). With body setting --bg, the
+    IACVT-inherit chain always terminates on body's real painted --_bg,
+    so this initial value is unreachable in normal flow. It is set to
+    pure black as a loud sentinel — if it ever DOES surface (something
+    outside body: a ::backdrop, a top-layer element), black-on-surface
+    is glaringly wrong and easy to catch, unlike a plausible light grey. */
+@property --_bg              { syntax: "<color>";      inherits: true;  initial-value: oklch(0% 0 0) }
+@property --_h               { syntax: "<number>";     inherits: false; initial-value: 220 }
+@property --_stage-front-l   { syntax: "<number>";     inherits: false; initial-value: 97 }
+@property --_stage-back-l    { syntax: "<number>";     inherits: false; initial-value: 90 }
+@property --_stage-t         { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_stage-l         { syntax: "<percentage>"; inherits: true;  initial-value: 97% }
+@property --_floor           { syntax: "<number>";     inherits: false; initial-value: 0.08 }
+@property --_chroma-max-l    { syntax: "<percentage>"; inherits: false; initial-value: 50% }
+@property --_chroma-max-c    { syntax: "<number>";     inherits: false; initial-value: 0.22 }
+/* bg ramp */
+@property --_bg-clamped      { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_own-bg          { syntax: "<color>";      inherits: false; initial-value: oklch(0% 0 0) }
+@property --_bg-eff          { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_bg-curved-l     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_bg-curved-c     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_l               { syntax: "<percentage>"; inherits: true;  initial-value: 97% }
+@property --_c               { syntax: "<number>";     inherits: false; initial-value: 0.018 }
+/* SURFACE CONTEXT — published by .stage, INHERITS. The resolved
+    lightness / chroma / hue of the surface a subtree sits on, plus
+    the theme (--_surf-dark) that surface was painted under. Bare
+    elements read these to build foreground colour; they never set
+    them. Initial values are a mid-neutral so an element with no
+    painting ancestor still resolves something sane. */
+@property --_surf-l          { syntax: "<percentage>"; inherits: true;  initial-value: 97% }
+@property --_surf-c          { syntax: "<number>";     inherits: true;  initial-value: 0.018 }
+@property --_surf-h          { syntax: "<number>";     inherits: true;  initial-value: 220 }
+@property --_surf-dark       { syntax: "<number>";     inherits: true;  initial-value: 0 }
+/* fg ramp (chromatic ink — positive --fg) */
+@property --_fg-pos          { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-eff          { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-curved-l     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-curved-c     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-ramp-l       { syntax: "<percentage>"; inherits: false; initial-value: 90% }
+@property --_fg-ramp-c       { syntax: "<number>";     inherits: false; initial-value: 0.05 }
+/* fg-side theme endpoints — resolved from --_surf-dark (the SURFACE's
+    theme), not --cfg-dark, so ink contrasts the surface as that
+    surface was themed even under per-subtree theming. */
+@property --_fg-chroma-max-l { syntax: "<percentage>"; inherits: false; initial-value: 50% }
+@property --_fg-chroma-max-c { syntax: "<number>";     inherits: false; initial-value: 0.18 }
+@property --_fg-c-exp        { syntax: "<number>";     inherits: false; initial-value: 1.5 }
+/* fg neutral side + contrast pole flip (negative --fg) */
+@property --_fg-neg          { syntax: "<number>";     inherits: false; initial-value: 1 }
+@property --_fg-onpos        { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-flip         { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-pole-l       { syntax: "<percentage>"; inherits: false; initial-value: 4% }
+@property --_fg-l            { syntax: "<percentage>"; inherits: false; initial-value: 4% }
+@property --_fg-c            { syntax: "<number>";     inherits: false; initial-value: 0.02 }
+/* derived border tokens */
+@property --_border-strong   { syntax: "<color>";      inherits: false; initial-value: oklch(75% 0.05 220) }
+/* interaction */
+@property --_interact-bg     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_interact-fg-mul { syntax: "<number>";     inherits: false; initial-value: 1 }
+@property --_fg-effective    { syntax: "<number>";     inherits: false; initial-value: -1 }
+
+@layer styleAPI.color {
+
+  :where(*) {
+    /* Hue resolution — lock overrides shift+base */
+    --_h: var(--hue-lock, calc(var(--hue) + var(--hue-shift)));
+
+    /* Theme-aware max-chroma endpoint */
+    --_chroma-max-l: calc(var(--cfg-chroma-max-l-light) * (1 - var(--cfg-dark)) + var(--cfg-chroma-max-l-dark) * var(--cfg-dark));
+    --_chroma-max-c: calc(var(--cfg-chroma-max-c-light) * (1 - var(--cfg-dark)) + var(--cfg-chroma-max-c-dark) * var(--cfg-dark));
+
+    /* Floor: the smallest --bg that still yields a visible step.
+        One theme-equal knob — "just barely visible" is a perceptual
+        constant, so it does not need a per-theme value. */
+    --_floor: var(--cfg-floor);
+
+    /* Chroma exponent — theme-resolved. Equal OKLCH chroma reads
+        hotter on a dark background, so dark uses a higher exponent
+        to slow chroma's mid-ramp build. Lightness exponent is fixed
+        (--_l-exp) because OKLCH L is already perceptually uniform. */
+    --_c-exp: calc(var(--cfg-chroma-exp-light) * (1 - var(--cfg-dark)) + var(--cfg-chroma-exp-dark) * var(--cfg-dark));
+
+    /* ── chromatic ramp — every element resolves its OWN would-be
+        surface (--_l / --_c). On a .stage these become the published
+        --_surf-* context (see classAPI.color); on a bare element they
+        are computed but unused — the bare element reads the INHERITED
+        --_surf-* instead. The interaction shift perturbs --bg here. */
+    --_bg-clamped:  clamp(0, calc(var(--bg, 0) + var(--_interact-bg)), 1);
+    /* gate: 1 when --bg+interact is non-zero, 0 when exactly 0 — keeps
+        --_bg-eff at 0 so a --bg:0 stage sits exactly at --_stage-l. */
+    --_bg-eff:      calc(
+      (var(--_floor) + (1 - var(--_floor)) * var(--_bg-clamped))
+      * clamp(0, calc(var(--_bg-clamped) * 1000000), 1)
+    );
+    --_bg-curved-l: pow(var(--_bg-eff), var(--_l-exp));
+    --_bg-curved-c: pow(var(--_bg-eff), var(--_c-exp));
+    --_l: calc(var(--_stage-l)         + var(--_bg-curved-l) * (var(--_chroma-max-l) - var(--_stage-l)));
+    --_c: calc(var(--cfg-stage-chroma) + var(--_bg-curved-c) * (var(--_chroma-max-c) - var(--cfg-stage-chroma)));
+
+    /* --_own-bg — the colour this element paints IF it is a .stage.
+        Bare elements compute it and ignore it. */
+    --_own-bg: oklch(clamp(4%, var(--_l), 97%) var(--_c) var(--_h) / var(--cfg-color-alpha));
+
+    /* ════ FOREGROUND ════════════════════════════════════════════
+        The ink calculation reads the SURFACE CONTEXT — --_surf-l,
+        --_surf-c, --_surf-h — NOT this element's own --_l/--_c/--_h.
+        --_surf-* is published ONLY by .stage (see classAPI.color) and
+        inherits down. It is deliberately NOT assigned here: if it were
+        set on :where(*), every bare element would overwrite the
+        inherited surface context with its own values — the same
+        clobber bug we hit with --_bg. So a bare letter never touches
+        --_surf-*; it inherits its stage's. This is the core idea:
+        the surface passes its resolved values DOWN; the ink reads
+        them. You cannot send a formula up to the surface, so the
+        surface sends its numbers down. */
+
+    /* Foreground sign split: --fg < 0 → neutral ink, --fg > 0 → chromatic */
+    --_fg-effective: calc(var(--fg) * var(--_interact-fg-mul));
+    --_fg-pos: clamp(0, var(--_fg-effective), 1);
+    --_fg-neg: clamp(0, calc(-1 * var(--_fg-effective)), 1);
+    --_fg-onpos: clamp(0, calc(var(--_fg-pos) * 1000000), 1);
+
+    /* Chromatic-ink ramp (positive --fg). Theme-dependent endpoints
+        here resolve from --_surf-dark — the theme the SURFACE was
+        painted under, published with the rest of the surface context
+        — NOT --cfg-dark. So under per-subtree theming, ink built for
+        a surface uses that surface's theme, keeping the ink/surface
+        pair consistent (decision: ink contrasts the surface as it was
+        themed). The --bg side above keeps --cfg-dark: a stage
+        resolving its own surface under its own theme is correct. */
+    --_fg-chroma-max-l: calc(var(--cfg-chroma-max-l-light) * (1 - var(--_surf-dark)) + var(--cfg-chroma-max-l-dark) * var(--_surf-dark));
+    --_fg-chroma-max-c: calc(var(--cfg-chroma-max-c-light) * (1 - var(--_surf-dark)) + var(--cfg-chroma-max-c-dark) * var(--_surf-dark));
+    --_fg-c-exp:        calc(var(--cfg-chroma-exp-light)   * (1 - var(--_surf-dark)) + var(--cfg-chroma-exp-dark)   * var(--_surf-dark));
+
+    --_fg-eff:      calc(
+      (var(--_floor) + (1 - var(--_floor)) * var(--_fg-pos))
+      * clamp(0, calc(var(--_fg-pos) * 1000000), 1)
+    );
+    --_fg-curved-l: pow(var(--_fg-eff), var(--_l-exp));
+    --_fg-curved-c: pow(var(--_fg-eff), var(--_fg-c-exp));
+    --_fg-ramp-l: calc(var(--_surf-l) + var(--_fg-curved-l) * (var(--_fg-chroma-max-l) - var(--_surf-l)));
+    --_fg-ramp-c: calc(var(--_surf-c) + var(--_fg-curved-c) * (var(--_fg-chroma-max-c) - var(--_surf-c)));
+
+    /* Contrast pole flip — Verou's method on the PUBLISHED surface
+        lightness --_surf-l. --_surf-l is a <percentage> (e.g. 22%);
+        --cfg-fg-flip is a 0–1 fraction (e.g. 0.55), so it must be
+        scaled by 100% to compare in the same unit — NOT 1%, which
+        would make the threshold 100× too small and force every
+        surface to the dark pole (the "works in light, broken in
+        dark" bug). (--_surf-l / threshold - 1) is negative when the
+        surface is darker than the threshold → * -infinity → clamp →
+        1 → near-white pole; lighter surface → 0 → near-black. */
+    --_fg-flip: clamp(0, calc(
+      (var(--_surf-l) / (var(--cfg-fg-flip) * 100%) - 1) * -infinity
+    ), 1);
+    --_fg-pole-l: calc(4% + var(--_fg-flip) * 93%);
+
+    /* Merge the two ink branches into final L and C.
+        Neutral branch (--fg ≤ 0): lerp from the surface lightness
+        (--fg 0, invisible ink) toward the flipped pole (--fg -1).
+        Chromatic branch (--fg > 0): the ramp above.
+        --_fg-onpos switches between them. */
+    --_fg-l: calc(
+      (var(--_surf-l) * (1 - var(--_fg-neg)) + var(--_fg-pole-l) * var(--_fg-neg)) * (1 - var(--_fg-onpos))
+      + var(--_fg-ramp-l) * var(--_fg-onpos)
+    );
+    --_fg-c: calc(
+      (var(--_surf-c) * (1 - var(--_fg-neg)) + var(--cfg-fg-tint) * var(--_fg-neg)) * (1 - var(--_fg-onpos))
+      + var(--_fg-ramp-c) * var(--_fg-onpos)
+    );
+
+    color: oklch(clamp(4%, var(--_fg-l), 97%) var(--_fg-c) var(--_surf-h) / 1);
+
+    /* Strong border color — a louder variant of the element's own
+        --_bg. Single source for the two consumers that need it: the
+        :focus-visible outline below and the scrollbar in theme.
+        Derived from --_bg so it contrasts against whatever it wraps. */
+    --_border-strong: oklch(
+      from var(--_bg)
+      calc(l + (var(--cfg-dark) * 2 - 1) * 0.22)
+      clamp(0.08, calc(c + 0.12), 0.18)
+      calc(h + 8)
+    );
+
+    /* Border color is correct-by-default on every element. border-style
+        defaults to none, so this paints nothing until a component sets
+        a width/style. Derived from the element's own --_bg. */
+    border-color: oklch(
+      from var(--_bg)
+      calc(l + (var(--cfg-dark) * 2 - 1) * 0.14)
+      calc(c * 0.3)
+      h
+    );
+  }
+
+  /* Stage ramp — only stages compute --_stage-l. Descendants inherit,
+      so chips/text/buttons anchor their chroma ramp to whatever stage
+      they sit in. The stage *vocabulary* (.stage-N, :has cascade) lives
+      in classAPI.color; this rule is the formula it feeds.
+
+      stage 0 = front (audience side, bright); stage 3 = back (deep). */
+  :where(body, .stage, .stage-0, .stage-1, .stage-2, .stage-3) {
+    --_stage-front-l: calc(var(--cfg-stage-front-light) * (1 - var(--cfg-dark)) + var(--cfg-stage-front-dark) * var(--cfg-dark));
+    --_stage-back-l:  calc(var(--cfg-stage-back-light)  * (1 - var(--cfg-dark)) + var(--cfg-stage-back-dark)  * var(--cfg-dark));
+    --_stage-t:       clamp(0, calc(var(--depth) / 3), 1);
+    --_stage-l:       calc((var(--_stage-front-l) + var(--_stage-t) * (var(--_stage-back-l) - var(--_stage-front-l))) * 1%);
+  }
+
+  :where(svg) { color: currentColor }
+
+  /* Focus ring — uses the shared --_border-strong token so it stays
+      in lockstep with the scrollbar color. :focus-visible only — no
+      ring on mouse click. */
+  :where(:focus-visible) {
+    outline: 2px solid var(--_border-strong);
+    outline-offset: 2px;
+  }
+
+  /* Interaction states — hover/active perturb --bg directly, sliding
+      the element along the stage→max axis. L and C lifts emerge from
+      the ramp automatically. */
+  :where(button, a, [role="button"], [tabindex], .clickable):not([tabindex="-1"]) {
+    cursor: pointer;
+  }
+  :where(button, a, [role="button"], [tabindex], .clickable):not([tabindex="-1"]):hover {
+    --_interact-bg: var(--cfg-hover-bg-shift);
+  }
+  :where(button, a, [role="button"], [tabindex], .clickable):not([tabindex="-1"]):active {
+    --_interact-bg: var(--cfg-active-bg-shift);
+    --_interact-fg-mul: var(--cfg-active-fg-mul);
+  }
+  :where(.hoverable):hover {
+    --_interact-bg: var(--cfg-hover-bg-shift);
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+    consumed by styleAPI.space — type IS the spacing system.
+
+    SYSTEM LAW: the only spacing units permitted anywhere downstream
+    are em and lh. Every padding, gap, and margin is a function of
+    font-size and line-height. There is no independent spacing knob —
+    so the layer that computes type is the layer that defines space.
+      --type   local scale step  (non-inheriting). Integer steps;
+               -2 small, 0 body, +2 display. Rescales local spacing.
+      --scale  regional multiplier (inheriting). Rescales an entire
+               subtree — type and all em/lh spacing reflow together.
+
+    Configuration:
+      --cfg-type-min / -max         body size at narrow / wide viewport
+      --cfg-type-min/max-ratio      scale step ratio at each endpoint
+      --cfg-fluid-min/max-vp        viewport bounds for interpolation
+    ════════════════════════════════════════════════════════════ */
+@property --cfg-fluid-min-vp    { syntax: "<length>"; inherits: true;  initial-value: 320px }
+@property --cfg-fluid-max-vp    { syntax: "<length>"; inherits: true;  initial-value: 1280px }
+@property --cfg-type-min-ratio  { syntax: "<number>"; inherits: true;  initial-value: 1.2 }
+@property --cfg-type-max-ratio  { syntax: "<number>"; inherits: true;  initial-value: 1.28 }
+@property --scale               { syntax: "<number>"; inherits: true;  initial-value: 1 }
+@property --type                { syntax: "<number>"; inherits: false; initial-value: 0 }
+
+@layer styleAPI.space {
+  :root {
+    --cfg-type-min: 0.8rem;
+    --cfg-type-max: 1rem;
+  }
+
+  :where(*) {
+    /* Step sizes at each viewport endpoint — ratio^type from base */
+    --_t-min: calc(var(--cfg-type-min) * pow(var(--cfg-type-min-ratio), var(--type)));
+    --_t-max: calc(var(--cfg-type-max) * pow(var(--cfg-type-max-ratio), var(--type)));
+
+    /* Fluid interpolation between the two endpoints, then regional scale */
+    font-size: calc(
+      clamp(
+        var(--_t-min),
+        calc(
+          var(--_t-min)
+          + (var(--_t-max) - var(--_t-min))
+          * (100vi - var(--cfg-fluid-min-vp))
+          / (var(--cfg-fluid-max-vp) - var(--cfg-fluid-min-vp))
+        ),
+        var(--_t-max)
+      )
+      * var(--scale)
+    );
+
+    letter-spacing: clamp(-0.04em, calc(0.01em - var(--type) * 0.012em), 0.04em);
+    line-height:    clamp(1.1, calc(1.5 - var(--type) * 0.075), 1.6);
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+    classAPI.color — reusable vocabulary on the styleAPI.color knobs.
+    Stage depth cascade, semantic hue locks, paint rules.
+    ════════════════════════════════════════════════════════════ */
+@layer classAPI.color {
+  /* Stage cascade — bare .stage infers depth from nesting. The :has
+      rules and the explicit .stage-N variants share this layer and
+      depend on source order to resolve ties: keep them together,
+      keep this order. */
+  .stage                                  { --depth: 0 }
+  .stage:has(.stage)                      { --depth: 1 }
+  .stage:has(.stage .stage)               { --depth: 2 }
+  .stage:has(.stage .stage .stage)        { --depth: 3 }
+
+  /* Explicit stage variants — pin a stage to a specific depth. */
+  .stage-0 { --depth: 0 }
+  .stage-1 { --depth: 1 }
+  .stage-2 { --depth: 2 }
+  .stage-3 { --depth: 3 }
+
+  /* Semantic hue locks — branded/status palettes. */
+  .suc { --hue-lock: 145 }
+  .inf { --hue-lock: 240 }
+  .wrn { --hue-lock: 75  }
+  .dgr { --hue-lock: 25  }
+  .bw  { --cfg-stage-chroma: 0; --cfg-chroma-max-c-light: 0; --cfg-chroma-max-c-dark: 0; }
+
+  /* ── PAINT & PUBLISH — only on .stage ────────────────────────────
+      This is the entire paint mechanism, and there is no trick in it.
+
+      A .stage element does three things here:
+        1. assigns --_bg from --_own-bg — claiming "this is the
+           surface". --_bg inherits, so every descendant reads THIS
+           stage's --_bg as the background it sits on.
+        2. PUBLISHES the surface context: --_surf-l / --_surf-c /
+           --_surf-h, the resolved lightness, chroma and hue of this
+           surface, plus --_surf-dark, the theme it was painted under.
+           These inherit. Descendant ink reads them to build a
+           foreground that contrasts THIS surface — because a bare
+           element cannot recompute the surface (it only knows its
+           own --bg:0 and may sit under a different theme), the
+           surface hands its resolved numbers down.
+        3. paints --_bg as its background-color.
+
+      A NON-stage element matches none of these. It never assigns
+      --_bg or --_surf-*, so both simply inherit from the nearest
+      .stage ancestor — natural CSS inheritance. And it never gets a
+      background-color declaration, so it stays transparent.
+
+      That is the whole model: .stage owns, publishes and paints a
+      surface; everything else inherits the surface context to know
+      what it sits on, and resolves its `color` against it. No gate,
+      no sentinel, no invalid-value cleverness. Painting is opt-in
+      via the class. */
+  :where(.stage, .stage-0, .stage-1, .stage-2, .stage-3, body) {
+    --_bg: var(--_own-bg);
+    --_surf-l: var(--_l);
+    --_surf-c: var(--_c);
+    --_surf-h: var(--_h);
+    --_surf-dark: var(--cfg-dark);
+    background-color: var(--_bg);
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+    classAPI.space — reusable layout vocabulary.
+    All spacing is em/lh per the styleAPI.space system law.
+    ════════════════════════════════════════════════════════════ */
+@layer classAPI.space {
+  /* Stage box styling — design-system spacing and radius for every
+      .stage. Lives here (not classAPI.color) because it is layout,
+      not colour. Not applied to body — a rounded, inset page is
+      wrong. Any component may override. */
+  :where(.stage, .stage-0, .stage-1, .stage-2, .stage-3) {
+    border-radius: var(--cfg-radius);
+    margin: calc(0.25 * 1lh);
+    padding: calc(0.25 * 1lh);
+  }
+
+  .page {
+    display: grid;
+    grid-template:
+      "b  b  b" auto
+      "h  h  h" auto
+      "s  s  s" auto
+      "n  mh a" auto
+      "n  m  a" 1fr
+      "n  mf a" auto
+      "f  f  f" auto /
+      auto 1fr auto;
+    height: 100svh;
+    overflow: hidden;
+
+    &.centered { max-width: 1200px; margin-inline: auto; }
+
+    & > [class ^="pg-"]       { padding: calc(0.25 * 1lh); }
+
+    & > .pg-banner            { grid-area: b;  }
+    & > .pg-header            { grid-area: h;  }
+    & > .pg-subheader         { grid-area: s;  padding-block: 0; }
+    & > .pg-navigation        { grid-area: n;  overflow-y: auto; min-height: 0; }
+    & > .pg-main-header       { grid-area: mh; }
+    & > .pg-main              { grid-area: m;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0; }
+    & > .pg-main-footer       { grid-area: mf; }
+    & > .pg-aside             { grid-area: a;  overflow-y: auto; min-height: 0; }
+    & > .pg-footer            { grid-area: f;  padding-block: 0; }
+  }
+
+  .drawer {
+    --_dur: calc(var(--cfg-motion) * 0.25s);
+
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    max-block-size: none;
+    max-inline-size: none;
+    transition:
+      translate var(--_dur) ease-out,
+      opacity   var(--_dur) ease-out,
+      display   var(--_dur) allow-discrete,
+      overlay   var(--_dur) allow-discrete;
+    translate: 0 0;
+    opacity: 1;
+
+    &:not(:is([open], :popover-open)) {
+      opacity: 0;
+      translate: var(--_translate-closed);
+    }
+    @starting-style {
+      &:is([open], :popover-open) {
+        opacity: 0;
+        translate: var(--_translate-closed);
+      }
+    }
+
+    &.left {
+      --_translate-closed: -100% 0;
+      inset: 0 auto 0 0;
+      inline-size: min(85vw, 320px);
+      block-size: 100svh;
+      border-radius: 0 var(--cfg-radius) var(--cfg-radius) 0;
+    }
+    &.right {
+      --_translate-closed: 100% 0;
+      inset: 0 0 0 auto;
+      inline-size: min(85vw, 320px);
+      block-size: 100svh;
+      border-radius: var(--cfg-radius) 0 0 var(--cfg-radius);
+    }
+    &.top {
+      --_translate-closed: 0 -100%;
+      inset: 0 0 auto 0;
+      inline-size: 100vw;
+      block-size: min(85svh, 240px);
+      border-radius: 0 0 var(--cfg-radius) var(--cfg-radius);
+    }
+    &.bottom {
+      --_translate-closed: 0 100%;
+      inset: auto 0 0 0;
+      inline-size: 100vw;
+      block-size: min(85svh, 240px);
+      border-radius: var(--cfg-radius) var(--cfg-radius) 0 0;
+    }
+  }
+
+  dialog.drawer {
+    --_dur: calc(var(--cfg-motion) * 0.25s);
+    --_dim: oklch(0% 0 0 / 0.5);
+
+    &::backdrop {
+      background: var(--_dim);
+      transition:
+        background-color var(--_dur) ease-out,
+        display          var(--_dur) allow-discrete,
+        overlay          var(--_dur) allow-discrete;
+    }
+    &:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
+    @starting-style {
+      &[open]::backdrop { background: oklch(0% 0 0 / 0); }
+    }
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+    components — reserved seam. Empty today. Component CSS declares
+    into this layer; it beats classAPI, loses to theme.
+    ════════════════════════════════════════════════════════════ */
+@layer components { }
+
+
+/* ════════════════════════════════════════════════════════════════
+    theme — project-level visual decisions. The "vibe" of the page:
+    theme blocks (light/dark), font families, data-attribute knobs.
+    ════════════════════════════════════════════════════════════ */
+@layer theme {
+
+  :root {
+    /* Identity */
+    --hue: 220;
+    --cfg-chroma-max-l-light: 45%;
+    --cfg-chroma-max-c-light: 0.18;
+    --cfg-chroma-max-l-dark: 65%;
+    --cfg-chroma-max-c-dark: 0.18;
+    --cfg-stage-chroma: 0.012;
+    --cfg-fg-tint: 0.005;
+
+    /* Stages — light: warm cream, dark: warm charcoal.
+        Light front/back span 98→84 (14 L-units): the light ramp needs
+        a wider span than dark's 10 because the top of the lightness
+        scale is perceptually compressed — equal L-deltas read smaller
+        up there. Front is pulled off 99 so depth-0 is not pinned to
+        the ceiling, giving depth-1 room to separate. */
+    --cfg-stage-front-light: 98;
+    --cfg-stage-back-light: 84;
+    --cfg-stage-front-dark: 22;
+    --cfg-stage-back-dark: 12;
+
+    /* Geometry */
+    --cfg-radius: 6px;
+
+    /* Fonts */
+    --font-ui:   -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  body { font-family: var(--font-ui); }
+
+  @media (prefers-color-scheme: dark) { :root:not([data-ui-theme]) { --cfg-dark: 1 } }
+  [data-ui-theme="light"] { --cfg-dark: 0 }
+  [data-ui-theme="dark"]  { --cfg-dark: 1 }
+
+  [data-ui-motion="off"]   { --cfg-motion: 0 }
+  [data-ui-motion="on"]    { --cfg-motion: 1 }
+  [data-ui-motion="debug"] { --cfg-motion: 10 }
+  @media (prefers-reduced-motion: reduce) { :root, [data-ui-motion] { --cfg-motion: 0 } }
+
+  body { transition: --scale calc(var(--cfg-motion) * 0.2s) ease-out; }
+  [data-ui-type="sm"] { --scale: 0.875 }
+  [data-ui-type="md"] { --scale: 1     }
+  [data-ui-type="lg"] { --scale: 1.125 }
+
+  /* scrollbar-width is already set in reset.opinion; this rule only
+      adds the color, which consumes a styleAPI token (theme's job). */
+  * { scrollbar-color: var(--_border-strong) transparent; }
+}

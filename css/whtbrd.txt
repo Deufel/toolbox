@@ -1,0 +1,34 @@
+CASCADE                                                       
+   (override order;                                                
+    higher wins)                                                  
+        ▲
+        │   ┌──────────────────────────────────────────────────┐
+   3    │   │                   VIEWPORT                       │
+  wins  │   │          .mobile   .tablet   .desktop            │
+  over  │   │ viewport-gated · revert-layer · consumes no API  │
+  all   │   └──────────────────────────────────────────────────┘
+        │
+        │   ┌─────────────────────┐   ┌─────────────────────┐    ┌───────────────────────────────────────────────┐
+   2    │   │   classAPI.color    │   │   classAPI.layout   │    │              classAPI.components              │
+        │   │  .stage .suc .wrn   │   │  .row .column .grid │    │        .btn  .card  .tag  .navbar  .crt       │
+        │   │  .dgr  .inf  .bw    │   │  .hud .lcr .split   │    │   a class that consumes BOTH styleAPIs        │
+        │   │                     │   │   ...etc            │    │                                               │ 
+        │   └─────────────────────┘   └─────────────────────┘    └───────────────────────────────────────────────┘
+        │             ▲                          ▲                                      ▲ 
+        │             │──────────────────────────│──────────────────────────────────────┘
+   1    │   ┌─────────────────────┐   ┌─────────────────────┐
+ base   │   │  styleAPI.color     │   │   styleAPI.layout   │
+        │   │  --bg --fg --hue    │   │  --type --scale     │
+        │   │  --hue-shift        │   │   pow() formula     │
+        │   │  --hue-lock         │   │   sets lh / em      │
+        │   │  OKLCH · :where()   │   │                     │
+        │   └─────────────────────┘   └─────────────────────┘
+        │      
+        │
+   ═════╪══════════════════════════════════════════════════════════════
+        │   THE CASCADE  —  one ordered layer stack, spans the whole
+            framework.  Not a feature of any box; it is the spine the
+            boxes are arranged along.
+
+
+            
