@@ -916,11 +916,10 @@
         border-radius: var(--cfg-radius);
         text-decoration: none;
 
-        /* Touch-target accessibility — coarse pointers (touch screens)
-           and small viewports need a 44px minimum block-size per WCAG
-           2.5.5 / Apple HIG / Material guidelines. Same rule applies to
-           .icon-btn elsewhere in this file. Doesn't run for fine
-           pointers (mouse) where smaller targets are fine. */
+        /* Touch-target floor for coarse pointers and small viewports.
+           44px is the WCAG 2.5.5 / device-ergonomics minimum for any
+           interactive target. Doesn't apply to fine pointers (mouse)
+           where smaller targets are fine. */
         @media (pointer: coarse), (max-width: 600px) {
           min-block-size: 44px;
         }
@@ -1493,4 +1492,5 @@
         }
       }
     }
+
     
