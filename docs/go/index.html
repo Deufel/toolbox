@@ -1,210 +1,29 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Go — Toolbox</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@db3d74c/css/style.css">
-  <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.1/bundles/datastar.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Go — Toolbox</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@db3d74c/css/style.css">
+<script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.1/bundles/datastar.js"></script>
 </head>
 <body class="page bg fg"
       data-signals="{theme: 'dark', type: 'md', path: ''}"
       data-init="$path = window.location.pathname"
       data-effect="document.body.setAttribute('data-ui-theme', $theme); document.body.setAttribute('data-ui-type', $type)">
 
+  <header id="pg-header"
+          data-init="@get('/toolbox/chrome/pg-header.html')"></header>
 
-  <!-- Header — same on every page. Two rows:
-       row 1: title + icon-btns (type cycle, theme toggle)
-       row 2: breadcrumb crumbs trail -->
-  <header class="pg-header bg fg edge-q pad" style="--bg:-0.4">
-  <div class="column" style="gap:calc(0.15*1lh)">
-    <div class="spread">
-      <strong style="--type:0.5">Toolbox</strong>
-      <div class="row">
-        <button class="icon-btn" id="cycle-type" style="--bg:0.4"
-                aria-label="type scale" title="type: md">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarge-small-icon lucide-a-large-small"><path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16"/><path d="M15.697 14h5.606"/><path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16"/><path d="M3.304 13h6.392"/></svg>
-            <path d="M4 7V5h16v2M9 5v14M9 19h-2M9 19h2"/></svg>
-        </button>
-        <button class="icon-btn" id="toggle-theme" style="--bg:0.4"
-                aria-label="toggle theme" title="theme: dark">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
-      </div>
-    </div>
-    <!-- crumb trail. The aria-current and section name are set per-page
-         by the inline init script at the bottom of the body. -->
-    <nav class="crumbs" data-crumbs></nav>
-  </div>
+  <nav id="pg-navigation"
+       data-init="@get('/toolbox/chrome/pg-navigation.html')"></nav>
 
-  <!-- Main content area -->
   <main class="pg-main pad">
     <h1 style="--type:2">Go</h1>
   </main>
 
-  <!-- HUD — nav trigger sits in the centre-left slot, click-through
-       container, button takes its own clicks. -->
+  <footer id="pg-footer"
+          data-init="@get('/toolbox/chrome/pg-footer.html')"></footer>
 
-  <!-- Nav drawer — left, contains the section list. Same on every page. -->
-
-<script>
-  const body = document.body;
-
-  // theme toggle — two-state cycle, light/dark
-  const themeBtn = document.getElementById('toggle-theme');
-  themeBtn.addEventListener('click', () => {
-    const next = body.getAttribute('data-ui-theme') === 'dark' ? 'light' : 'dark';
-    body.setAttribute('data-ui-theme', next);
-    themeBtn.title = `theme: ${next}`;
-  });
-
-  // type-scale cycle — sm / md / lg
-  const typeBtn = document.getElementById('cycle-type');
-  const typeStates = ['sm', 'md', 'lg'];
-  typeBtn.addEventListener('click', () => {
-    const current = body.getAttribute('data-ui-type') || 'md';
-    const next = typeStates[(typeStates.indexOf(current) + 1) % typeStates.length];
-    body.setAttribute('data-ui-type', next);
-    typeBtn.title = `type: ${next}`;
-  });
-
-  // nav drawer — open/close, backdrop click
-  const navDrawer = document.getElementById('nav-drawer');
-  document.getElementById('open-nav').addEventListener('click',
-    () => navDrawer.showModal());
-  document.getElementById('close-nav').addEventListener('click',
-    () => navDrawer.close());
-  navDrawer.addEventListener('click', e => {
-    if (e.target === navDrawer) navDrawer.close();
-  });
-</script>
-  <header class="pg-header bg fg" style="--bg:-0.4">
-    <div class="spread">
-      <div class="column">
-        <strong style="--type:0.5">Toolbox</strong>
-        <!-- crumb trail — built once at init from $path. The "toolbox"
-              segment is dropped from the displayed trail; Home implies it. -->
-        <nav class="crumbs" data-init="
-          const parts = $path.split('/').filter(Boolean);
-          const subs = parts[0] === 'toolbox' ? parts.slice(1) : parts;
-          let trail = '<a href=&quot;/toolbox/&quot;>Home</a>';
-          subs.forEach((s, i) => {
-            const href = '/toolbox/' + subs.slice(0, i+1).join('/') + '/';
-            const label = s.charAt(0).toUpperCase() + s.slice(1);
-            trail += '<a href=&quot;' + href + '&quot;>' + label + '</a>';
-          });
-          el.innerHTML = trail;
-        "></nav>
-      </div>
-      <div class="row">
-        <button class="icon-btn" style="--bg:0.4"
-                aria-label="type scale"
-                data-on:click="$type = $type === 'sm' ? 'md' : $type === 'md' ? 'lg' : 'sm'">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 7V5h16v2M9 5v14M9 19h-2M9 19h2"/></svg>
-        </button>
-        <button class="icon-btn" style="--bg:0.4"
-                aria-label="toggle theme"
-                data-on:click="$theme = $theme === 'dark' ? 'light' : 'dark'">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
-      </div>
-    </div>
-  </header>
-  <nav class="pg-navigation tablet desktop bg fg" style="--bg:-0.6">
-    <div class="column">
-      <a class="nav-link" href="/toolbox/"
-         data-attr-aria-current="$path === '/toolbox/' ? 'page' : null">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-        </span>
-        <p class="desktop">Home</p>
-        <small class="tablet">Home</small>
-      </a>
-      <a class="nav-link" href="/toolbox/css/"
-         data-attr-aria-current="$path === '/toolbox/css/' ? 'page' : null">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 4h16l-1.5 16L12 22 5.5 20z"/></svg>
-        </span>
-        <p class="desktop">CSS</p>
-        <small class="tablet">CSS</small>
-      </a>
-      <a class="nav-link" href="/toolbox/go/"
-         data-attr-aria-current="$path === '/toolbox/go/' ? 'page' : null">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
-        </span>
-        <p class="desktop">Go</p>
-        <small class="tablet">Go</small>
-      </a>
-      <a class="nav-link" href="/toolbox/js/"
-         data-attr-aria-current="$path === '/toolbox/js/' ? 'page' : null">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 4h16v16H4z"/><path d="M10 10v6M14 10v4a2 2 0 0 0 2 2"/></svg>
-        </span>
-        <p class="desktop">JavaScript</p>
-        <small class="tablet">JS</small>
-      </a>
-      <a class="nav-link" href="/toolbox/python/"
-         data-attr-aria-current="$path === '/toolbox/python/' ? 'page' : null">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 4h6a2 2 0 0 1 2 2v6H7V8a2 2 0 0 1 2-2zM15 20H9a2 2 0 0 1-2-2v-6h10v4a2 2 0 0 1-2 2z"/></svg>
-        </span>
-        <p class="desktop">Python</p>
-        <small class="tablet">Py</small>
-      </a>
-    </div>
-  </nav>
-  <footer class="pg-footer mobile bg fg" style="--bg:-0.6">
-    <div class="row spread">
-      <a class="nav-link" href="/toolbox/"
-         data-attr-aria-current="$path === '/toolbox/' ? 'page' : null">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-        </span>
-        <small>Home</small>
-      </a>
-      <a class="nav-link" href="/toolbox/css/"
-         data-attr-aria-current="$path === '/toolbox/css/' ? 'page' : null">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 4h16l-1.5 16L12 22 5.5 20z"/></svg>
-        </span>
-        <small>CSS</small>
-      </a>
-      <a class="nav-link" href="/toolbox/go/"
-         data-attr-aria-current="$path === '/toolbox/go/' ? 'page' : null">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
-        </span>
-        <small>Go</small>
-      </a>
-      <a class="nav-link" href="/toolbox/js/"
-         data-attr-aria-current="$path === '/toolbox/js/' ? 'page' : null">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 4h16v16H4z"/><path d="M10 10v6M14 10v4a2 2 0 0 0 2 2"/></svg>
-        </span>
-        <small>JS</small>
-      </a>
-      <a class="nav-link" href="/toolbox/python/"
-         data-attr-aria-current="$path === '/toolbox/python/' ? 'page' : null">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 4h6a2 2 0 0 1 2 2v6H7V8a2 2 0 0 1 2-2zM15 20H9a2 2 0 0 1-2-2v-6h10v4a2 2 0 0 1-2 2z"/></svg>
-        </span>
-        <small>Py</small>
-      </a>
-    </div>
-  </footer>
 </body>
 </html>
