@@ -1,11 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Python — Toolbox</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@db3d74c/css/style.css">
-</head>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
 
 <body class="page bg fg" data-ui-theme="dark">
 
@@ -75,41 +70,41 @@
     if (e.target === navDrawer) navDrawer.close();
   });
 </script>
-  <header class="pg-header bg fg edge-q pad" style="--bg:-0.4">
-    <div class="column" style="gap:calc(0.15*1lh)">
-      <div class="spread">
+  <header class="pg-header bg fg" style="--bg:-0.4">
+    <div class="spread">
+      <div class="column">
         <strong style="--type:0.5">Toolbox</strong>
-        <div class="row">
-          <button class="icon-btn" style="--bg:0.4"
-                  aria-label="type scale"
-                  data-on:click="$type = $type === 'sm' ? 'md' : $type === 'md' ? 'lg' : 'sm'">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 7V5h16v2M9 5v14M9 19h-2M9 19h2"/></svg>
-          </button>
-          <button class="icon-btn" style="--bg:0.4"
-                  aria-label="toggle theme"
-                  data-on:click="$theme = $theme === 'dark' ? 'light' : 'dark'">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          </button>
-        </div>
+        <!-- crumb trail — built once at init from $path. The "toolbox"
+              segment is dropped from the displayed trail; Home implies it. -->
+        <nav class="crumbs" data-init="
+          const parts = $path.split('/').filter(Boolean);
+          const subs = parts[0] === 'toolbox' ? parts.slice(1) : parts;
+          let trail = '<a href=&quot;/toolbox/&quot;>Home</a>';
+          subs.forEach((s, i) => {
+            const href = '/toolbox/' + subs.slice(0, i+1).join('/') + '/';
+            const label = s.charAt(0).toUpperCase() + s.slice(1);
+            trail += '<a href=&quot;' + href + '&quot;>' + label + '</a>';
+          });
+          el.innerHTML = trail;
+        "></nav>
       </div>
-      <!-- crumb trail — built once at init from $path. The "toolbox"
-           segment is dropped from the displayed trail; Home implies it. -->
-      <nav class="crumbs" data-init="
-        const parts = $path.split('/').filter(Boolean);
-        const subs = parts[0] === 'toolbox' ? parts.slice(1) : parts;
-        let trail = '<a href=&quot;/toolbox/&quot;>Home</a>';
-        subs.forEach((s, i) => {
-          const href = '/toolbox/' + subs.slice(0, i+1).join('/') + '/';
-          const label = s.charAt(0).toUpperCase() + s.slice(1);
-          trail += '<a href=&quot;' + href + '&quot;>' + label + '</a>';
-        });
-        el.innerHTML = trail;
-      "></nav>
+      <div class="row">
+        <button class="icon-btn" style="--bg:0.4"
+                aria-label="type scale"
+                data-on:click="$type = $type === 'sm' ? 'md' : $type === 'md' ? 'lg' : 'sm'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 7V5h16v2M9 5v14M9 19h-2M9 19h2"/></svg>
+        </button>
+        <button class="icon-btn" style="--bg:0.4"
+                aria-label="toggle theme"
+                data-on:click="$theme = $theme === 'dark' ? 'light' : 'dark'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
     </div>
   </header>
-  <nav class="pg-nav tablet desktop bg fg edge-q pad" style="--bg:-0.6">
+  <nav class="pg-navigation tablet desktop bg fg" style="--bg:-0.6">
     <div class="column">
       <a class="nav-link" href="/toolbox/"
          data-attr-aria-current="$path === '/toolbox/' ? 'page' : null">
@@ -158,8 +153,8 @@
       </a>
     </div>
   </nav>
-  <footer class="pg-footer mobile bg fg edge-q pad" style="--bg:-0.6">
-    <div class="row" style="justify-content:space-around">
+  <footer class="pg-footer mobile bg fg" style="--bg:-0.6">
+    <div class="row spread">
       <a class="nav-link" href="/toolbox/"
          data-attr-aria-current="$path === '/toolbox/' ? 'page' : null">
         <span class="nav-icon">

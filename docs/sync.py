@@ -6,13 +6,18 @@ Standard library only. Edit the SECTIONS list below.
 
 How it works
 ------------
-1. For each section, look for templates/<section>.html:
+1. HEAD SYNC (optional): if templates/head.html exists, the entire
+   <head> of every page is replaced with its content. The token
+   {{TITLE}} in the template is substituted with the page's first
+   <h1> inside <main class="pg-main">.
+
+2. For each section in SECTIONS, look for templates/<section>.html:
      - If present: install mode (clean + insert from template).
      - If absent:  clean-only mode (remove from pages, don't reinstall).
    This is how you retire a section: keep it in SECTIONS for one
    sync run with the template deleted, then remove it from SECTIONS.
 
-2. For each page (every index.html under docs/, excluding templates/):
+3. For each page (every index.html under docs/, excluding templates/):
    a. CLEANUP PASS — scan with html.parser. For every element whose
       class includes a managed section, record its byte range. Delete
       those ranges. Works at ANY depth: a misplaced element nested
@@ -38,8 +43,9 @@ from html.parser import HTMLParser
 # After a successful migration, remove retired entries from this list.
 SECTIONS = [
     'pg-header',
-    'pg-nav',
+    'pg-navigation',
     'pg-footer',
+    # retired (no template — clean-only). Remove after one sync run:
     'hud',
     'drawer',
     'chrome-init',
@@ -192,14 +198,105 @@ def validate_template(path, expected_class):
     return raw
 
 
-def sync_page(page_path, templates):
+def extract_h1_text(html_text):
+    """
+    Find the first <h1> inside <main class="pg-main">. Return its text
+    content (stripped). Returns None if not found.
+    """
+    class _H1Finder(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.in_main = False
+            self.in_h1 = False
+            self.depth = 0
+            self.text = []
+            self.found = None
+        def handle_starttag(self, tag, attrs):
+            if self.found is not None:
+                return
+            if tag == 'main':
+                classes = ''
+                for k, v in attrs:
+                    if k == 'class':
+                        classes = v or ''
+                if 'pg-main' in classes.split():
+                    self.in_main = True
+            elif self.in_main and tag == 'h1' and not self.in_h1:
+                self.in_h1 = True
+                self.depth = 1
+            elif self.in_h1:
+                self.depth += 1
+        def handle_endtag(self, tag):
+            if self.in_h1:
+                self.depth -= 1
+                if self.depth == 0:
+                    self.in_h1 = False
+                    self.found = ''.join(self.text).strip()
+            elif tag == 'main':
+                self.in_main = False
+        def handle_data(self, data):
+            if self.in_h1:
+                self.text.append(data)
+
+    f = _H1Finder()
+    f.feed(html_text)
+    return f.found
+
+
+def find_head_range(html_text):
+    """
+    Return (start, end) byte offsets of <head>...</head> in html_text,
+    or None if not found. Start is position of '<' in <head>; end is
+    position after '>' in </head>.
+    """
+    head_start = html_text.find('<head')
+    if head_start == -1:
+        return None
+    head_open_end = html_text.find('>', head_start)
+    if head_open_end == -1:
+        return None
+    head_close = html_text.find('</head>', head_open_end)
+    if head_close == -1:
+        return None
+    end = head_close + len('</head>')
+    return (head_start, end)
+
+
+def sync_head(html_text, head_template):
+    """
+    Replace the <head> in html_text with head_template, substituting
+    {{TITLE}} with the page's first h1 text from <main>. Returns the
+    modified text. If no <head> or no template, returns unchanged.
+    """
+    if head_template is None:
+        return html_text
+    rng = find_head_range(html_text)
+    if rng is None:
+        return html_text
+
+    title = extract_h1_text(html_text)
+    if title is None:
+        # No h1 found — fall back to a sensible default rather than
+        # leaving the literal {{TITLE}} in the output.
+        title = 'Untitled'
+
+    new_head = head_template.replace('{{TITLE}}', title)
+    start, end = rng
+    return html_text[:start] + new_head + html_text[end:]
+
+
+def sync_page(page_path, templates, head_template):
     """Sync one page in place. Returns True if the file changed."""
     original = page_path.read_text(encoding='utf-8')
 
+    # HEAD — replace whole <head> with template, substituting {{TITLE}}
+    # from the page's first <h1> in <main>.
+    text = sync_head(original, head_template)
+
     # CLEANUP — find and delete all managed elements anywhere.
     managed = set(templates.keys())
-    ranges, _ = find_managed_ranges(original, managed)
-    cleaned = delete_ranges(original, ranges)
+    ranges, _ = find_managed_ranges(text, managed)
+    cleaned = delete_ranges(text, ranges)
 
     # PLACEMENT — insert fresh templates just before </body>.
     body_end = cleaned.rfind('</body>')
@@ -248,10 +345,25 @@ def main():
     for section in SECTIONS:
         tmpl_path = templates_dir / f'{section}.html'
         if tmpl_path.is_file():
-            templates[section] = validate_template(tmpl_path, section)
+            raw = tmpl_path.read_text(encoding='utf-8').strip()
+            if not raw:
+                # Empty file = same as no file: clean-only mode.
+                templates[section] = None
+            else:
+                templates[section] = validate_template(tmpl_path, section)
         else:
             # Section listed but no template — clean-only mode.
             templates[section] = None
+
+    # Load head template (optional — if present, full <head> gets
+    # replaced with this content, {{TITLE}} substituted from the
+    # page's first <h1> in <main>).
+    head_path = templates_dir / 'head.html'
+    head_template = None
+    if head_path.is_file():
+        head_template = head_path.read_text(encoding='utf-8').strip()
+        if not head_template:
+            head_template = None
 
     pages = [p for p in docs.rglob('index.html')
              if templates_dir not in p.parents]
@@ -260,6 +372,8 @@ def main():
         sys.exit("no pages found")
 
     print(f"syncing {len(pages)} page(s):")
+    if head_template is not None:
+        print(f"  - head           install (full replacement, {{TITLE}} from h1)")
     for s in SECTIONS:
         kind = 'install' if templates[s] is not None else 'clean-only'
         print(f"  - {s:<14} {kind}")
@@ -269,7 +383,7 @@ def main():
     for page in sorted(pages):
         rel = page.relative_to(docs)
         try:
-            if sync_page(page, templates):
+            if sync_page(page, templates, head_template):
                 print(f"  updated   {rel}")
                 changed += 1
             else:
