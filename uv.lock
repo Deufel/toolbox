@@ -3,21 +3,6 @@ revision = 3
 requires-python = ">=3.14"
 
 [[package]]
-name = "marimo-css"
-version = "0.1.12"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ab/d0/8a4a1adee2cbff2b0eb55caab39b9075b2e3d1261b69ddc2665830b09fee/marimo_css-0.1.12.tar.gz", hash = "sha256:5192c5651f42d2a5c9a0c0825667815ba451f5637bfa68f4f1af031c9ec7b4ae", size = 6779, upload-time = "2026-05-22T14:54:43.862Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/73/0e/8672e9a220a7c67601c08c2299c553ecbe948a73f39558de5258544d23b4/marimo_css-0.1.12-py3-none-any.whl", hash = "sha256:52ea2680149faed211642efee17658f9568f2fdcd171a18bba3d7a20ea940e5b", size = 10046, upload-time = "2026-05-22T14:54:42.728Z" },
-]
-
-[[package]]
 name = "toolbox"
 version = "0.1.0"
 source = { virtual = "." }
-dependencies = [
-    { name = "marimo-css" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "marimo-css", specifier = ">=0.1.10" }]

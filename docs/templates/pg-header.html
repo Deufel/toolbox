@@ -3,20 +3,32 @@
     <div class="spread">
       <strong style="--type:0.5">Toolbox</strong>
       <div class="row">
-        <button class="icon-btn" id="cycle-type" style="--bg:0.4"
-                aria-label="type scale" title="type: md">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarge-small-icon lucide-a-large-small"><path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16"/><path d="M15.697 14h5.606"/><path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16"/><path d="M3.304 13h6.392"/></svg>
+        <button class="icon-btn" style="--bg:0.4"
+                aria-label="type scale"
+                data-on:click="$type = $type === 'sm' ? 'md' : $type === 'md' ? 'lg' : 'sm'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M4 7V5h16v2M9 5v14M9 19h-2M9 19h2"/></svg>
         </button>
-        <button class="icon-btn" id="toggle-theme" style="--bg:0.4"
-                aria-label="toggle theme" title="theme: dark">
+        <button class="icon-btn" style="--bg:0.4"
+                aria-label="toggle theme"
+                data-on:click="$theme = $theme === 'dark' ? 'light' : 'dark'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
       </div>
     </div>
-    <!-- crumb trail. The aria-current and section name are set per-page
-         by the inline init script at the bottom of the body. -->
-    <nav class="crumbs" data-crumbs></nav>
+    <!-- crumb trail — built once at init from $path. The "toolbox"
+         segment is dropped from the displayed trail; Home implies it. -->
+    <nav class="crumbs" data-init="
+      const parts = $path.split('/').filter(Boolean);
+      const subs = parts[0] === 'toolbox' ? parts.slice(1) : parts;
+      let trail = '<a href=&quot;/toolbox/&quot;>Home</a>';
+      subs.forEach((s, i) => {
+        const href = '/toolbox/' + subs.slice(0, i+1).join('/') + '/';
+        const label = s.charAt(0).toUpperCase() + s.slice(1);
+        trail += '<a href=&quot;' + href + '&quot;>' + label + '</a>';
+      });
+      el.innerHTML = trail;
+    "></nav>
   </div>
 </header>

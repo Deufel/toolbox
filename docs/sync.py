@@ -2,25 +2,23 @@
 """
 sync.py — sync chrome elements across all docs pages from templates.
 
-Standard library only. Uses html.parser to find all elements anywhere
-in the page whose class matches a managed section, removes them, and
-inserts fresh copies from the templates just before </body>.
-
-Edit the SECTIONS list below. Run from the docs/ directory.
+Standard library only. Edit the SECTIONS list below.
 
 How it works
 ------------
-1. Load each template (templates/<section>.html). Each must contain
-   exactly one root element whose class includes the section name.
+1. For each section, look for templates/<section>.html:
+     - If present: install mode (clean + insert from template).
+     - If absent:  clean-only mode (remove from pages, don't reinstall).
+   This is how you retire a section: keep it in SECTIONS for one
+   sync run with the template deleted, then remove it from SECTIONS.
+
 2. For each page (every index.html under docs/, excluding templates/):
    a. CLEANUP PASS — scan with html.parser. For every element whose
-      class includes a managed section, record its byte range
-      (opening '<' through closing '>'). Delete those ranges. Works
-      at ANY depth: a misplaced element nested inside another gets
-      found and removed regardless of where it sits.
-   b. PLACEMENT PASS — insert one fresh copy of each section's
-      template just before </body>, in SECTIONS order.
-3. Write the page back.
+      class includes a managed section, record its byte range. Delete
+      those ranges. Works at ANY depth: a misplaced element nested
+      inside another gets found and removed regardless of where it sits.
+   b. PLACEMENT PASS — insert one fresh copy of each section's template
+      (install mode only) just before </body>, in SECTIONS order.
 
 PROTECTED is a safelist of classes the script refuses to touch even
 if listed (notably pg-main, the per-page content slot).
@@ -32,11 +30,19 @@ from html.parser import HTMLParser
 
 
 # ── EDIT THIS LIST ──────────────────────────────────────────────────
+# Each entry is a class name. The script:
+#   - installs the template (templates/<name>.html) if it exists,
+#   - cleans up elements of that class regardless (so removing a
+#     template AND keeping the entry here = retire the section).
+#
+# After a successful migration, remove retired entries from this list.
 SECTIONS = [
     'pg-header',
+    'pg-nav',
+    'pg-footer',
     'hud',
-    'drawer',          # <dialog class="drawer ..."> nav drawer
-    'chrome-init',     # inline <script class="chrome-init"> at end of body
+    'drawer',
+    'chrome-init',
 ]
 
 PROTECTED = {'pg-main'}
@@ -205,10 +211,13 @@ def sync_page(page_path, templates):
     child_indent = body_indent + '  '
 
     # Build the insertion block: each template indented one level
-    # past the </body> indent.
+    # past the </body> indent. Skip sections with no template
+    # (clean-only — they were removed but not reinstalled).
     parts = []
     for section in SECTIONS:
         tmpl = templates[section]
+        if tmpl is None:
+            continue
         indented = '\n'.join(
             (child_indent + line if line.strip() else line)
             for line in tmpl.split('\n')
@@ -238,9 +247,11 @@ def main():
     templates = {}
     for section in SECTIONS:
         tmpl_path = templates_dir / f'{section}.html'
-        if not tmpl_path.is_file():
-            sys.exit(f"missing template: {tmpl_path}")
-        templates[section] = validate_template(tmpl_path, section)
+        if tmpl_path.is_file():
+            templates[section] = validate_template(tmpl_path, section)
+        else:
+            # Section listed but no template — clean-only mode.
+            templates[section] = None
 
     pages = [p for p in docs.rglob('index.html')
              if templates_dir not in p.parents]
@@ -248,9 +259,10 @@ def main():
     if not pages:
         sys.exit("no pages found")
 
-    print(f"syncing {len(pages)} page(s) from {len(SECTIONS)} template(s):")
+    print(f"syncing {len(pages)} page(s):")
     for s in SECTIONS:
-        print(f"  - {s}")
+        kind = 'install' if templates[s] is not None else 'clean-only'
+        print(f"  - {s:<14} {kind}")
     print()
 
     changed = 0
