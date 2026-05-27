@@ -1,3 +1,7 @@
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@<commit>/css/style.css">
+```
+
 # ui.css
 
 A small CSS design system built from first principles. Single-hue OKLCH
