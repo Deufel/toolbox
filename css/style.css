@@ -1,1 +1,1496 @@
-@layer reset.fix,reset.opinion,styleAPI.space,styleAPI.color,theme,theme.config,theme.base,classAPI.page,classAPI.layout,classAPI.components,classAPI.viewport,classAPI.utility;@layer reset.fix{*,*::before,*::after{box-sizing:border-box;margin:0;background-repeat:no-repeat}:root{interpolate-size:allow-keywords}:where(html){-moz-text-size-adjust:none;-webkit-text-size-adjust:none;text-size-adjust:none}:where(body,figure,blockquote,dl,dd,p){margin-block-end:0}:where(img,picture,svg){max-width:100%;display:block;height:auto}:where(input,button,textarea,select){font-family:inherit}}@layer reset.opinion{:where(body){overflow-wrap:break-word}:where(p){text-wrap:pretty}:where(h1,h2,h3,h4,h5,h6){text-wrap:balance}:where(svg){color:currentColor}:where(button,[role="button"],summary,label[for],input[type="file"]::file-selector-button){cursor:pointer;user-select:none;-webkit-user-select:none}:where(:disabled,[aria-disabled="true"]){cursor:not-allowed}:where(table){border-collapse:collapse}:where(fieldset){border:0;padding:0;margin:0;min-inline-size:0}:where(legend){padding:0}:where(textarea){resize:vertical}:where(textarea:not([rows])){min-block-size:10em}:where(abbr[title]){cursor:help;text-decoration:underline dotted}:where(summary){list-style:none}:where(ul,ol):where([role="list"]){list-style:none;padding:0}}@layer styleAPI.space,styleAPI.color,theme;@property --bg{syntax:"<number>";inherits:true;initial-value:0}@property --fg{syntax:"<number>";inherits:true;initial-value:-1}@property --hue{syntax:"<number>";inherits:true;initial-value:265}@property --hue-shift{syntax:"<number>";inherits:true;initial-value:0}@property --hue-lock{syntax:"*";inherits:true}@property --bg-shift{syntax:"<number>";inherits:false;initial-value:0}@property --fg-shift{syntax:"<number>";inherits:false;initial-value:0}@property --alpha{syntax:"<percentage>";inherits:true;initial-value:100%}@property --alpha-shift{syntax:"<percentage>";inherits:true;initial-value:0%}@property --cfg-chroma{syntax:"<number>";inherits:true;initial-value:0.13}@property --cfg-house-l{syntax:"<number>";inherits:true;initial-value:0.88}@property --cfg-surface-l{syntax:"<number>";inherits:true;initial-value:0.97}@property --cfg-max-l{syntax:"<number>";inherits:true;initial-value:0.42}@property --cfg-house-curve{syntax:"<number>";inherits:true;initial-value:1}@property --cfg-spot-curve{syntax:"<number>";inherits:true;initial-value:1}@property --cfg-line-delta{syntax:"<number>";inherits:true;initial-value:0.05}@property --cfg-border-push{syntax:"<number>";inherits:true;initial-value:0.12}@property --cfg-border-min-c{syntax:"<number>";inherits:true;initial-value:0.05}@property --cfg-ring-l-push{syntax:"<number>";inherits:true;initial-value:0.22}@property --cfg-ring-min-c{syntax:"<number>";inherits:true;initial-value:0.16}@property --cfg-ring-width{syntax:"<length>";inherits:true;initial-value:2px}@property --cfg-ring-offset{syntax:"<length>";inherits:true;initial-value:2px}@property --cfg-fluid-min-vp{syntax:"<length>";inherits:true;initial-value:320px}@property --cfg-fluid-max-vp{syntax:"<length>";inherits:true;initial-value:1280px}@property --cfg-type-min-ratio{syntax:"<number>";inherits:true;initial-value:1.2}@property --cfg-type-max-ratio{syntax:"<number>";inherits:true;initial-value:1.28}@property --scale{syntax:"<number>";inherits:true;initial-value:1}@property --type{syntax:"<number>";inherits:false;initial-value:0}@property --_bg-color{syntax:"<color>";inherits:false;initial-value:transparent}@property --_fg-color{syntax:"<color>";inherits:false;initial-value:transparent}@property --_pole{syntax:"<color>";inherits:false;initial-value:transparent}@property --_line-color{syntax:"<color>";inherits:false;initial-value:transparent}@property --_border-strong{syntax:"<color>";inherits:false;initial-value:transparent}@property --_ring-color{syntax:"<color>";inherits:false;initial-value:transparent}@layer styleAPI.color{*{--_h:var(--hue-lock,calc(var(--hue) + var(--hue-shift)));--_bg-eff:clamp(-1,calc(var(--bg) + var(--bg-shift)),1);--_fg-sign:clamp(-1,var(--fg) * 100000,1);--_fg-mag:max(0,calc(abs(var(--fg)) - var(--fg-shift)));--_fg-eff:clamp(-1,calc(var(--_fg-sign) * var(--_fg-mag)),1);--_alpha-eff:clamp(0%,calc(var(--alpha) + var(--alpha-shift)),100%);--_pos:clamp(0,var(--_bg-eff) * 100000,1);--_house-t:pow(-1 * clamp(-1,var(--_bg-eff),0),var(--cfg-house-curve));--_spot-t:pow(clamp(0,var(--_bg-eff),1),var(--cfg-spot-curve));--_l-house:calc(var(--cfg-surface-l) + var(--_house-t) * (var(--cfg-house-l) - var(--cfg-surface-l)));--_l-spot:calc(var(--cfg-surface-l) + var(--_spot-t) * (var(--cfg-max-l) - var(--cfg-surface-l)));--_bg-l:calc(var(--_l-house) + var(--_pos) * (var(--_l-spot) - var(--_l-house)));--_bg-c:calc(var(--cfg-chroma) * var(--_spot-t));--_bg-opaque:oklch(var(--_bg-l) var(--_bg-c) var(--_h));--_bg-color:color-mix(in oklab,var(--_bg-opaque),transparent calc(100% - var(--_alpha-eff)));--_pole:lch(from var(--_bg-opaque) calc((70 - l) * infinity) 0 0);--_contrast:color-mix(in oklab,var(--_bg-opaque),var(--_pole) calc(clamp(0,-1 * var(--_fg-eff),1) * 100%));--_fg-pos:clamp(0,var(--_fg-eff),1);--_mirror:oklch( calc(var(--cfg-surface-l) + var(--_fg-pos) * (var(--cfg-max-l) - var(--cfg-surface-l))) calc(var(--cfg-chroma) * var(--_fg-pos)) var(--_h));--_fg-opaque:color-mix(in oklab,var(--_contrast),var(--_mirror) calc(clamp(0,var(--_fg-eff) * 100000,1) * 100%));--_fg-color:color-mix(in oklab,var(--_fg-opaque),transparent calc(100% - var(--_alpha-eff)));--_is-dark:clamp(0,(0.5 - var(--cfg-surface-l)) * 1000,1);--_edge-dir:calc(var(--_is-dark) * 2 - 1);--_line-d:calc(var(--cfg-line-delta) * (1 + var(--_is-dark)));--_line-opaque:oklch( clamp(0,calc(var(--_bg-l) + var(--_edge-dir) * var(--_line-d)),1) var(--_bg-c) var(--_h));--_line-color:color-mix(in oklab,var(--_line-opaque),transparent calc(100% - var(--_alpha-eff)));--_border-l:clamp(0,calc(var(--_bg-l) + var(--_edge-dir) * var(--cfg-border-push)),1);--_border-c:clamp(0,max(var(--_bg-c),var(--cfg-border-min-c)),0.37);--_border-strong:oklch(var(--_border-l) var(--_border-c) var(--_h));--_ring-l:clamp(0,calc(var(--_bg-l) + var(--_edge-dir) * var(--cfg-ring-l-push)),1);--_ring-c:clamp(0,max(var(--_bg-c),var(--cfg-ring-min-c)),0.37);--_ring-color:oklch(var(--_ring-l) var(--_ring-c) var(--_h))}.bg{background:var(--_bg-color)}.fg{color:var(--_fg-color)}.edge{border:1px solid var(--_border-strong)}.edge-q{border:1px solid var(--_line-color)}svg{color:currentColor}.ring:focus-visible{outline:var(--cfg-ring-width) solid var(--_ring-color);outline-offset:var(--cfg-ring-offset)}}@layer theme{:root,[data-ui-theme="light"]{--hue:265;--cfg-chroma:0.13;--cfg-house-l:0.88;--cfg-surface-l:0.97;--cfg-max-l:0.42;--cfg-house-curve:1.1;--cfg-spot-curve:1}@media (prefers-color-scheme:dark){:root{--hue:265;--cfg-chroma:0.18;--cfg-house-l:0.07;--cfg-surface-l:0.26;--cfg-max-l:0.78;--cfg-house-curve:1.5;--cfg-spot-curve:1}}[data-ui-theme="dark"]{--hue:265;--cfg-chroma:0.18;--cfg-house-l:0.07;--cfg-surface-l:0.26;--cfg-max-l:0.78;--cfg-house-curve:1.5;--cfg-spot-curve:1}}@layer styleAPI.space{:root{--cfg-type-min:0.8rem;--cfg-type-max:0.95rem}:where(*){--_t-min:calc(var(--cfg-type-min) * pow(var(--cfg-type-min-ratio),var(--type)));--_t-max:calc(var(--cfg-type-max) * pow(var(--cfg-type-max-ratio),var(--type)));--_font-size:calc( clamp( var(--_t-min),calc( var(--_t-min) + (var(--_t-max) - var(--_t-min)) * (100vi - var(--cfg-fluid-min-vp)) / (var(--cfg-fluid-max-vp) - var(--cfg-fluid-min-vp)) ),var(--_t-max) ) * var(--scale) );font-size:var(--_font-size);letter-spacing:clamp(-0.04em,calc(0.01em - var(--type) * 0.012em),0.04em);line-height:clamp(1.1,calc(1.5 - var(--type) * 0.075),1.6)}}@layer theme.config,theme.base,classAPI.page,classAPI.layout,classAPI.components,classAPI.viewport,classAPI.utility;@property --cfg-motion{syntax:"<number>";inherits:true;initial-value:1}@layer theme.config{:root{--cfg-radius:6px;--font-ui:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;--font-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}[data-ui-motion="off"]{--cfg-motion:0}[data-ui-motion="on"]{--cfg-motion:1}[data-ui-motion="debug"]{--cfg-motion:10}@media (prefers-reduced-motion:reduce){:root,[data-ui-motion]{--cfg-motion:0}}[data-ui-type="sm"]{--scale:0.875}[data-ui-type="md"]{--scale:1}[data-ui-type="lg"]{--scale:1.125}}@layer classAPI.page{:where(.page){display:grid;grid-template:"b b b" auto "h h h" auto "s s s" auto "n mh a" auto "n m a" 1fr "n mf a" auto "f f f" auto / auto 1fr auto;height:100svh;overflow:hidden;&:where(.centered){max-width:1200px;margin-inline:auto}& >:where(.pg-banner){grid-area:b}& >:where(.pg-header){grid-area:h}& >:where(.pg-subheader){grid-area:s;padding-block:0}& >:where(.pg-navigation){grid-area:n;overflow-y:auto;min-height:0}& >:where(.pg-main-header){grid-area:mh}& >:where(.pg-main){grid-area:m;overflow-y:auto;scrollbar-gutter:stable;min-height:0}& >:where(.pg-main-footer){grid-area:mf}& >:where(.pg-aside){grid-area:a;overflow-y:auto;min-height:0}& >:where(.pg-footer){grid-area:f;padding-block:0}}:where(.drawer){--_dur:calc(var(--cfg-motion) * 0.25s);position:fixed;inset:auto;margin:0;padding:0;border:0;max-block-size:none;max-inline-size:none;transition:translate var(--_dur) ease-out,opacity var(--_dur) ease-out,display var(--_dur) allow-discrete,overlay var(--_dur) allow-discrete;translate:0 0;opacity:1;&:not(:is([open],:popover-open)){opacity:0;translate:var(--_translate-closed)}@starting-style{&:is([open],:popover-open){opacity:0;translate:var(--_translate-closed)}}&:where(.left){--_translate-closed:-100% 0;inset:0 auto 0 0;inline-size:min(85vw,320px);block-size:100svh;border-radius:0 var(--cfg-radius) var(--cfg-radius) 0}&:where(.right){--_translate-closed:100% 0;inset:0 0 0 auto;inline-size:min(85vw,320px);block-size:100svh;border-radius:var(--cfg-radius) 0 0 var(--cfg-radius)}&:where(.top){--_translate-closed:0 -100%;inset:0 0 auto 0;inline-size:100vw;block-size:min(85svh,240px);border-radius:0 0 var(--cfg-radius) var(--cfg-radius)}&:where(.bottom){--_translate-closed:0 100%;inset:auto 0 0 0;inline-size:100vw;block-size:min(85svh,240px);border-radius:var(--cfg-radius) var(--cfg-radius) 0 0}}:where(dialog.drawer){--_dur:calc(var(--cfg-motion) * 0.25s);--_dim:oklch(0% 0 0 / 0.5);&::backdrop{background:var(--_dim);transition:background-color var(--_dur) ease-out,display var(--_dur) allow-discrete,overlay var(--_dur) allow-discrete}&:not([open])::backdrop{background:oklch(0% 0 0 / 0)}@starting-style{&[open]::backdrop{background:oklch(0% 0 0 / 0)}}}:where(.hud){position:fixed;inset:0;display:grid;grid-template-areas:"hud";pointer-events:none;z-index:1;& >:where(*){grid-area:hud;justify-self:center;align-self:center;pointer-events:auto}& >:where(.tl){justify-self:start;align-self:start}& >:where(.tc){justify-self:center;align-self:start}& >:where(.tr){justify-self:end;align-self:start}& >:where(.cl){justify-self:start;align-self:center}& >:where(.cc){justify-self:center;align-self:center}& >:where(.cr){justify-self:end;align-self:center}& >:where(.bl){justify-self:start;align-self:end}& >:where(.bc){justify-self:center;align-self:end}& >:where(.br){justify-self:end;align-self:end}}}@layer classAPI.layout{:where(.column){display:flex;flex-direction:column;gap:calc(0.25 * 1lh)}:where(.row){display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:calc(0.25 * 1lh)}:where(.split){display:grid;grid-template-columns:1fr 1fr;gap:calc(0.25 * 1lh)}:where(.spread){display:flex;flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:calc(0.25 * 1lh)}:where(.spread-column){display:flex;flex-direction:column;justify-content:space-between;gap:calc(0.25 * 1lh)}:where(.lcr){display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:calc(0.25 * 1lh);& >:where(:first-child:not(style):not(script)){justify-self:start}& >:where(:nth-child(2 of:not(style):not(script))){justify-self:center}& >:where(:last-child:not(style):not(script)){justify-self:end}& > style,& > script{display:none}}:where(.flank,.flank-start){display:flex;flex-direction:row;align-items:center;gap:calc(0.25 * 1lh);& >:where(:first-child:not(style):not(script)){flex:0 0 auto}& >:where(:last-child:not(style):not(script)){flex:1 1 auto;min-inline-size:0}& > style,& > script{display:none}}:where(.flank-end){display:flex;flex-direction:row;align-items:center;gap:calc(0.25 * 1lh);& >:where(:first-child:not(style):not(script)){flex:1 1 auto;min-inline-size:0}& >:where(:last-child:not(style):not(script)){flex:0 0 auto}& > style,& > script{display:none}}:where(.frame){aspect-ratio:16 / 9;overflow:hidden;& > *{inline-size:100%;block-size:100%;object-fit:cover}}:where(.grid){display:grid;gap:calc(0.25 * 1lh);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--grid-min,16rem)),1fr))}:where(.ngrid){display:grid;gap:calc(0.25 * 1lh);grid-template-columns:repeat(var(--cols),1fr);grid-template-rows:repeat(var(--rows),1fr);grid-auto-rows:auto}:where(.stack){display:grid;grid-template-areas:"stack";& > *{grid-area:stack}}:where(.hero){display:grid;grid-template:"t t t" auto "l m r" 1fr "b b b" auto / auto 1fr auto;height:100%;overflow:hidden;& >:where(.top){grid-area:t}& >:where(.bottom){grid-area:b}& >:where(.left){grid-area:l;overflow-y:auto;min-height:0}& >:where(.main){grid-area:m;overflow-y:auto;scrollbar-gutter:stable;min-height:0}& >:where(.right){grid-area:r;overflow-y:auto;min-height:0}}}@layer classAPI.components{:where(.avatar){--bg:0;--fg:-1;background:var(--_bg-color);color:var(--_fg-color);border:1px solid var(--_border-strong);display:inline-flex;align-items:center;justify-content:center;block-size:2.4lh;aspect-ratio:1;border-radius:var(--cfg-radius);font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:500;letter-spacing:0.02em;text-transform:uppercase;line-height:1;& >:where(img){inline-size:100%;block-size:100%;object-fit:cover}& >:where(svg){inline-size:70%;block-size:70%}}:where(.avatar:has(> img)){overflow:hidden}:where(:has(> .badge)){position:relative;isolation:isolate}:where(.badge){--bg:0.7;--fg:-1;background:var(--_bg-color);color:var(--_fg-color);position:absolute;top:0;right:0;translate:50% -50%;z-index:1;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-inline-size:1.5em;min-block-size:1.5em;padding:0.12em 0.4em 0;border-radius:999px;font-size:0.6em;font-weight:600;line-height:1;& >:where(svg){inline-size:0.9em;block-size:0.9em}}:where(.badge:has(svg)){padding-block:0}:where(.btn){--bg:0.3;--fg:-1;background:var(--_bg-color);color:var(--_fg-color);border:1px solid var(--_border-strong);display:inline-flex;align-items:center;justify-content:center;block-size:2.4lh;border-radius:var(--cfg-radius);padding-inline:0.7em;line-height:1;@media (pointer:coarse){min-block-size:44px}}:where(.icon-btn){--bg:0.3;--fg:-1;background:var(--_bg-color);color:var(--_fg-color);border:1px solid var(--_border-strong);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;align-self:center;block-size:2.4lh;aspect-ratio:1;container-type:size;border-radius:var(--cfg-radius);line-height:1;user-select:none;&:where(svg){display:block;inline-size:42cqb;block-size:42cqb}@media (pointer:coarse){min-block-size:44px;min-inline-size:44px}}:where(.nav-link){--bg:0;--fg:-0.8;background:var(--_bg-color);color:var(--_fg-color);display:grid;grid-template:". icon . label" "sub sub sub . " / auto auto auto auto;align-items:center;justify-items:start;gap:0;padding:calc(0.3 * 1lh) calc(0.5 * 1lh);border-radius:var(--cfg-radius);text-decoration:none;& >:where(.nav-icon){grid-area:icon;display:inline-grid;place-items:center;& > svg{display:block;inline-size:1.4em;block-size:1.4em}}& >:where(p){grid-area:label;margin:0;margin-inline-start:calc(0.25 * 1lh);inline-size:var(--nav-label-w,8ch);min-inline-size:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}& >:where(small){grid-area:sub;margin:0;margin-block-start:calc(0.1 * 1lh);min-inline-size:0;max-inline-size:100%;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}&:hover{--bg:0.2}&[aria-current]{--bg:0.4;--fg:-1}&[aria-current] >:where(p){text-align:end}}:where(.tabs){--bg:-1;--fg:-0.8;background:var(--_bg-color);color:var(--_fg-color);isolation:isolate;display:inline-flex;align-items:stretch;block-size:2.4lh;padding:0.2em;gap:0.15em;border-radius:var(--cfg-radius);line-height:1;& >:where(button,a){--bg:-1;--fg:-0.8;color:var(--_fg-color);display:inline-flex;align-items:center;border:0;background:transparent;padding-inline:0.85em;border-radius:max(0px,calc(var(--cfg-radius) - 0.2em));line-height:1;white-space:nowrap;user-select:none;text-decoration:none;cursor:pointer;transition:background-color calc(var(--cfg-motion) * 0.2s) ease-out,color calc(var(--cfg-motion) * 0.2s) ease-out}& >:where(button,a):focus-visible{z-index:1}& >:where([aria-selected="true"]){--bg:0.8;--fg:-1;background:var(--_bg-color);color:var(--_fg-color)}@media (width < 480px){min-block-size:44px}}:where(.glass){--alpha:50%;backdrop-filter:blur(12px) saturate(1.4);-webkit-backdrop-filter:blur(12px) saturate(1.4);border:1px solid var(--_border-strong)}:where(progress){--bg:0.2;--fg:0.8;background:var(--_bg-color);color:var(--_fg-color);appearance:none;inline-size:12em;block-size:0.5em;border:1px solid var(--_border-strong);border-radius:999em;overflow:hidden}:where(progress)::-webkit-progress-bar{background:transparent;border-radius:999em}:where(progress)::-webkit-progress-value{background:currentColor;border-radius:999em;transition:inline-size calc(var(--cfg-motion) * 0.2s)}:where(progress)::-moz-progress-bar{background:currentColor;border-radius:999em}:where(progress):indeterminate{animation:progress-pulse 1.2s ease-in-out infinite}:where(.crumbs){--sep:"/";display:inline-flex;align-items:center;flex-wrap:wrap;gap:calc(0.25 * 1lh);& >:where(*){--type:-1;color:var(--_fg-color);text-decoration:none;line-height:1}& >:where(a){--fg:-0.6}& >:where(a):hover{--fg:0.8}& >:where(:last-child){--fg:-0.9;font-weight:600}& >:where(* + *)::before{content:var(--sep);margin-inline-end:calc(0.25 * 1lh);color:oklch(0.65 0.13 var(--_h))}}}@keyframes progress-pulse{0%,100%{opacity:0.5}50%{opacity:1}}@layer classAPI.viewport{:where(.mobile,.tablet,.desktop){display:none}@media (width < 768px){:where(.mobile){display:revert-layer}}@media (768px <= width < 1024px){:where(.tablet){display:revert-layer}}@media (width >= 1024px){:where(.desktop){display:revert-layer}}}@layer classAPI.utility{.suc{--hue-lock:145}.inf{--hue-lock:240}.wrn{--hue-lock:75}.dgr{--hue-lock:25}.bw{--cfg-chroma:0}}@layer theme.base{body{--bg:0;font-family:var(--font-ui);transition:--scale calc(var(--cfg-motion) * 0.2s) ease-out}*{scrollbar-width:thin;scrollbar-color:var(--_border-strong) transparent}:where(kbd){--type:-1.5;display:inline-flex;align-items:center;padding:0.1em 0.45em;border:1px solid var(--_border-strong);border-radius:0.35em;font-family:var(--font-mono);font-weight:600;line-height:1.4}:where(hr){border:0;border-block-start:1px solid var(--_border-strong);block-size:0;inline-size:100%;margin-block:calc(0.25 * 1lh);margin-inline:0}:where(hr.vr){border-block-start:0;border-inline-start:1px solid var(--_border-strong);block-size:auto;inline-size:0;min-block-size:1lh;margin-block:0;margin-inline:calc(0.25 * 1lh);align-self:stretch;justify-self:stretch}:where(table){border-collapse:collapse;inline-size:100%;text-align:start}:where(th,td){padding:calc(0.35 * 1lh) calc(0.5 * 1lh);text-align:start;vertical-align:baseline}:where(tbody tr):where(th,td){border-block-start:1px solid var(--_line-color)}:where(thead th){--fg:-1;color:var(--_fg-color);font-weight:600;border-block-end:1px solid var(--_border-strong)}:where(button){cursor:pointer;transition:--bg-shift calc(var(--cfg-motion) * 0.15s) ease-out,--fg-shift calc(var(--cfg-motion) * 0.15s) ease-out,background calc(var(--cfg-motion) * 0.15s) ease-out,color calc(var(--cfg-motion) * 0.15s) ease-out}:where(button):hover{--bg-shift:0.12}:where(button):active{--bg-shift:-0.1;--fg-shift:0.2}:where(a){--fg:0.6;color:var(--_fg-color);cursor:pointer;text-underline-offset:0.15em;transition:--fg calc(var(--cfg-motion) * 0.15s) ease-out}:where(a):hover{--fg:0.85}:where(button,a,input,select,textarea,summary):focus-visible{outline:var(--cfg-ring-width) solid var(--_ring-color);outline-offset:var(--cfg-ring-offset)}:where(form){--bg:-1;--fg:-0.85;background:var(--_bg-color);color:var(--_fg-color);max-inline-size:45ch;padding:calc(0.5 * 1lh);border:1px solid var(--_border-strong);border-radius:var(--cfg-radius)}:where(input:not([type="checkbox"],[type="radio"]),select,textarea){--bg:0.1;--fg:-1;background:var(--_bg-color);color:var(--_fg-color);block-size:2.4lh;padding-inline:0.7em;border:1px solid var(--_border-strong);border-radius:var(--cfg-radius);line-height:1;min-inline-size:0;caret-color:var(--_border-strong)}:where(input,textarea)::placeholder{color:oklch(from currentColor l c h / 0.5)}@media (width < 480px){:where(input:not([type="checkbox"],[type="radio"]),select,textarea){min-block-size:44px}}@media (pointer:coarse){:where(input:not([type="checkbox"],[type="radio"]),select,textarea){font-size:max(16px,var(--_font-size))}}:where(select){appearance:none;padding-inline-end:1.8em;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.6em center}:where(textarea){block-size:6em;min-block-size:6em;resize:vertical;line-height:1.5;padding-block:0.4em}:where(input[type="checkbox"],input[type="radio"]){--bg:0;--fg:-1;appearance:none;margin:0;inline-size:1em;block-size:1em;background:var(--_bg-color);border:1px solid var(--_border-strong);flex-shrink:0;cursor:pointer}:where(input[type="checkbox"]){border-radius:0.25em}:where(input[type="radio"]){border-radius:50%}:where(input[type="checkbox"],input[type="radio"]):checked{--bg:0.8;--fg:-1;background-color:var(--_bg-color);color:var(--_fg-color);border-color:transparent;background-repeat:no-repeat;background-position:center}:where(input[type="checkbox"]):checked{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E");background-size:70%}:where(input[type="radio"]):checked{background-image:radial-gradient(circle,currentColor 32%,transparent 36%)}:where(fieldset){border:0;margin:0;padding:0;display:flex;gap:0.5em;& >:where(*){flex:1;min-inline-size:0}}}@scope (form) to (fieldset){:where(input:not([type="checkbox"],[type="radio"]),select,textarea){inline-size:stretch}}@scope (form){:where(input:not([type="checkbox"],[type="radio"]),select,textarea){border:0}:where(.btn){inline-size:stretch}:where(label:has(> span)){display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:calc(0.15 * 1lh) calc(0.4 * 1lh);& >:where(span){--fg:-1;color:var(--_fg-color);font-weight:600;justify-self:start}&:has(:where(input,select,textarea):required) > span::after{content:" *";color:oklch(0.6 0.2 25);font-weight:700}& >:where(small){--fg:0.9;color:var(--_fg-color);min-block-size:1lh;justify-self:start}& >:where(input,select,textarea){grid-column:1 / -1}}}
+    /* ════════════════════════════════════════════════════════════════
+       reset.css — load FIRST.
+
+       This file declares the COMPLETE layer spine for the whole system.
+       Layer order in CSS is locked by the first @layer statement seen;
+       declaring every layer here, up front, makes the cascade order a
+       structural fact — it no longer depends on which file loads first,
+       on bundler concatenation order, or on async timing. color.css and
+       components.css each declare only @layer blocks that POPULATE slots
+       this statement already established.
+
+       THE SPINE (low precedence -> high):
+         reset.fix        unopinionated normalisation
+         reset.opinion    light opinionated defaults
+         styleAPI.space   type + spacing engine
+         styleAPI.color   the colour engine
+         theme            colour theme values (color.css)
+         theme.config     project config tokens
+         theme.base       project rules on bare elements
+         classAPI.page    full-page shells
+         classAPI.layout  composition primitives
+         classAPI.components  buttons, cards, fields
+         classAPI.viewport    responsive visibility
+         classAPI.utility     single-purpose overrides
+
+       classAPI sits AFTER theme deliberately. theme.base sets defaults
+       on bare elements (button, a, input...); classAPI.components defines
+       components, which often target the SAME element (.nav-link IS an
+       <a>) and need to override the bare-element default. classAPI later
+       in the spine = components win on equal specificity, which is the
+       relationship the design actually wants. The reverse caused a real
+       bug: theme.base's :where(a){--fg:0.6} was clobbering .nav-link's
+       --fg, regardless of where .nav-link set it.
+
+       Load order in the document: reset.css -> color.css -> components.css
+       ════════════════════════════════════════════════════════════ */
+    @layer reset.fix, reset.opinion,
+           styleAPI.space, styleAPI.color,
+           theme, theme.config, theme.base,
+           classAPI.page, classAPI.layout, classAPI.components,
+           classAPI.viewport, classAPI.utility;
+
+
+    /* ════════════════════════════════════════════════════════════════
+       reset.fix — unopinionated normalisation. Things every project
+       wants; no aesthetic decisions.
+       ════════════════════════════════════════════════════════════ */
+    @layer reset.fix {
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        background-repeat: no-repeat;
+      }
+      :root { interpolate-size: allow-keywords; }
+      :where(html) {
+        -moz-text-size-adjust: none;
+        -webkit-text-size-adjust: none;
+        text-size-adjust: none;
+      }
+      :where(body, figure, blockquote, dl, dd, p) { margin-block-end: 0; }
+      :where(img, picture, svg) { max-width: 100%; display: block; height: auto; }
+      :where(input, button, textarea, select) { font-family: inherit; }
+    }
+
+
+    /* ════════════════════════════════════════════════════════════════
+       reset.opinion — light opinionated defaults. Sensible modern
+       behaviour; still low precedence, every later layer overrides.
+       ════════════════════════════════════════════════════════════ */
+    @layer reset.opinion {
+      :where(body) { overflow-wrap: break-word; }
+
+      :where(p) { text-wrap: pretty; }
+      :where(h1, h2, h3, h4, h5, h6) { text-wrap: balance; }
+
+      :where(svg) { color: currentColor; }
+
+      :where(button, [role="button"], summary, label[for],
+             input[type="file"]::file-selector-button) {
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      :where(:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
+
+      :where(table) { border-collapse: collapse; }
+
+      :where(fieldset) {
+        border: 0;
+        padding: 0;
+        margin: 0;
+        min-inline-size: 0;
+      }
+      :where(legend) { padding: 0; }
+
+      :where(textarea) { resize: vertical; }
+      :where(textarea:not([rows])) { min-block-size: 10em; }
+
+      :where(abbr[title]) {
+        cursor: help;
+        text-decoration: underline dotted;
+      }
+
+      :where(summary) { list-style: none; }
+
+      :where(ul, ol):where([role="list"]) {
+        list-style: none;
+        padding: 0;
+      }
+    }
+    
+    /* ============================================================
+       color.css — OKLCH single-hue palette engine
+       ------------------------------------------------------------
+       NAMING
+         --<name>      public API, set per element
+         --cfg-<name>  configuration, set once per theme
+         --_<name>     internal helper, never set/read from outside
+
+       PUBLIC API
+         --bg     -1..1   theater depth. -1..0 house (recedes, neutral),
+                          0 stage (neutral surface), 0..1 spotlight (ramp).
+         --fg     -1..1   foreground. -1..0 contrast (toward auto B/W pole),
+                          0 none, 0..1 mirror (absolute spotlight palette).
+         --hue       0..360  the single hue.
+         --hue-shift deg     added to --hue; inherits, drifts a subtree.
+         --hue-lock  deg     absolute hue; if set, ignores hue + shift.
+         --bg-shift / --fg-shift   interaction deltas (hover/active).
+                                   fg-shift moves --fg toward 0.
+         --alpha / --alpha-shift   <percentage> opacity of emitted colors.
+
+       APPLY classes:  .bg  .fg  .edge  .ring   (opt-in painting)
+       THEME:  data-ui-theme="light|dark" on any element; absent =
+               follows prefers-color-scheme.
+       ============================================================ */
+
+    @layer styleAPI.space, styleAPI.color, theme;
+
+    /* ---- typed properties --------------------------------------
+       public + cfg inherit; --_* outputs do not (per-element). */
+    @property --bg         { syntax: "<number>";     inherits: true;  initial-value: 0; }
+    @property --fg         { syntax: "<number>";     inherits: true;  initial-value: -1; }
+    @property --hue        { syntax: "<number>";     inherits: true;  initial-value: 265; }
+    @property --hue-shift  { syntax: "<number>";     inherits: true;  initial-value: 0; }
+    @property --hue-lock   { syntax: "*";            inherits: true; }
+    @property --bg-shift   { syntax: "<number>";     inherits: false; initial-value: 0; }
+    @property --fg-shift   { syntax: "<number>";     inherits: false; initial-value: 0; }
+    @property --alpha      { syntax: "<percentage>"; inherits: true;  initial-value: 100%; }
+    @property --alpha-shift{ syntax: "<percentage>"; inherits: true;  initial-value: 0%; }
+
+    @property --cfg-chroma       { syntax: "<number>"; inherits: true; initial-value: 0.13; }
+    @property --cfg-house-l      { syntax: "<number>"; inherits: true; initial-value: 0.88; }
+    @property --cfg-surface-l    { syntax: "<number>"; inherits: true; initial-value: 0.97; }
+    @property --cfg-max-l        { syntax: "<number>"; inherits: true; initial-value: 0.42; }
+    @property --cfg-house-curve  { syntax: "<number>"; inherits: true; initial-value: 1; }
+    @property --cfg-spot-curve   { syntax: "<number>"; inherits: true; initial-value: 1; }
+    @property --cfg-line-delta   { syntax: "<number>"; inherits: true; initial-value: 0.05; }
+    @property --cfg-border-push  { syntax: "<number>"; inherits: true; initial-value: 0.12; }
+    @property --cfg-border-min-c { syntax: "<number>"; inherits: true; initial-value: 0.05; }
+    @property --cfg-ring-l-push  { syntax: "<number>"; inherits: true; initial-value: 0.22; }
+    @property --cfg-ring-min-c   { syntax: "<number>"; inherits: true; initial-value: 0.16; }
+    @property --cfg-ring-width   { syntax: "<length>"; inherits: true; initial-value: 2px; }
+    @property --cfg-ring-offset  { syntax: "<length>"; inherits: true; initial-value: 2px; }
+
+    /* spacing knobs (consumed by styleAPI.space) */
+    @property --cfg-fluid-min-vp   { syntax: "<length>"; inherits: true;  initial-value: 320px; }
+    @property --cfg-fluid-max-vp   { syntax: "<length>"; inherits: true;  initial-value: 1280px; }
+    @property --cfg-type-min-ratio { syntax: "<number>"; inherits: true;  initial-value: 1.2; }
+    @property --cfg-type-max-ratio { syntax: "<number>"; inherits: true;  initial-value: 1.28; }
+    @property --scale              { syntax: "<number>"; inherits: true;  initial-value: 1; }
+    @property --type               { syntax: "<number>"; inherits: false; initial-value: 0; }
+
+    @property --_bg-color     { syntax: "<color>"; inherits: false; initial-value: transparent; }
+    @property --_fg-color     { syntax: "<color>"; inherits: false; initial-value: transparent; }
+    @property --_pole         { syntax: "<color>"; inherits: false; initial-value: transparent; }
+    @property --_line-color    { syntax: "<color>"; inherits: false; initial-value: transparent; }
+    @property --_border-strong { syntax: "<color>"; inherits: false; initial-value: transparent; }
+    @property --_ring-color   { syntax: "<color>"; inherits: false; initial-value: transparent; }
+
+    /* ============================================================
+       ENGINE — identical in every theme. Resolves --bg/--fg into
+       colors. Reads cfg knobs; never changes per theme.
+       ============================================================ */
+    @layer styleAPI.color {
+      * {
+        /* resolved hue: lock wins, else base + shift */
+        --_h: var(--hue-lock, calc(var(--hue) + var(--hue-shift)));
+
+        /* effective inputs: base axis value + interaction shift */
+        --_bg-eff: clamp(-1, calc(var(--bg) + var(--bg-shift)), 1);
+        --_fg-sign: clamp(-1, var(--fg) * 100000, 1);
+        --_fg-mag:  max(0, calc(abs(var(--fg)) - var(--fg-shift)));
+        --_fg-eff:  clamp(-1, calc(var(--_fg-sign) * var(--_fg-mag)), 1);
+        --_alpha-eff: clamp(0%, calc(var(--alpha) + var(--alpha-shift)), 100%);
+
+        /* sign selector: 1 when --bg >= ~0, else 0 */
+        --_pos: clamp(0, var(--_bg-eff) * 100000, 1);
+
+        /* eased ramp parameters; pow curve >1 bunches steps near stage */
+        --_house-t: pow(-1 * clamp(-1, var(--_bg-eff), 0), var(--cfg-house-curve));
+        --_spot-t:  pow(clamp(0, var(--_bg-eff), 1), var(--cfg-spot-curve));
+
+        /* lightness: house ramp and spotlight ramp, pick by sign */
+        --_l-house: calc(var(--cfg-surface-l)
+                    + var(--_house-t) * (var(--cfg-house-l) - var(--cfg-surface-l)));
+        --_l-spot:  calc(var(--cfg-surface-l)
+                    + var(--_spot-t) * (var(--cfg-max-l) - var(--cfg-surface-l)));
+        --_bg-l: calc(var(--_l-house) + var(--_pos) * (var(--_l-spot) - var(--_l-house)));
+
+        /* chroma: 0 at house and stage, ramps under the spotlight */
+        --_bg-c: calc(var(--cfg-chroma) * var(--_spot-t));
+
+        --_bg-opaque: oklch(var(--_bg-l) var(--_bg-c) var(--_h));
+        --_bg-color: color-mix(in oklab, var(--_bg-opaque),
+                     transparent calc(100% - var(--_alpha-eff)));
+
+        /* auto-directional contrast pole: L>70 -> black, else white */
+        --_pole: lch(from var(--_bg-opaque) calc((70 - l) * infinity) 0 0);
+
+        /* contrast: opaque bg mixed |fg| toward the pole */
+        --_contrast: color-mix(in oklab, var(--_bg-opaque),
+                      var(--_pole) calc(clamp(0, -1 * var(--_fg-eff), 1) * 100%));
+
+        /* mirror: absolute spotlight palette at position --fg */
+        --_fg-pos: clamp(0, var(--_fg-eff), 1);
+        --_mirror: oklch(
+                    calc(var(--cfg-surface-l)
+                      + var(--_fg-pos) * (var(--cfg-max-l) - var(--cfg-surface-l)))
+                    calc(var(--cfg-chroma) * var(--_fg-pos))
+                    var(--_h));
+
+        /* region pick by sign of --fg, no branch; then alpha */
+        --_fg-opaque: color-mix(in oklab, var(--_contrast),
+                      var(--_mirror) calc(clamp(0, var(--_fg-eff) * 100000, 1) * 100%));
+        --_fg-color: color-mix(in oklab, var(--_fg-opaque),
+                     transparent calc(100% - var(--_alpha-eff)));
+
+        /* dark detect (surface-l<0.5) -> 2x deltas, edge direction */
+        --_is-dark: clamp(0, (0.5 - var(--cfg-surface-l)) * 1000, 1);
+        --_edge-dir: calc(var(--_is-dark) * 2 - 1);
+
+        /* QUIET LINE (--_line-color): --_bg-l nudged one small notch
+           toward the pole. hairline weight -- table row rules, etc. */
+        --_line-d: calc(var(--cfg-line-delta) * (1 + var(--_is-dark)));
+        --_line-opaque: oklch(
+                    clamp(0, calc(var(--_bg-l) + var(--_edge-dir) * var(--_line-d)), 1)
+                    var(--_bg-c) var(--_h));
+        --_line-color: color-mix(in oklab, var(--_line-opaque),
+                       transparent calc(100% - var(--_alpha-eff)));
+
+        /* LOUD BORDER (--_border-strong): the focus-ring technique at
+           lower intensity -- a lifted, slightly chromatic line. used for
+           structural borders (inputs, hr, kbd, table header rule). same
+           chroma FLOOR as the ring so it shows on neutral surfaces. */
+        --_border-l: clamp(0, calc(var(--_bg-l)
+                     + var(--_edge-dir) * var(--cfg-border-push)), 1);
+        --_border-c: clamp(0, max(var(--_bg-c), var(--cfg-border-min-c)), 0.37);
+        --_border-strong: oklch(var(--_border-l) var(--_border-c) var(--_h));
+
+        /* FOCUS RING: brighter + more chromatic than the surface.
+           chroma is FLOORED so neutral house elements still pop.
+           stays OPAQUE on purpose -- never takes --alpha. */
+        --_ring-l: clamp(0, calc(var(--_bg-l)
+                   + var(--_edge-dir) * var(--cfg-ring-l-push)), 1);
+        --_ring-c: clamp(0, max(var(--_bg-c), var(--cfg-ring-min-c)), 0.37);
+        --_ring-color: oklch(var(--_ring-l) var(--_ring-c) var(--_h));
+      }
+
+      /* APPLY — opt-in painting */
+      .bg { background: var(--_bg-color); }
+      .fg { color: var(--_fg-color); }
+      .edge   { border: 1px solid var(--_border-strong); }
+      .edge-q { border: 1px solid var(--_line-color); }
+      svg { color: currentColor; }
+      .ring:focus-visible {
+        outline: var(--cfg-ring-width) solid var(--_ring-color);
+        outline-offset: var(--cfg-ring-offset);
+      }
+    }
+
+    /* ============================================================
+       THEME — only cfg knob VALUES. Resolution order matters:
+         1. :root           light defaults
+         2. @media dark     used when data-ui-theme is absent
+         3. [data-ui-theme] explicit; after the media query so it wins.
+       Light/dark values are duplicated on purpose, for clarity.
+       ============================================================ */
+    @layer theme {
+
+      /* 1. LIGHT */
+      :root,
+      [data-ui-theme="light"] {
+        --hue: 265;
+        --cfg-chroma: 0.13;
+        --cfg-house-l: 0.88;
+        --cfg-surface-l: 0.97;
+        --cfg-max-l: 0.42;
+        --cfg-house-curve: 1.1;
+        --cfg-spot-curve: 1;
+      }
+
+      /* 2. DARK — system preference, no attribute set */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --hue: 265;
+          --cfg-chroma: 0.18;
+          --cfg-house-l: 0.07;
+          --cfg-surface-l: 0.26;
+          --cfg-max-l: 0.78;
+          --cfg-house-curve: 1.5;
+          --cfg-spot-curve: 1;
+        }
+      }
+
+      /* 3. DARK — explicit attribute, wins over the media query */
+      [data-ui-theme="dark"] {
+        --hue: 265;
+        --cfg-chroma: 0.18;
+        --cfg-house-l: 0.07;
+        --cfg-surface-l: 0.26;
+        --cfg-max-l: 0.78;
+        --cfg-house-curve: 1.5;
+        --cfg-spot-curve: 1;
+      }
+    }
+
+
+    /* ════════════════════════════════════════════════════════════════
+       styleAPI.space — type IS the spacing system.
+
+       SYSTEM LAW: the only spacing units permitted downstream are em
+       and lh. Every padding, gap, margin is a function of font-size
+       and line-height — no independent spacing knob, so the layer
+       that computes type is the layer that defines space.
+         --type   local scale step (non-inheriting). Integer steps:
+                  -2 small, 0 body, +2 display. Rescales local spacing.
+         --scale  regional multiplier (inheriting). Rescales a whole
+                  subtree — type and all em/lh spacing reflow together.
+       ════════════════════════════════════════════════════════════ */
+    @layer styleAPI.space {
+      :root {
+        --cfg-type-min: 0.8rem;
+        --cfg-type-max: 0.95rem;
+      }
+
+      :where(*) {
+        /* step sizes at each viewport endpoint — ratio^type from base */
+        --_t-min: calc(var(--cfg-type-min) * pow(var(--cfg-type-min-ratio), var(--type)));
+        --_t-max: calc(var(--cfg-type-max) * pow(var(--cfg-type-max-ratio), var(--type)));
+
+        /* fluid interpolation between endpoints, then regional --scale.
+           captured into --_font-size so the iOS auto-zoom floor can
+           clamp it without discarding the formula. */
+        --_font-size: calc(
+          clamp(
+            var(--_t-min),
+            calc(
+              var(--_t-min)
+              + (var(--_t-max) - var(--_t-min))
+              * (100vi - var(--cfg-fluid-min-vp))
+              / (var(--cfg-fluid-max-vp) - var(--cfg-fluid-min-vp))
+            ),
+            var(--_t-max)
+          )
+          * var(--scale)
+        );
+        font-size: var(--_font-size);
+
+        letter-spacing: clamp(-0.04em, calc(0.01em - var(--type) * 0.012em), 0.04em);
+        line-height:    clamp(1.1, calc(1.5 - var(--type) * 0.075), 1.6);
+      }
+    }
+    
+    /* ════════════════════════════════════════════════════════════════
+       components.css — built on color.css
+       ------------------------------------------------------------
+       Layer order (authoritative spine lives in reset.css; this
+       statement just populates slots already established there):
+         theme.config       project config tokens
+         theme.base         bare-element rules
+         classAPI.page      full-page shells
+         classAPI.layout    composition primitives
+         classAPI.components buttons, cards, fields
+         classAPI.viewport  responsive visibility
+         classAPI.utility   single-purpose overrides (last = wins)
+       classAPI deliberately later than theme — components override
+       the bare-element defaults when they target the same element.
+       ════════════════════════════════════════════════════════════ */
+    @layer theme.config, theme.base,
+           classAPI.page, classAPI.layout, classAPI.components,
+           classAPI.viewport, classAPI.utility;
+
+
+    /* ---- typed properties ---------------------------------------
+       --cfg-motion: motion duration multiplier. Typed <number>, inherits,
+       initial 1. Registered so the [data-ui-motion] switches and the
+       prefers-reduced-motion media query don't have to fight a string-
+       valued fallback — a bad value cleanly reverts to 1, and the value
+       can be transitioned/animated. The :root fallback that used to live
+       in theme.config is now redundant: every element starts at 1 by
+       registration. */
+    @property --cfg-motion { syntax: "<number>"; inherits: true; initial-value: 1; }
+
+
+    /* ════════════════════════════════════════════════════════════════
+       theme.config — project config. Every rule sets a token value.
+       color.css's own theme layer holds the --cfg-* COLOR knobs and
+       the data-ui-theme switches; this block adds the non-color
+       project tokens the components need.
+       ════════════════════════════════════════════════════════════ */
+    @layer theme.config {
+      :root {
+        --cfg-radius: 6px;
+        --font-ui:   -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+        --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      }
+
+      /* motion switch — --cfg-motion scales every transition duration.
+         0 = instant, 1 = normal, >1 = slowed (10 is the debug step,
+         enough to actually see the transition curve). The OS preference
+         wins via the media query at the end. */
+      [data-ui-motion="off"]    { --cfg-motion: 0 }
+      [data-ui-motion="on"]     { --cfg-motion: 1 }
+      [data-ui-motion="debug"]  { --cfg-motion: 10 }
+      @media (prefers-reduced-motion: reduce) {
+        :root, [data-ui-motion] { --cfg-motion: 0 }
+      }
+
+      /* type scale switch — flows --scale down a subtree (--scale
+         inherits; --type is local). Set on <body> alongside data-ui-theme. */
+      [data-ui-type="sm"] { --scale: 0.875 }
+      [data-ui-type="md"] { --scale: 1     }
+      [data-ui-type="lg"] { --scale: 1.125 }
+    }
+
+
+    /* ════════════════════════════════════════════════════════════════
+       classAPI.page — full-page shell layouts. Pure geometry; ports
+       verbatim. References --cfg-radius / --cfg-motion only.
+       ════════════════════════════════════════════════════════════ */
+    @layer classAPI.page {
+      /* .page — full-viewport application shell. 9-slot grid; each slot
+         opt-in via a pg-* child, empty tracks collapse. Only nav, main,
+         aside scroll; the shell never does. */
+      :where(.page) {
+        display: grid;
+        grid-template:
+          "b  b  b" auto
+          "h  h  h" auto
+          "s  s  s" auto
+          "n  mh a" auto
+          "n  m  a" 1fr
+          "n  mf a" auto
+          "f  f  f" auto /
+          auto 1fr auto;
+        height: 100svh;
+        overflow: hidden;
+
+        &:where(.centered) { max-width: 1200px; margin-inline: auto; }
+
+        & > :where(.pg-banner)      { grid-area: b  }
+        & > :where(.pg-header)      { grid-area: h  }
+        & > :where(.pg-subheader)   { grid-area: s;  padding-block: 0 }
+        & > :where(.pg-navigation)  { grid-area: n;  overflow-y: auto; min-height: 0 }
+        & > :where(.pg-main-header) { grid-area: mh }
+        & > :where(.pg-main)        { grid-area: m;  overflow-y: auto; scrollbar-gutter: stable; min-height: 0 }
+        & > :where(.pg-main-footer) { grid-area: mf }
+        & > :where(.pg-aside)       { grid-area: a;  overflow-y: auto; min-height: 0 }
+        & > :where(.pg-footer)      { grid-area: f;  padding-block: 0 }
+      }
+
+      /* .drawer — edge-anchored overlay (<dialog> or popover). Slides in
+         via composite-only transition, no JS. */
+      :where(.drawer) {
+        --_dur: calc(var(--cfg-motion) * 0.25s);
+
+        position: fixed;
+        inset: auto;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        max-block-size: none;
+        max-inline-size: none;
+        transition:
+          translate var(--_dur) ease-out,
+          opacity   var(--_dur) ease-out,
+          display   var(--_dur) allow-discrete,
+          overlay   var(--_dur) allow-discrete;
+        translate: 0 0;
+        opacity: 1;
+
+        &:not(:is([open], :popover-open)) {
+          opacity: 0;
+          translate: var(--_translate-closed);
+        }
+        @starting-style {
+          &:is([open], :popover-open) {
+            opacity: 0;
+            translate: var(--_translate-closed);
+          }
+        }
+
+        &:where(.left) {
+          --_translate-closed: -100% 0;
+          inset: 0 auto 0 0;
+          inline-size: min(85vw, 320px);
+          block-size: 100svh;
+          border-radius: 0 var(--cfg-radius) var(--cfg-radius) 0;
+        }
+        &:where(.right) {
+          --_translate-closed: 100% 0;
+          inset: 0 0 0 auto;
+          inline-size: min(85vw, 320px);
+          block-size: 100svh;
+          border-radius: var(--cfg-radius) 0 0 var(--cfg-radius);
+        }
+        &:where(.top) {
+          --_translate-closed: 0 -100%;
+          inset: 0 0 auto 0;
+          inline-size: 100vw;
+          block-size: min(85svh, 240px);
+          border-radius: 0 0 var(--cfg-radius) var(--cfg-radius);
+        }
+        &:where(.bottom) {
+          --_translate-closed: 0 100%;
+          inset: auto 0 0 0;
+          inline-size: 100vw;
+          block-size: min(85svh, 240px);
+          border-radius: var(--cfg-radius) var(--cfg-radius) 0 0;
+        }
+      }
+
+      :where(dialog.drawer) {
+        --_dur: calc(var(--cfg-motion) * 0.25s);
+        --_dim: oklch(0% 0 0 / 0.5);
+
+        &::backdrop {
+          background: var(--_dim);
+          transition:
+            background-color var(--_dur) ease-out,
+            display          var(--_dur) allow-discrete,
+            overlay          var(--_dur) allow-discrete;
+        }
+        &:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
+        @starting-style {
+          &[open]::backdrop { background: oklch(0% 0 0 / 0); }
+        }
+      }
+
+      /* .hud — a full-viewport overlay that stacks all children in one
+         9-slot grid. Use as a direct child of <body> for things that
+         float above the page chrome: toasts, FAB clusters, dev overlays,
+         a corner debug readout, fixed help buttons.
+
+         The container itself is pointer-events:none, so it does NOT
+         block clicks on the page beneath it. Each child re-enables
+         pointer-events:auto on itself, so only the children are
+         interactive — empty grid cells stay click-through.
+
+         Markup: <div class="hud">
+                   <button class="tr">close</button>     // top-right
+                   <div class="bc">toast goes here</div> // bottom-center
+                 </div>
+         Default placement (no slot class) is center. Add a slot class
+         to pin to one of the 9 grid positions:
+           tl tc tr    (top    row)
+           cl cc cr    (centre row)
+           bl bc br    (bottom row) */
+      :where(.hud) {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        grid-template-areas: "hud";    /* every child shares this cell */
+        pointer-events: none;          /* container is click-through */
+        z-index: 1;
+
+        & > :where(*) {
+          grid-area: hud;
+          justify-self: center;
+          align-self: center;
+          pointer-events: auto;        /* children take their clicks back */
+        }
+
+        /* slot classes — short, grep-friendly, two letters: t/c/b for
+           row (top/centre/bottom) × l/c/r for column (left/centre/right) */
+        & > :where(.tl) { justify-self: start;  align-self: start  }
+        & > :where(.tc) { justify-self: center; align-self: start  }
+        & > :where(.tr) { justify-self: end;    align-self: start  }
+        & > :where(.cl) { justify-self: start;  align-self: center }
+        & > :where(.cc) { justify-self: center; align-self: center }
+        & > :where(.cr) { justify-self: end;    align-self: center }
+        & > :where(.bl) { justify-self: start;  align-self: end    }
+        & > :where(.bc) { justify-self: center; align-self: end    }
+        & > :where(.br) { justify-self: end;    align-self: end    }
+      }
+    }
+
+
+    /* ════════════════════════════════════════════════════════════════
+       classAPI.layout — composition primitives. All :where()-wrapped
+       for zero specificity. Gaps are calc(0.25 * 1lh): spacing derives
+       from line-height, per the styleAPI.space law. Pure geometry.
+       ════════════════════════════════════════════════════════════ */
+    @layer classAPI.layout {
+      :where(.column) {
+        display: flex; flex-direction: column;
+        gap: calc(0.25 * 1lh);
+      }
+      :where(.row) {
+        display: flex; flex-direction: row; flex-wrap: wrap;
+        align-items: center; gap: calc(0.25 * 1lh);
+      }
+      :where(.split) {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: calc(0.25 * 1lh);
+      }
+
+      :where(.spread) {
+        display: flex; flex-direction: row; flex-wrap: wrap;
+        justify-content: space-between; align-items: center;
+        gap: calc(0.25 * 1lh);
+      }
+      :where(.spread-column) {
+        display: flex; flex-direction: column;
+        justify-content: space-between; gap: calc(0.25 * 1lh);
+      }
+
+      /* lcr — left / centre / right, centre child truly centred */
+      :where(.lcr) {
+        display: grid; grid-template-columns: 1fr auto 1fr;
+        align-items: center; gap: calc(0.25 * 1lh);
+
+        & > :where(:first-child:not(style):not(script))      { justify-self: start  }
+        & > :where(:nth-child(2 of :not(style):not(script))) { justify-self: center }
+        & > :where(:last-child:not(style):not(script))       { justify-self: end    }
+
+        & > style, & > script { display: none }
+      }
+
+      /* flank — fixed lead child beside a flexible one */
+      :where(.flank, .flank-start) {
+        display: flex; flex-direction: row; align-items: center;
+        gap: calc(0.25 * 1lh);
+
+        & > :where(:first-child:not(style):not(script)) { flex: 0 0 auto }
+        & > :where(:last-child:not(style):not(script))  { flex: 1 1 auto; min-inline-size: 0 }
+
+        & > style, & > script { display: none }
+      }
+      :where(.flank-end) {
+        display: flex; flex-direction: row; align-items: center;
+        gap: calc(0.25 * 1lh);
+
+        & > :where(:first-child:not(style):not(script)) { flex: 1 1 auto; min-inline-size: 0 }
+        & > :where(:last-child:not(style):not(script))  { flex: 0 0 auto }
+
+        & > style, & > script { display: none }
+      }
+
+      /* frame — fixed-ratio media box; child cover-crops */
+      :where(.frame) {
+        aspect-ratio: 16 / 9; overflow: hidden;
+
+        & > * { inline-size: 100%; block-size: 100%; object-fit: cover }
+      }
+
+      /* grid — auto-fit responsive grid; --grid-min sets the floor */
+      :where(.grid) {
+        display: grid; gap: calc(0.25 * 1lh);
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min, 16rem)), 1fr));
+      }
+
+      /* ngrid — explicit N columns / rows via --cols / --rows */
+      :where(.ngrid) {
+        display: grid; gap: calc(0.25 * 1lh);
+        grid-template-columns: repeat(var(--cols), 1fr);
+        grid-template-rows: repeat(var(--rows), 1fr);
+        grid-auto-rows: auto;
+      }
+
+      /* stack — every child occupies the same cell, layered */
+      :where(.stack) {
+        display: grid; grid-template-areas: "stack";
+
+        & > * { grid-area: stack }
+      }
+
+      /* hero — 5-slot panel: top/bottom bars, left/right rails,
+         scrolling main. Fills its container; only main + rails scroll. */
+      :where(.hero) {
+        display: grid;
+        grid-template:
+          "t t t" auto
+          "l m r" 1fr
+          "b b b" auto /
+          auto 1fr auto;
+        height: 100%; overflow: hidden;
+
+        & > :where(.top)    { grid-area: t }
+        & > :where(.bottom) { grid-area: b }
+        & > :where(.left)   { grid-area: l; overflow-y: auto; min-height: 0 }
+        & > :where(.main)   { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0 }
+        & > :where(.right)  { grid-area: r; overflow-y: auto; min-height: 0 }
+      }
+    }
+
+
+    /* ════════════════════════════════════════════════════════════════
+       classAPI.components — buttons, cards, fields, nav.
+
+       PAINT RULE — every component that paints itself follows this:
+         1. set a resting --bg.
+         2. set --fg EXPLICITLY. Do not inherit it. A self-painted
+            surface owns its foreground — an inherited --fg resolves
+            against this element's own --bg and only contrasts by
+            accident when the ancestor's value happens to suit. Always
+            declare --fg so the contrast is intentional, not magical.
+         3. paint: background:var(--_bg-color); color:var(--_fg-color);
+            border:1px solid var(--_border-strong)  (or --_line-color).
+
+       INTERACTION RULE — anything that changes on interaction is a
+       <button> or <a>; that logic lives on the bare element in
+       theme.base, not in the component.
+       ════════════════════════════════════════════════════════════ */
+    @layer classAPI.components {
+
+      /* .avatar — a square monogram/icon chip. Paints its own surface;
+         a consumer sets --bg / --hue inline to colour it. Sized in lh
+         so it tracks the type system. Serif by intent for monograms. */
+      :where(.avatar) {
+        /* PAINT — set --bg + --fg explicitly, then paint (see PAINT
+           RULE above). --fg:-1: a monogram needs full contrast. */
+        --bg: 0;
+        --fg: -1;
+        background: var(--_bg-color);
+        color: var(--_fg-color);
+        border: 1px solid var(--_border-strong);
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        block-size: 2.4lh;
+        aspect-ratio: 1;
+        border-radius: var(--cfg-radius);
+        font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        line-height: 1;
+
+        /* an image fills the chip and crops to the rounded shape */
+        & > :where(img) {
+          inline-size: 100%;
+          block-size: 100%;
+          object-fit: cover;
+        }
+        /* an svg sits a little inside the chip */
+        & > :where(svg) {
+          inline-size: 70%;
+          block-size: 70%;
+        }
+      }
+      /* clip ONLY when there is an image — an unscoped overflow:hidden
+         would also clip a corner .badge, which must straddle the edge. */
+      :where(.avatar:has(> img)) { overflow: hidden }
+
+      /* .badge — a small count/status pill overlaying a corner.
+         :has(> .badge) upgrades the CONTAINING element to the anchor;
+         the badge then absolutely pins to its top-right corner. */
+      :where(:has(> .badge)) {
+        position: relative;
+        isolation: isolate;
+      }
+      :where(.badge) {
+        /* PAINT — a small chromatic pill, paints its own surface.
+           --fg:-1 is declared, NOT inherited: a self-painted surface
+           owns its foreground. Without this the badge inherits the
+           nav-link's --fg and ends up low-contrast mid-tone on mid-tone.
+           (was --_own-bg in the old sheet — that helper does not exist;
+           color.css's resolved output is --_bg-color.) */
+        --bg: 0.7;
+        --fg: -1;
+        background: var(--_bg-color);
+        color: var(--_fg-color);
+
+        position: absolute;
+        top: 0; right: 0;
+        translate: 50% -50%;
+        z-index: 1;
+
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-inline-size: 1.5em;
+        min-block-size: 1.5em;
+        padding: 0.12em 0.4em 0;       /* top pad: optical nudge — digit
+                                          glyphs sit high in their metrics */
+        border-radius: 999px;
+        font-size: 0.6em;
+        font-weight: 600;              /* digit holds up at small size */
+        line-height: 1;
+
+        /* an svg badge — a dot, checkmark, bell. Sized in em. */
+        & > :where(svg) {
+          inline-size: 0.9em;
+          block-size: 0.9em;
+        }
+      }
+      :where(.badge:has(svg)) {
+        padding-block: 0;              /* drop the digit nudge for icons */
+      }
+
+      /* ── Tier 3 — interactive surfaces ───────────────────────────
+         Same paint pattern as Tier 2 (component paints itself, sets
+         resting --bg). Interaction is NOT here: hover/active live on
+         the bare <button>/<a> rules in theme.base via --bg-shift /
+         --fg-shift. .btn/.icon-btn just declare a default surface. */
+
+      /* .btn — a button that is a complete surface on its own. Paints
+         its --bg so its label contrasts the BUTTON, not the page. */
+      :where(.btn) {
+        --bg: 0.3;
+        --fg: -1;                      /* explicit per PAINT RULE */
+        background: var(--_bg-color);
+        color: var(--_fg-color);
+        border: 1px solid var(--_border-strong);
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        block-size: 2.4lh;             /* lines up with .icon-btn / input */
+        border-radius: var(--cfg-radius);
+        padding-inline: 0.7em;
+        line-height: 1;
+
+        @media (pointer: coarse) { min-block-size: 44px }
+      }
+
+      /* .icon-btn — square, icon-only. Same 2.4lh height as .btn. The
+         icon sizes off the CONTAINER (container-type:size + cqb), so a
+         coarse-pointer size bump scales the glyph with no extra rule. */
+      :where(.icon-btn) {
+        --bg: 0.3;
+        --fg: -1;                      /* explicit per PAINT RULE */
+        background: var(--_bg-color);
+        color: var(--_fg-color);
+        border: 1px solid var(--_border-strong);
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        align-self: center;
+        block-size: 2.4lh;
+        aspect-ratio: 1;
+        container-type: size;
+        border-radius: var(--cfg-radius);
+        line-height: 1;
+        user-select: none;
+
+        & :where(svg) {
+          display: block;
+          inline-size: 42cqb;
+          block-size: 42cqb;
+        }
+
+        @media (pointer: coarse) {
+          min-block-size: 44px;
+          min-inline-size: 44px;
+        }
+      }
+
+      /* .nav-link — a nav item as ONE structural grid. Paints itself.
+         State sets --bg DIRECTLY per discrete state (not --bg-shift):
+         the states are distinct resting depths, not additive nudges. */
+      /* .nav-link — a nav item as ONE structural grid. Paints itself.
+         State sets --bg DIRECTLY per discrete state (not --bg-shift):
+         the states are distinct resting depths, not additive nudges. */
+      :where(.nav-link) {
+        /* --fg declared, not inherited — a self-painted surface owns
+           its foreground (same rule as .badge). The bare :where(a) rule
+           in theme.base also sets --fg, but classAPI comes after theme
+           in the layer spine, so the component's --fg wins regardless
+           of equal specificity. No specificity hack needed. */
+        --bg: 0;
+        --fg: -0.8;
+        background: var(--_bg-color);
+        color: var(--_fg-color);
+
+        display: grid;
+        /* Layout decisions:
+           1. Columns auto auto auto auto + the LABEL has a fixed
+              inline-size of 12ch. All nav-links in a rail are then
+              the same width — icons line up cleanly regardless of
+              label length.
+           2. justify-items:start — children hug the left edge of their
+              cells, so the icon sits flush-left at any rail width.
+           3. gap:0 + margins on children — removed cells leave no
+              empty strip (see comment below). */
+        grid-template:
+          ".   icon .   label"
+          "sub  sub sub .    "
+          / auto auto auto auto;
+        align-items: center;
+        justify-items: start;
+        /* gap:0 — spacing lives on the CHILDREN, not the container. A
+           grid `gap` is allocated between tracks unconditionally: when
+           .desktop/.mobile removes the label or sub, its track
+           collapses but the gap around it does NOT, leaving a dead
+           strip. Margin travels with the element; gap does not. So:
+           column spacing -> margin on the label, row spacing -> margin
+           on sub. Icon-only then renders flush, as a clean square. */
+        gap: 0;
+        padding: calc(0.3 * 1lh) calc(0.5 * 1lh);
+        border-radius: var(--cfg-radius);
+        text-decoration: none;
+
+        /* Touch-target accessibility — coarse pointers (touch screens)
+           and small viewports need a 44px minimum block-size per WCAG
+           2.5.5 / Apple HIG / Material guidelines. Same rule applies to
+           .icon-btn elsewhere in this file. Doesn't run for fine
+           pointers (mouse) where smaller targets are fine. */
+        @media (pointer: coarse), (max-width: 600px) {
+          min-block-size: 44px;
+        }
+
+        /* child -> area mapping */
+        & > :where(.nav-icon) {
+          grid-area: icon;
+          display: inline-grid;
+          place-items: center;
+          & > svg { display: block; inline-size: 1.4em; block-size: 1.4em }
+        }
+        & > :where(p)     { grid-area: label; margin: 0;
+                            margin-inline-start: calc(0.25 * 1lh);
+                            /* hard-coded fixed label width: every nav-link
+                               in a rail ends up the same total width, so
+                               icons line up regardless of label length. */
+                            inline-size: 12ch;
+                            min-inline-size: 0;
+                            overflow: hidden; text-overflow: ellipsis;
+                            white-space: nowrap }
+        & > :where(small) { grid-area: sub; margin: 0;
+                            margin-block-start: calc(0.1 * 1lh);
+                            min-inline-size: 0;
+                            max-inline-size: 100%; line-height: 1.1;
+                            overflow: hidden; text-overflow: ellipsis;
+                            white-space: nowrap }
+
+        /* state — discrete resting depths, --bg set directly.
+           active state: loud chromatic spotlight (--bg:0.6) under the
+           contrast pole (--fg:-1). 0.6 sits well into the "spotlight"
+           half of the bg curve, picking up a saturated hue tied to
+           --hue, and -1 selects whichever of B or W gives maximum
+           contrast against that surface. The label also right-aligns
+           inside its fixed-width cell — the icon stays put, the label
+           drifts right, a subtle "pushed apart" emphasis. */
+        &:hover         { --bg: 0.2 }
+        &[aria-current] { --bg: 0.6; --fg: -1 }
+        &[aria-current] > :where(p) { text-align: end }
+      }
+
+      /* ── Tier 4 — composite components ───────────────────────────
+
+         .tabs — a segmented control, expressed entirely in --bg depth.
+           track + unselected tabs sit recessed; the selected tab is a
+           loud chromatic surface — that contrast IS the selection
+           signal. Each tab paints itself; --fg is explicit per the
+           PAINT RULE so a label always contrasts its own surface. */
+      :where(.tabs) {
+        --bg: -1;                      /* the recessed track (was depth 3) */
+        --fg: -0.8;
+        background: var(--_bg-color);
+        color: var(--_fg-color);
+
+        isolation: isolate;            /* local stacking context for the
+                                          focused tab's z-index below */
+        display: inline-flex;
+        align-items: stretch;
+        block-size: 2.4lh;
+        padding: 0.2em;
+        gap: 0.15em;
+        border-radius: var(--cfg-radius);
+        line-height: 1;
+
+        & > :where(button, a) {
+          /* unselected — same depth as the track: a bare label on it.
+             no own background paint; inherits the track surface. */
+          --bg: -1;
+          --fg: -0.8;
+          color: var(--_fg-color);
+          display: inline-flex;
+          align-items: center;
+          border: 0;
+          background: transparent;
+          padding-inline: 0.85em;
+          border-radius: max(0px, calc(var(--cfg-radius) - 0.2em));
+          line-height: 1;
+          white-space: nowrap;
+          user-select: none;
+          text-decoration: none;
+          cursor: pointer;
+          transition:
+            background-color calc(var(--cfg-motion) * 0.2s) ease-out,
+            color            calc(var(--cfg-motion) * 0.2s) ease-out;
+        }
+        & > :where(button, a):focus-visible {
+          z-index: 1;                  /* above siblings so the ring shows */
+        }
+        & > :where([aria-selected="true"]) {
+          /* selected — a loud surface of its own; paints + owns --fg */
+          --bg: 0.8;
+          --fg: -1;
+          background: var(--_bg-color);
+          color: var(--_fg-color);
+        }
+
+        @media (width < 480px) { min-block-size: 44px }
+      }
+
+      /* .glass — a translucent surface with a blurred backdrop. Drops
+         --alpha to 50% (color.css's opacity knob). Nested .glass does
+         NOT need a reset: stacked translucent layers composite via the
+         browser's normal alpha-over blending (60% over 60% reads ~84%),
+         so nested glass naturally goes near-solid. Pair with a painting
+         surface (.bg or a component) for the colour. */
+      :where(.glass) {
+        --alpha: 50%;
+        backdrop-filter: blur(12px) saturate(1.4);
+        -webkit-backdrop-filter: blur(12px) saturate(1.4);
+        border: 1px solid var(--_border-strong);
+      }
+
+      /* progress — the native <progress>. Runs both formulas: --bg is a
+         low-chroma TRACK (the element's own paint), --fg a high-chroma
+         FILL. The fill pseudo-elements paint from currentColor — which
+         is the resolved --fg — so one element yields track + vivid bar.
+         The three vendor pseudo-elements stay separate (an unknown one
+         in a shared list drops the whole rule). */
+      :where(progress) {
+        --bg: 0.2;
+        --fg: 0.8;
+        background: var(--_bg-color);
+        color: var(--_fg-color);       /* the fill reads this via currentColor */
+        appearance: none;
+        inline-size: 12em;
+        block-size: 0.5em;
+        border: 1px solid var(--_border-strong);
+        border-radius: 999em;
+        overflow: hidden;
+      }
+      :where(progress)::-webkit-progress-bar {
+        background: transparent;       /* the element's own paint is the track */
+        border-radius: 999em;
+      }
+      :where(progress)::-webkit-progress-value {
+        background: currentColor;      /* the resolved --fg */
+        border-radius: 999em;
+        transition: inline-size calc(var(--cfg-motion) * 0.2s);
+      }
+      :where(progress)::-moz-progress-bar {
+        background: currentColor;
+        border-radius: 999em;
+      }
+      :where(progress):indeterminate {
+        animation: progress-pulse 1.2s ease-in-out infinite;
+      }
+
+      /* .crumbs — a breadcrumb trail. Every crumb is an <a>:
+           <nav class="crumbs">
+             <a href="..">Root</a>
+             <a href="..">Section</a>
+             <a href="..">Page</a>
+           </nav>
+         The last child is styled as "current" by position — full-
+         contrast and bold — and stays visually stable on hover (the
+         :last-child rule sits after :hover in source order, so the
+         "you are here" indicator doesn't flicker when moused over).
+         Consumers may add aria-current="page" on the last item for
+         screen readers; the CSS doesn't depend on it either way.
+
+         The separator is a ::before pseudo on every crumb after the
+         first. The pseudo inherits everything from its originating
+         crumb: --fg, the resolved --_fg-color, --_h, the cfg knobs.
+         The crumb itself paints with its own --fg (set per-state below);
+         the pseudo paints with its own colour computed inline from the
+         same inherited hue, at a fixed L/C for the separator look.
+
+         --sep sets the separator glyph; change it per trail without
+         touching CSS or markup structure. */
+      :where(.crumbs) {
+        --sep: "/";
+
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: calc(0.25 * 1lh);
+
+        /* every crumb: small, no underline. color comes from each
+           crumb's own --_fg-color (set by the per-state rules). */
+        & > :where(*) {
+          --type: -1;
+          color: var(--_fg-color);
+          text-decoration: none;
+          line-height: 1;
+        }
+        /* crumb links — soft neutral, recessed. Overrides theme.base's
+           :where(a){--fg:0.6} default; classAPI sits after theme in the
+           layer spine so the component's --fg wins. */
+        & > :where(a)        { --fg: -0.6 }
+        & > :where(a):hover  { --fg: 0.8 }
+        /* current crumb — full-contrast, bold. Selected by POSITION:
+           the last child of the trail is "you are here" by convention.
+           No aria-current needed in markup (but consumers can still add
+           it for screen readers — the styling already covers them). */
+        & > :where(:last-child) {
+          --fg: -0.9;
+          font-weight: 600;
+        }
+
+        /* separator before every crumb after the first. The pseudo
+           inherits --_h (engine output) from its originating crumb,
+           and we paint colour directly using that hue at a fixed L/C
+           — the "mirror region" look (chromatic, soft) without
+           needing to run the formula on the pseudo itself. The L/C
+           values track what --fg:0.4 would compute against the
+           theme's surface; swap to the dark-theme equivalents
+           automatically via the inherited --cfg-* knobs. */
+        & > :where(* + *)::before {
+          content: var(--sep);
+          margin-inline-end: calc(0.25 * 1lh);
+          color: oklch(0.65 0.13 var(--_h));
+        }
+      }
+    }
+
+    @keyframes progress-pulse {
+      0%, 100% { opacity: 0.5 }
+      50%      { opacity: 1   }
+    }
+
+
+    /* ════════════════════════════════════════════════════════════════
+       classAPI.viewport — declarative responsive visibility. Ports
+       verbatim.
+       ════════════════════════════════════════════════════════════ */
+    @layer classAPI.viewport {
+      :where(.mobile, .tablet, .desktop) { display: none }
+      @media (width < 768px)           { :where(.mobile)  { display: revert-layer } }
+      @media (768px <= width < 1024px) { :where(.tablet)  { display: revert-layer } }
+      @media (width >= 1024px)         { :where(.desktop) { display: revert-layer } }
+    }
+
+
+    /* ════════════════════════════════════════════════════════════════
+       classAPI.utility — single-purpose classes, last in precedence.
+       ════════════════════════════════════════════════════════════ */
+    @layer classAPI.utility {
+      /* Semantic hue locks. These set --hue-lock ONLY — they retint
+         whatever they touch, painting nothing themselves. That keeps
+         them composable: `.dgr` alone tints a label's feedback ink;
+         `.dgr bg fg` makes a painted red surface; `.dgr` on a .btn
+         recolours the button. Hue-only = one helper, many uses. */
+      .suc { --hue-lock: 145 }   /* success — green  */
+      .inf { --hue-lock: 240 }   /* info    — blue   */
+      .wrn { --hue-lock: 75  }   /* warning — amber  */
+      .dgr { --hue-lock: 25  }   /* danger  — red    */
+
+      /* .bw — drop chroma to zero for a neutral greyscale subtree.
+         --cfg-chroma is color.css's single chroma knob (the old
+         --cfg-stage-chroma / --cfg-chroma-max-c-* tokens do not exist
+         in color.css; one knob replaces them). */
+      .bw { --cfg-chroma: 0 }
+    }
+
+
+    /* ════════════════════════════════════════════════════════════════
+       theme.base — project-wide rules on BARE element selectors.
+       Tier 2: kbd, hr, table (no-interaction). Tier 3 adds button/a.
+       ════════════════════════════════════════════════════════════ */
+    @layer theme.base {
+      body {
+        --bg: 0;
+        font-family: var(--font-ui);
+        transition: --scale calc(var(--cfg-motion) * 0.2s) ease-out;
+      }
+
+      /* scrollbars — thin, transparent track, thumb in the system's
+         loud derived colour (--_border-strong: the same hue-aware
+         prominence used for borders). On * so every nested scroll
+         container picks it up; scrollbar-color resolves per element,
+         so a themed island gets its own hue-correct thumb for free.
+         Standard properties only — the ::-webkit-scrollbar pseudo
+         route on * has perf cost in Chrome, and the standard props
+         are enough for "thin + coloured thumb". */
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--_border-strong) transparent;
+      }
+
+      /* kbd — a keyboard-key marker. A bordered mono chip; unpainted by
+         design (a keycap is a marker, not a filled surface). Uses the
+         LOUD border so a key stands out against running text. */
+      :where(kbd) {
+        --type: -1.5;
+        display: inline-flex;
+        align-items: center;
+        padding: 0.1em 0.45em;
+        border: 1px solid var(--_border-strong);
+        border-radius: 0.35em;
+        font-family: var(--font-mono);
+        font-weight: 600;
+        line-height: 1.4;
+      }
+
+      /* hr — a divider, drawn as a BORDER (snaps to the pixel grid;
+         a 1px background box can anti-alias soft). .vr flips vertical.
+         LOUD border weight — a divider is a structural line. */
+      :where(hr) {
+        border: 0;
+        border-block-start: 1px solid var(--_border-strong);
+        block-size: 0;
+        inline-size: 100%;
+        margin-block: calc(0.25 * 1lh);
+        margin-inline: 0;
+      }
+      :where(hr.vr) {
+        border-block-start: 0;
+        border-inline-start: 1px solid var(--_border-strong);
+        block-size: auto;
+        inline-size: 0;
+        min-block-size: 1lh;
+        margin-block: 0;
+        margin-inline: calc(0.25 * 1lh);
+        align-self: stretch;
+        justify-self: stretch;
+      }
+
+      /* table — a ruled data table. Row rules are the QUIET hairline
+         (--_line-color); the header rule is the LOUD border
+         (--_border-strong). No zebra fills. The table paints nothing
+         itself — it sits on whatever surface contains it. */
+      :where(table) {
+        border-collapse: collapse;
+        inline-size: 100%;
+        text-align: start;
+      }
+      :where(th, td) {
+        padding: calc(0.35 * 1lh) calc(0.5 * 1lh);
+        text-align: start;
+        vertical-align: baseline;
+      }
+      /* row rule — quiet hairline under every body cell */
+      :where(tbody tr) :where(th, td) {
+        border-block-start: 1px solid var(--_line-color);
+      }
+      /* header — bold, with the loud rule beneath */
+      :where(thead th) {
+        --fg: -1;
+        color: var(--_fg-color);
+        font-weight: 600;
+        border-block-end: 1px solid var(--_border-strong);
+      }
+
+      /* ── Tier 3 — interaction on bare button / a ─────────────────
+         The system law: anything that changes on interaction is a
+         <button> or <a>. Interaction lives HERE, not in components.
+
+         Buttons: hover/active perturb --bg-shift / --fg-shift; the
+         L and C lifts emerge from the engine ramp. A .btn that set
+         --bg:0.3 hovers to an effective 0.42, presses back + softens. */
+      :where(button) {
+        cursor: pointer;
+        transition:
+          --bg-shift calc(var(--cfg-motion) * 0.15s) ease-out,
+          --fg-shift calc(var(--cfg-motion) * 0.15s) ease-out,
+          background calc(var(--cfg-motion) * 0.15s) ease-out,
+          color      calc(var(--cfg-motion) * 0.15s) ease-out;
+      }
+      :where(button):hover  { --bg-shift: 0.12 }
+      :where(button):active { --bg-shift: -0.1; --fg-shift: 0.2 }
+
+      /* Links: hue-tinted ink, NOT a surface shift. --fg positive (the
+         mirror region) makes the link carry the region's hue. Hover
+         intensifies it; text + underline brighten together. Links never
+         get a surface bump — interaction on a link is colour only. */
+      :where(a) {
+        --fg: 0.6;
+        color: var(--_fg-color);
+        cursor: pointer;
+        text-underline-offset: 0.15em;
+        transition: --fg calc(var(--cfg-motion) * 0.15s) ease-out;
+      }
+      :where(a):hover { --fg: 0.85 }
+
+      /* shared focus ring — uses color.css's --_ring-color, which is
+         oklch(... --_h): the ring hue automatically follows the focused
+         element's own hue, so a .dgr input gets a red ring for free.
+         Inputs are included here (they had no ring before — they were
+         falling back to the browser's default outline). */
+      :where(button, a, input, select, textarea, summary):focus-visible {
+        outline: var(--cfg-ring-width) solid var(--_ring-color);
+        outline-offset: var(--cfg-ring-offset);
+      }
+
+      /* ── Tier 4 — the form cluster ───────────────────────────────
+
+         form — a recessed well (was depth 3 -> --bg:-1). Paints itself,
+         so a bare <form> is a sunken surface. Its inputs are lifted to
+         --bg:0 by the @scope block below — a front surface popping out
+         of the well; the depth contrast separates them. */
+      :where(form) {
+        --bg: -1;
+        --fg: -0.85;
+        background: var(--_bg-color);
+        color: var(--_fg-color);
+        max-inline-size: 45ch;         /* readable line length cap */
+        padding: calc(0.5 * 1lh);
+        border: 1px solid var(--_border-strong);
+        border-radius: var(--cfg-radius);
+      }
+
+      /* text inputs / select / textarea — a neutral surface lining up
+         with .btn (2.4lh, same radius). --bg:0.1 (just into the
+         spotlight) so the hue is faintly visible — this lets a hue-lock
+         (.dgr / .wrn) tint the input itself, not just its feedback.
+         Checkbox/radio excluded — own rules below. */
+      :where(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+        --bg: 0.1;
+        --fg: -1;
+        background: var(--_bg-color);
+        color: var(--_fg-color);
+        block-size: 2.4lh;
+        padding-inline: 0.7em;
+        border: 1px solid var(--_border-strong);
+        border-radius: var(--cfg-radius);
+        line-height: 1;
+        min-inline-size: 0;
+        caret-color: var(--_border-strong);
+      }
+      /* placeholder — a pseudo-element, does not run the colour
+         formula; dim the inherited text colour directly. */
+      :where(input, textarea)::placeholder {
+        color: oklch(from currentColor l c h / 0.5);
+      }
+      @media (width < 480px) {
+        :where(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+          min-block-size: 44px;
+        }
+      }
+      @media (pointer: coarse) {
+        /* floor the type-formula result at 16px (iOS auto-zoom guard)
+           WITHOUT discarding it — --_font-size is the formula output. */
+        :where(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+          font-size: max(16px, var(--_font-size));
+        }
+      }
+
+      /* select — strip the native chevron, draw our own. The chevron
+         strokes in currentColor, tracking the resolved text colour. */
+      :where(select) {
+        appearance: none;
+        padding-inline-end: 1.8em;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.6em center;
+      }
+
+      /* textarea — opt out of the single-row height; multi-line block
+         size and prose line-height for wrapped text. */
+      :where(textarea) {
+        block-size: 6em;
+        min-block-size: 6em;
+        resize: vertical;
+        line-height: 1.5;
+        padding-block: 0.4em;
+      }
+
+      /* checkbox & radio — unchecked is a bordered box on --bg:0, the
+         SAME surface as the text inputs (was inheriting the form well).
+         Checked paints a loud surface and shows a mark; the mark strokes
+         in currentColor (the resolved --fg) to contrast the fill. */
+      :where(input[type="checkbox"], input[type="radio"]) {
+        --bg: 0;
+        --fg: -1;
+        appearance: none;
+        margin: 0;
+        inline-size: 1em;
+        block-size: 1em;
+        background: var(--_bg-color);
+        border: 1px solid var(--_border-strong);
+        flex-shrink: 0;
+        cursor: pointer;
+      }
+      :where(input[type="checkbox"]) { border-radius: 0.25em }
+      :where(input[type="radio"])    { border-radius: 50% }
+
+      :where(input[type="checkbox"], input[type="radio"]):checked {
+        /* checked = a loud painted surface; --fg explicit so the mark
+           contrasts it (PAINT RULE). */
+        --bg: 0.8;
+        --fg: -1;
+        background-color: var(--_bg-color);
+        color: var(--_fg-color);
+        border-color: transparent;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+      :where(input[type="checkbox"]):checked {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E");
+        background-size: 70%;
+      }
+      :where(input[type="radio"]):checked {
+        background-image: radial-gradient(circle, currentColor 32%, transparent 36%);
+      }
+
+      /* fieldset — a row of equal-width input groups. Layout only. */
+      :where(fieldset) {
+        border: 0; margin: 0; padding: 0;
+        display: flex;
+        gap: 0.5em;
+
+        & > :where(*) {
+          flex: 1;
+          min-inline-size: 0;
+        }
+      }
+    }
+
+    /* form inputs stretch to fill — but only OUTSIDE a fieldset (which
+       lays out its own equal-width groups). Donut @scope: from form,
+       stopping at fieldset. */
+    @scope (form) to (fieldset) {
+      :where(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+        inline-size: stretch;
+      }
+    }
+
+    /* inside a form, inputs drop their border — the form well's depth
+       contrast separates them, so the border is redundant. They keep
+       --bg:0.1 (the faint hue stays, for error tinting). Scoped to
+       (form) so a standalone input keeps its border. */
+    @scope (form) {
+      :where(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+        border: 0;
+      }
+      /* a .btn in a form stretches full-width — a form's primary action
+         is typically full-width. .icon-btn stays square (unaffected). */
+      :where(.btn) {
+        inline-size: stretch;
+      }
+
+      /* labelled field — a <label> wrapping <span> (label text),
+         <small> (feedback) and an input. No class: structure is the
+         selector. :has(> span) distinguishes it from a checkbox label.
+         span / small / input each paint their own foreground explicitly
+         (PAINT RULE) — no inherited --fg. */
+      :where(label:has(> span)) {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: baseline;
+        gap: calc(0.15 * 1lh) calc(0.4 * 1lh);
+
+        & > :where(span) {
+          /* the label text — full-contrast, semibold */
+          --fg: -1;
+          color: var(--_fg-color);
+          font-weight: 600;
+          justify-self: start;
+        }
+        /* required marker — a * after the label text when the field's
+           input is [required]. :has() reaches the sibling input. The
+           glyph is a pseudo-element (no colour formula), so its colour
+           is set directly: the danger hue, dimmed via alpha. */
+        &:has(:where(input, select, textarea):required) > span::after {
+          content: " *";
+          color: oklch(0.6 0.2 25);
+          font-weight: 700;
+        }
+        & > :where(small) {
+          /* feedback ink — high-chroma mirror colour. color.css emits
+             the resolved foreground as --_fg-color; a hue-lock on the
+             <label> flows through --_h, so .wrn / .dgr on the label
+             tint the feedback. */
+          --fg: 0.9;
+          color: var(--_fg-color);
+          min-block-size: 1lh;         /* always reserve a line — no shift */
+          justify-self: start;
+        }
+        & > :where(input, select, textarea) {
+          grid-column: 1 / -1;         /* span both columns, row two */
+        }
+      }
+    }
+    
