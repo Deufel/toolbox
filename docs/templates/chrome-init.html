@@ -8,22 +8,38 @@
   (() => {
     const body = document.body;
     const sectionPath = window.location.pathname;
+    const sections = sectionPath.split('/').filter(Boolean);
+    const depth = sections.length;
+    // upPrefix: "." at root, ".." or "../.." at deeper levels.
+    const upPrefix = depth === 0 ? '.' : Array(depth).fill('..').join('/');
 
-    // Active nav-link — match by data-nav.
+    // Active nav-link — match by data-nav, AND rewrite href to be
+    // relative to current page depth. Templates ship "./css/" etc.
+    // which works from root but not from /css/. From depth N, prepend
+    // N "../" segments.
     document.querySelectorAll('[data-nav]').forEach(a => {
-      if (a.dataset.nav === sectionPath) {
+      const target = a.dataset.nav;     // canonical "/" or "/css/" etc.
+      if (target === '/') {
+        a.href = upPrefix;
+      } else {
+        const tail = target.slice(1);   // "css/"
+        a.href = depth === 0 ? './' + tail : upPrefix + '/' + tail;
+      }
+      if (target === sectionPath) {
         a.setAttribute('aria-current', 'page');
       }
     });
 
-    // Crumb trail — populate from path. Root is always "Home"; subpaths
-    // get one additional crumb each.
+    // Crumb trail — populate from path. Hrefs are RELATIVE to the
+    // current page: from /css/index.html, Home is "..", CSS is ".".
+    // From /index.html, Home is ".".
     const crumbs = document.querySelector('[data-crumbs]');
     if (crumbs) {
-      const sections = sectionPath.split('/').filter(Boolean);
-      const trail = [['/', 'Home']];
+      const trail = [[upPrefix, 'Home']];
       sections.forEach((seg, i) => {
-        const href = '/' + sections.slice(0, i + 1).join('/') + '/';
+        const stepsBack = depth - i - 1;
+        const href = stepsBack === 0 ? '.'
+                   : Array(stepsBack).fill('..').join('/');
         const label = seg.charAt(0).toUpperCase() + seg.slice(1);
         trail.push([href, label]);
       });
