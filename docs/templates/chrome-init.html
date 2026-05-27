@@ -1,0 +1,66 @@
+<script class="chrome-init">
+  // Runtime initialisation for the chrome. This script reads the current
+  // URL and sets per-page state (active nav-link, crumb trail), and wires
+  // up the theme toggle, type cycle, and nav drawer.
+  //
+  // It's templated as a unit because the chrome elements depend on it —
+  // the nav-links carry data-nav values that this script reads.
+  (() => {
+    const body = document.body;
+    const sectionPath = window.location.pathname;
+
+    // Active nav-link — match by data-nav.
+    document.querySelectorAll('[data-nav]').forEach(a => {
+      if (a.dataset.nav === sectionPath) {
+        a.setAttribute('aria-current', 'page');
+      }
+    });
+
+    // Crumb trail — populate from path. Root is always "Home"; subpaths
+    // get one additional crumb each.
+    const crumbs = document.querySelector('[data-crumbs]');
+    if (crumbs) {
+      const sections = sectionPath.split('/').filter(Boolean);
+      const trail = [['/', 'Home']];
+      sections.forEach((seg, i) => {
+        const href = '/' + sections.slice(0, i + 1).join('/') + '/';
+        const label = seg.charAt(0).toUpperCase() + seg.slice(1);
+        trail.push([href, label]);
+      });
+      crumbs.innerHTML = trail.map(([h, l]) =>
+        `<a href="${h}">${l}</a>`).join('');
+    }
+
+    // Theme toggle — two-state, dark/light.
+    const themeBtn = document.getElementById('toggle-theme');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const next = body.getAttribute('data-ui-theme') === 'dark' ? 'light' : 'dark';
+        body.setAttribute('data-ui-theme', next);
+        themeBtn.title = `theme: ${next}`;
+      });
+    }
+
+    // Type-scale cycle — sm / md / lg.
+    const typeBtn = document.getElementById('cycle-type');
+    if (typeBtn) {
+      const typeStates = ['sm', 'md', 'lg'];
+      typeBtn.addEventListener('click', () => {
+        const current = body.getAttribute('data-ui-type') || 'md';
+        const next = typeStates[(typeStates.indexOf(current) + 1) % typeStates.length];
+        body.setAttribute('data-ui-type', next);
+        typeBtn.title = `type: ${next}`;
+      });
+    }
+
+    // Nav drawer — open / close / backdrop click.
+    const navDrawer = document.getElementById('nav-drawer');
+    const openBtn = document.getElementById('open-nav');
+    const closeBtn = document.getElementById('close-nav');
+    if (navDrawer && openBtn) openBtn.addEventListener('click', () => navDrawer.showModal());
+    if (navDrawer && closeBtn) closeBtn.addEventListener('click', () => navDrawer.close());
+    if (navDrawer) navDrawer.addEventListener('click', e => {
+      if (e.target === navDrawer) navDrawer.close();
+    });
+  })();
+</script>

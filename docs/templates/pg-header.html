@@ -1,0 +1,22 @@
+<header class="pg-header bg fg edge-q pad" style="--bg:-0.4">
+  <div class="column" style="gap:calc(0.15*1lh)">
+    <div class="spread">
+      <strong style="--type:0.5">Toolbox</strong>
+      <div class="row">
+        <button class="icon-btn" id="cycle-type" style="--bg:0.4"
+                aria-label="type scale" title="type: md">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 7V5h16v2M9 5v14M9 19h-2M9 19h2"/></svg>
+        </button>
+        <button class="icon-btn" id="toggle-theme" style="--bg:0.4"
+                aria-label="toggle theme" title="theme: dark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+    <!-- crumb trail. The aria-current and section name are set per-page
+         by the inline init script at the bottom of the body. -->
+    <nav class="crumbs" data-crumbs></nav>
+  </div>
+</header>

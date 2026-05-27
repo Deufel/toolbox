@@ -13,28 +13,27 @@
        row 1: title + icon-btns (type cycle, theme toggle)
        row 2: breadcrumb crumbs trail -->
   <header class="pg-header bg fg edge-q pad" style="--bg:-0.4">
-    <div class="column" style="gap:calc(0.15*1lh)">
-      <div class="spread">
-        <strong style="--type:0.5">Toolbox</strong>
-        <div class="row">
-          <button class="icon-btn" id="cycle-type" style="--bg:0.4"
-                  aria-label="type scale" title="type: md">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 7V5h16v2M9 5v14M9 19h-2M9 19h2"/></svg>
-          </button>
-          <button class="icon-btn" id="toggle-theme" style="--bg:0.4"
-                  aria-label="toggle theme" title="theme: dark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          </button>
-        </div>
+  <div class="column" style="gap:calc(0.15*1lh)">
+    <div class="spread">
+      <strong style="--type:0.5">Toolbox</strong>
+      <div class="row">
+        <button class="icon-btn" id="cycle-type" style="--bg:0.4"
+                aria-label="type scale" title="type: md">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 7V5h16v2M9 5v14M9 19h-2M9 19h2"/></svg>
+        </button>
+        <button class="icon-btn" id="toggle-theme" style="--bg:0.4"
+                aria-label="toggle theme" title="theme: dark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
       </div>
-      <nav class="crumbs">
-        <a href="/toolbox/">Home</a>
-        <a href="/toolbox/python/">Python</a>
-      </nav>
     </div>
-  </header>
+    <!-- crumb trail. The aria-current and section name are set per-page
+         by the inline init script at the bottom of the body. -->
+    <nav class="crumbs" data-crumbs></nav>
+  </div>
+</header>
 
   <!-- Main content area -->
   <main class="pg-main pad">
@@ -44,63 +43,65 @@
   <!-- HUD — nav trigger sits in the centre-left slot, click-through
        container, button takes its own clicks. -->
   <div class="hud">
-    <button class="cl icon-btn" id="open-nav"
-            style="--bg:0.6; margin-inline-start:calc(0.5*1lh)"
-            aria-label="open navigation">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M3 6h18M3 12h18M3 18h18"/></svg>
-    </button>
-  </div>
+  <button class="cl icon-btn" id="open-nav"
+          style="--bg:0.6; margin-inline-start:calc(0.5*1lh)"
+          aria-label="open navigation">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+</div>
 
   <!-- Nav drawer — left, contains the section list. Same on every page. -->
   <dialog class="drawer left bg fg" id="nav-drawer" style="--bg:-0.4">
-    <div class="pad">
-      <div class="spread">
-        <strong>Toolbox</strong>
-        <button class="icon-btn" id="close-nav" style="--bg:0.4" aria-label="close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 6l12 12M18 6L6 18"/></svg>
-        </button>
-      </div>
-      <div class="column" style="margin-top:calc(0.5*1lh)">
-        <a class="nav-link" href="/toolbox/">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-          </span>
-          <p>Home</p>
-        </a>
-        <a class="nav-link" href="/toolbox/css/">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 4h16l-1.5 16L12 22 5.5 20z"/></svg>
-          </span>
-          <p>CSS</p>
-        </a>
-        <a class="nav-link" href="/toolbox/go/">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
-          </span>
-          <p>Go</p>
-        </a>
-        <a class="nav-link" href="/toolbox/js/">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 4h16v16H4z"/><path d="M10 10v6M14 10v4a2 2 0 0 0 2 2"/></svg>
-          </span>
-          <p>JavaScript</p>
-        </a>
-        <a class="nav-link" href="/toolbox/python/" aria-current="page">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 4h6a2 2 0 0 1 2 2v6H7V8a2 2 0 0 1 2-2zM15 20H9a2 2 0 0 1-2-2v-6h10v4a2 2 0 0 1-2 2z"/></svg>
-          </span>
-          <p>Python</p>
-        </a>
-      </div>
+  <div class="pad">
+    <div class="spread">
+      <strong>Toolbox</strong>
+      <button class="icon-btn" id="close-nav" style="--bg:0.4" aria-label="close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
-  </dialog>
+    <div class="column" style="margin-top:calc(0.5*1lh)">
+      <!-- Nav links. aria-current is set at runtime by the init script
+           at the bottom of the page based on window.location.pathname. -->
+      <a class="nav-link" href="/" data-nav="/">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+        </span>
+        <p>Home</p>
+      </a>
+      <a class="nav-link" href="/css/" data-nav="/css/">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16l-1.5 16L12 22 5.5 20z"/></svg>
+        </span>
+        <p>CSS</p>
+      </a>
+      <a class="nav-link" href="/go/" data-nav="/go/">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
+        </span>
+        <p>Go</p>
+      </a>
+      <a class="nav-link" href="/js/" data-nav="/js/">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16v16H4z"/><path d="M10 10v6M14 10v4a2 2 0 0 0 2 2"/></svg>
+        </span>
+        <p>JavaScript</p>
+      </a>
+      <a class="nav-link" href="/python/" data-nav="/python/">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 4h6a2 2 0 0 1 2 2v6H7V8a2 2 0 0 1 2-2zM15 20H9a2 2 0 0 1-2-2v-6h10v4a2 2 0 0 1-2 2z"/></svg>
+        </span>
+        <p>Python</p>
+      </a>
+    </div>
+  </div>
+</dialog>
 
 <script>
   const body = document.body;
@@ -132,6 +133,72 @@
   navDrawer.addEventListener('click', e => {
     if (e.target === navDrawer) navDrawer.close();
   });
+</script>
+  <script class="chrome-init">
+  // Runtime initialisation for the chrome. This script reads the current
+  // URL and sets per-page state (active nav-link, crumb trail), and wires
+  // up the theme toggle, type cycle, and nav drawer.
+  //
+  // It's templated as a unit because the chrome elements depend on it —
+  // the nav-links carry data-nav values that this script reads.
+  (() => {
+    const body = document.body;
+    const sectionPath = window.location.pathname;
+
+    // Active nav-link — match by data-nav.
+    document.querySelectorAll('[data-nav]').forEach(a => {
+      if (a.dataset.nav === sectionPath) {
+        a.setAttribute('aria-current', 'page');
+      }
+    });
+
+    // Crumb trail — populate from path. Root is always "Home"; subpaths
+    // get one additional crumb each.
+    const crumbs = document.querySelector('[data-crumbs]');
+    if (crumbs) {
+      const sections = sectionPath.split('/').filter(Boolean);
+      const trail = [['/', 'Home']];
+      sections.forEach((seg, i) => {
+        const href = '/' + sections.slice(0, i + 1).join('/') + '/';
+        const label = seg.charAt(0).toUpperCase() + seg.slice(1);
+        trail.push([href, label]);
+      });
+      crumbs.innerHTML = trail.map(([h, l]) =>
+        `<a href="${h}">${l}</a>`).join('');
+    }
+
+    // Theme toggle — two-state, dark/light.
+    const themeBtn = document.getElementById('toggle-theme');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const next = body.getAttribute('data-ui-theme') === 'dark' ? 'light' : 'dark';
+        body.setAttribute('data-ui-theme', next);
+        themeBtn.title = `theme: ${next}`;
+      });
+    }
+
+    // Type-scale cycle — sm / md / lg.
+    const typeBtn = document.getElementById('cycle-type');
+    if (typeBtn) {
+      const typeStates = ['sm', 'md', 'lg'];
+      typeBtn.addEventListener('click', () => {
+        const current = body.getAttribute('data-ui-type') || 'md';
+        const next = typeStates[(typeStates.indexOf(current) + 1) % typeStates.length];
+        body.setAttribute('data-ui-type', next);
+        typeBtn.title = `type: ${next}`;
+      });
+    }
+
+    // Nav drawer — open / close / backdrop click.
+    const navDrawer = document.getElementById('nav-drawer');
+    const openBtn = document.getElementById('open-nav');
+    const closeBtn = document.getElementById('close-nav');
+    if (navDrawer && openBtn) openBtn.addEventListener('click', () => navDrawer.showModal());
+    if (navDrawer && closeBtn) closeBtn.addEventListener('click', () => navDrawer.close());
+    if (navDrawer) navDrawer.addEventListener('click', e => {
+      if (e.target === navDrawer) navDrawer.close();
+    });
+  })();
 </script>
 </body>
 </html>
