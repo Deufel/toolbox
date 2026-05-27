@@ -1,115 +1,56 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CSS — Toolbox</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@db3d74c/css/style.css">
-  <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.1/bundles/datastar.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSS — Toolbox</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@db3d74c/css/style.css">
+<script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.1/bundles/datastar.js"></script>
 </head>
-<body class="page bg fg" data-ui-theme="dark">
+<body class="page bg fg"
+      data-signals="{theme: 'dark', type: 'md', path: ''}"
+      data-init="$path = window.location.pathname"
+      data-effect="document.body.setAttribute('data-ui-theme', $theme); document.body.setAttribute('data-ui-type', $type)">
 
-  <!-- Header — same on every page. Two rows:
-       row 1: title + icon-btns (type cycle, theme toggle)
-       row 2: breadcrumb crumbs trail -->
-  <header class="pg-header bg fg edge-q pad" style="--bg:-0.4">
-  <div class="column" style="gap:calc(0.15*1lh)">
-    <div class="spread">
-      <strong style="--type:0.5">Toolbox</strong>
-      <div class="row">
-        <button class="icon-btn" id="cycle-type" style="--bg:0.4"
-                aria-label="type scale" title="type: md">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarge-small-icon lucide-a-large-small"><path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16"/><path d="M15.697 14h5.606"/><path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16"/><path d="M3.304 13h6.392"/></svg>
-            <path d="M4 7V5h16v2M9 5v14M9 19h-2M9 19h2"/></svg>
-        </button>
-        <button class="icon-btn" id="toggle-theme" style="--bg:0.4"
-                aria-label="toggle theme" title="theme: dark">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
-      </div>
-    </div>
-    <!-- crumb trail. The aria-current and section name are set per-page
-         by the inline init script at the bottom of the body. -->
-    <nav class="crumbs" data-crumbs></nav>
-  </div>
-
-  <!-- Main content area -->
   <main class="pg-main pad">
     <h1 style="--type:2">CSS</h1>
   </main>
 
-  <!-- HUD — nav trigger sits in the centre-left slot, click-through
-       container, button takes its own clicks. -->
-
-  <!-- Nav drawer — left, contains the section list. Same on every page. -->
-
-<script>
-  const body = document.body;
-
-  // theme toggle — two-state cycle, light/dark
-  const themeBtn = document.getElementById('toggle-theme');
-  themeBtn.addEventListener('click', () => {
-    const next = body.getAttribute('data-ui-theme') === 'dark' ? 'light' : 'dark';
-    body.setAttribute('data-ui-theme', next);
-    themeBtn.title = `theme: ${next}`;
-  });
-
-  // type-scale cycle — sm / md / lg
-  const typeBtn = document.getElementById('cycle-type');
-  const typeStates = ['sm', 'md', 'lg'];
-  typeBtn.addEventListener('click', () => {
-    const current = body.getAttribute('data-ui-type') || 'md';
-    const next = typeStates[(typeStates.indexOf(current) + 1) % typeStates.length];
-    body.setAttribute('data-ui-type', next);
-    typeBtn.title = `type: ${next}`;
-  });
-
-  // nav drawer — open/close, backdrop click
-  const navDrawer = document.getElementById('nav-drawer');
-  document.getElementById('open-nav').addEventListener('click',
-    () => navDrawer.showModal());
-  document.getElementById('close-nav').addEventListener('click',
-    () => navDrawer.close());
-  navDrawer.addEventListener('click', e => {
-    if (e.target === navDrawer) navDrawer.close();
-  });
-</script>
-  <header class="pg-header bg fg" style="--bg:-0.4">
-    <div class="spread">
-      <div class="column">
+  <header class="pg-header bg fg edge-q pad" style="--bg:-0.4">
+    <div class="column" style="gap:calc(0.15*1lh)">
+      <div class="spread">
         <strong style="--type:0.5">Toolbox</strong>
-        <!-- crumb trail — built once at init from $path. The "toolbox"
-              segment is dropped from the displayed trail; Home implies it. -->
-        <nav class="crumbs" data-init="
-          const parts = $path.split('/').filter(Boolean);
-          const subs = parts[0] === 'toolbox' ? parts.slice(1) : parts;
-          let trail = '<a href=&quot;/toolbox/&quot;>Home</a>';
-          subs.forEach((s, i) => {
-            const href = '/toolbox/' + subs.slice(0, i+1).join('/') + '/';
-            const label = s.charAt(0).toUpperCase() + s.slice(1);
-            trail += '<a href=&quot;' + href + '&quot;>' + label + '</a>';
-          });
-          el.innerHTML = trail;
-        "></nav>
+        <div class="row">
+          <button class="icon-btn" style="--bg:0.4"
+                  aria-label="type scale"
+                  data-on:click="$type = $type === 'sm' ? 'md' : $type === 'md' ? 'lg' : 'sm'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 7V5h16v2M9 5v14M9 19h-2M9 19h2"/></svg>
+          </button>
+          <button class="icon-btn" style="--bg:0.4"
+                  aria-label="toggle theme"
+                  data-on:click="$theme = $theme === 'dark' ? 'light' : 'dark'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
       </div>
-      <div class="row">
-        <button class="icon-btn" style="--bg:0.4"
-                aria-label="type scale"
-                data-on:click="$type = $type === 'sm' ? 'md' : $type === 'md' ? 'lg' : 'sm'">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 7V5h16v2M9 5v14M9 19h-2M9 19h2"/></svg>
-        </button>
-        <button class="icon-btn" style="--bg:0.4"
-                aria-label="toggle theme"
-                data-on:click="$theme = $theme === 'dark' ? 'light' : 'dark'">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
-      </div>
+      <!-- crumb trail — built once at init from $path. The "toolbox"
+           segment is dropped from the displayed trail; Home implies it. -->
+      <nav class="crumbs" data-init="
+        const parts = $path.split('/').filter(Boolean);
+        const subs = parts[0] === 'toolbox' ? parts.slice(1) : parts;
+        let trail = '<a href=&quot;/toolbox/&quot;>Home</a>';
+        subs.forEach((s, i) => {
+          const href = '/toolbox/' + subs.slice(0, i+1).join('/') + '/';
+          const label = s.charAt(0).toUpperCase() + s.slice(1);
+          trail += '<a href=&quot;' + href + '&quot;>' + label + '</a>';
+        });
+        el.innerHTML = trail;
+      "></nav>
     </div>
   </header>
-  <nav class="pg-navigation tablet desktop bg fg" style="--bg:-0.6">
+  <nav class="pg-nav tablet desktop bg fg edge-q pad" style="--bg:-0.6">
     <div class="column">
       <a class="nav-link" href="/toolbox/"
          data-attr-aria-current="$path === '/toolbox/' ? 'page' : null">
@@ -158,8 +99,8 @@
       </a>
     </div>
   </nav>
-  <footer class="pg-footer mobile bg fg" style="--bg:-0.6">
-    <div class="row spread">
+  <footer class="pg-footer mobile bg fg edge-q pad" style="--bg:-0.6">
+    <div class="row" style="justify-content:space-around">
       <a class="nav-link" href="/toolbox/"
          data-attr-aria-current="$path === '/toolbox/' ? 'page' : null">
         <span class="nav-icon">
