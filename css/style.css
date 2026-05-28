@@ -1519,7 +1519,7 @@
   }
 }
 
- /* ════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    classAPI.pseudo — rules targeting pseudo-elements that are
    triggered programmatically. Currently houses syntax highlighting
    via the CSS Custom Highlight API.
@@ -1527,14 +1527,22 @@
    The ::highlight() pseudo only honors color, background-color,
    text-decoration, and text-shadow. Custom properties set on
    ::highlight() do NOT cascade into the painted text, so each rule
-   sets `color` directly via OKLCH relative-color syntax, reading
-   --_bg from the originating element (the surface anchoring the
-   highlighted text).
+   sets `color` directly via OKLCH relative-color syntax.
+
+   The `from` color is --_bg-opaque (the engine's pre-mixed, always-
+   opaque surface). Using --_bg-color instead would be wrong: if the
+   surface has any alpha < 100%, `from` would carry that transparency
+   into the token color and the text would render see-through.
 
    Two L formulas, lifted to :where(:root) so they have one
    definition shared by every token rule:
      --_token-l    chromatic ink, pinned at 45% L light / 75% L dark
      --_comment-l  dim ink, pulled toward the surface (35% / 70%)
+
+   Light/dark detection uses --_is-dark from the color engine:
+     light theme -> --_is-dark = 0
+     dark theme  -> --_is-dark = 1
+   (the flag is auto-derived from --cfg-surface-l in the engine)
 
    Hue shift varies per token category, on a single fixed grid:
      comments    +0
@@ -1552,18 +1560,19 @@
 @layer classAPI.pseudo {
 
   :where(:root) {
-    --_token-l:   calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark));
-    --_comment-l: calc(35% * (1 - var(--cfg-dark)) + 70% * var(--cfg-dark));
+    --_token-l:   calc(45% * (1 - var(--_is-dark)) + 75% * var(--_is-dark));
+    --_comment-l: calc(35% * (1 - var(--_is-dark)) + 70% * var(--_is-dark));
   }
 
-  /* Comments — dim, faintly tinted toward the surface hue. */
+  /* Comments — dim, faintly tinted from the surface's own chroma. */
   ::highlight(css-comment),
   ::highlight(html-comment),
   ::highlight(python-comment),
-  ::highlight(javascript-comment) {
-    color: oklch(from var(--_bg)
+  ::highlight(javascript-comment),
+  ::highlight(go-comment) {
+    color: oklch(from var(--_bg-opaque)
       var(--_comment-l)
-      calc(c + var(--cfg-fg-tint))
+      c
       h
     );
   }
@@ -1572,16 +1581,18 @@
   ::highlight(css-string),
   ::highlight(html-value),
   ::highlight(python-string),
-  ::highlight(javascript-string) {
-    color: oklch(from var(--_bg) var(--_token-l) 0.13 calc(h - 36));
+  ::highlight(javascript-string),
+  ::highlight(go-string) {
+    color: oklch(from var(--_bg-opaque) var(--_token-l) 0.13 calc(h - 36));
   }
 
   /* Numbers / units. */
   ::highlight(css-number),
   ::highlight(css-unit),
   ::highlight(python-number),
-  ::highlight(javascript-number) {
-    color: oklch(from var(--_bg) var(--_token-l) 0.13 calc(h - 24));
+  ::highlight(javascript-number),
+  ::highlight(go-number) {
+    color: oklch(from var(--_bg-opaque) var(--_token-l) 0.13 calc(h - 24));
   }
 
   /* Punctuation, operators, brackets. */
@@ -1590,8 +1601,10 @@
   ::highlight(python-operator),
   ::highlight(python-punctuation),
   ::highlight(javascript-operator),
-  ::highlight(javascript-punctuation) {
-    color: oklch(from var(--_bg) var(--_token-l) 0.10 calc(h - 12));
+  ::highlight(javascript-punctuation),
+  ::highlight(go-operator),
+  ::highlight(go-punctuation) {
+    color: oklch(from var(--_bg-opaque) var(--_token-l) 0.10 calc(h - 12));
   }
 
   /* Identifiers — properties, vars, selectors, tags, attributes. */
@@ -1602,7 +1615,7 @@
   ::highlight(html-attribute),
   ::highlight(html-doctype),
   ::highlight(html-entity) {
-    color: oklch(from var(--_bg) var(--_token-l) 0.13 calc(h + 12));
+    color: oklch(from var(--_bg-opaque) var(--_token-l) 0.13 calc(h + 12));
   }
 
   /* Functions, classes, builtins. */
@@ -1611,8 +1624,11 @@
   ::highlight(python-builtin),
   ::highlight(javascript-function),
   ::highlight(javascript-class),
-  ::highlight(javascript-builtin) {
-    color: oklch(from var(--_bg) var(--_token-l) 0.14 calc(h + 24));
+  ::highlight(javascript-builtin),
+  ::highlight(go-function),
+  ::highlight(go-class),
+  ::highlight(go-builtin) {
+    color: oklch(from var(--_bg-opaque) var(--_token-l) 0.14 calc(h + 24));
   }
 
   /* Keywords, at-rules, decorators — strongest cool shift. */
@@ -1620,7 +1636,8 @@
   ::highlight(python-keyword),
   ::highlight(python-decorator),
   ::highlight(javascript-keyword),
-  ::highlight(javascript-decorator) {
-    color: oklch(from var(--_bg) var(--_token-l) 0.15 calc(h + 36));
+  ::highlight(javascript-decorator),
+  ::highlight(go-keyword) {
+    color: oklch(from var(--_bg-opaque) var(--_token-l) 0.15 calc(h + 36));
   }
-}   
+}
