@@ -1178,7 +1178,7 @@
 
 @layer classAPI.components {
   .icon {
-    --bg: 0;
+    --bg: -0.1;
     --fg: -0.8;
     background: var(--_bg-color);
     color: var(--_fg-color);
@@ -1199,20 +1199,14 @@
               white-space: nowrap; }
 
     &:hover         { --bg: 0.2 }
-    &[aria-current] { --bg: 0.6; --fg: -1 }
+    &[aria-current] { --bg: 1 ; --fg: -0.8 }
     /* active surface is loud; drop the chip to a quiet contrast chip */
     &[aria-current] > .chip { --bg: 0.1 }
-  }
 
-  .icon-q {
-    border-radius: 50%;
-    corner-shape: squircle;
-
-    > .chip {
-      border-radius: 0.7em;
-      corner-shape: squircle;
-      margin: 0.3lh;        /* double the base .icon chip margin (0.2lh) */
-    }
+    @media (pointer: coarse) {
+      min-inline-size: 44px;
+      min-block-size: 44px;
+    }  
   }
 }
 
