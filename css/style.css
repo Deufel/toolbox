@@ -1135,16 +1135,85 @@
     }
 
 
-    /* ════════════════════════════════════════════════════════════════
-       classAPI.viewport — declarative responsive visibility. Ports
-       verbatim.
-       ════════════════════════════════════════════════════════════ */
-    @layer classAPI.viewport {
-      :where(.mobile, .tablet, .desktop) { display: none }
-      @media (width < 768px)           { :where(.mobile)  { display: revert-layer } }
-      @media (768px <= width < 1024px) { :where(.tablet)  { display: revert-layer } }
-      @media (width >= 1024px)         { :where(.desktop) { display: revert-layer } }
+@layer classAPI.viewport {
+  :where(.mobile, .tablet, .desktop) { display: none }
+  @media (width < 768px)           { :where(.mobile)  { display: revert-layer } }
+  @media (768px <= width < 1024px) { :where(.tablet)  { display: revert-layer } }
+  @media (width >= 1024px)         { :where(.desktop) { display: revert-layer } }
+
+  :where(.small, .medium, .large) { display: none }
+  @container (width < 320px)          { :where(.small) { display: revert-layer } }
+  @container (320px <= width < 560px) { :where(.medium) { display: revert-layer } }
+  @container (width >= 560px)         { :where(.large) { display: revert-layer } }
+
+}
+
+
+@layer classAPI.components {
+  .chip {
+    --bg: 0.2;
+    --fg: -0.85;
+    --type: -2;
+    background: var(--_bg-color);
+    color: var(--_fg-color);
+    border: 1px solid var(--_border-strong);
+
+    display: inline-grid;
+    grid-auto-flow: column;
+    place-content: center;
+    align-items: center;
+    vertical-align: middle;
+    min-inline-size: 1.5em;
+    padding: 0.2em 0.55em;
+    border-radius: 999px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    line-height: 1;
+    text-box: trim-both cap text;
+    font-size-adjust: cap-height 0.7; /* fix mono fonts */
+  }
+}
+
+@layer classAPI.components {
+  .icon {
+    --bg: 0;
+    --fg: -0.8;
+    background: var(--_bg-color);
+    color: var(--_fg-color);
+
+    display: grid;
+    grid-template-areas: "stack";
+    place-items: center;
+    inline-size: 2.4lh;
+    block-size: 2.4lh;
+    border-radius: var(--cfg-radius);
+    text-decoration: none;
+
+    > * { grid-area: stack; }
+
+    > svg   { place-self: center; inline-size: 1.4lh; block-size: 1.4lh; }
+    > .chip { place-self: start end; margin: 0.2lh; z-index: 1; }
+    > small { place-self: end center; --type: -2; line-height: 1;
+              white-space: nowrap; }
+
+    &:hover         { --bg: 0.2 }
+    &[aria-current] { --bg: 0.6; --fg: -1 }
+    /* active surface is loud; drop the chip to a quiet contrast chip */
+    &[aria-current] > .chip { --bg: 0.1 }
+  }
+
+  .icon-q {
+    border-radius: 50%;
+    corner-shape: squircle;
+
+    > .chip {
+      border-radius: 0.7em;
+      corner-shape: squircle;
+      margin: 0.3lh;        /* double the base .icon chip margin (0.2lh) */
     }
+  }
+}
 
 
     /* ════════════════════════════════════════════════════════════════
