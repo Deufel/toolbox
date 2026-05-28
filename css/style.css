@@ -37,7 +37,7 @@
     @layer reset.fix, reset.opinion,
            styleAPI.space, styleAPI.color,
            theme, theme.config, theme.base,
-           classAPI.page, classAPI.layout, classAPI.components,
+           classAPI.page, classAPI.layout, classAPI.components, classAPI.highlight,
            classAPI.viewport, classAPI.utility;
 
 
@@ -45,7 +45,7 @@
        reset.fix — unopinionated normalisation. Things every project
        wants; no aesthetic decisions.
        ════════════════════════════════════════════════════════════ */
-    @layer reset.fix {
+    @layer reset.fix 
       *, *::before, *::after {
         box-sizing: border-box;
         margin: 0;
@@ -134,7 +134,6 @@
                follows prefers-color-scheme.
        ============================================================ */
 
-    @layer styleAPI.space, styleAPI.color, theme;
 
     /* ---- typed properties --------------------------------------
        public + cfg inherit; --_* outputs do not (per-element). */
@@ -386,10 +385,6 @@
        classAPI deliberately later than theme — components override
        the bare-element defaults when they target the same element.
        ════════════════════════════════════════════════════════════ */
-    @layer theme.config, theme.base,
-           classAPI.page, classAPI.layout, classAPI.components,
-           classAPI.viewport, classAPI.utility;
-
 
     /* ---- typed properties ---------------------------------------
        --cfg-motion: motion duration multiplier. Typed <number>, inherits,
@@ -1493,4 +1488,139 @@
       }
     }
 
-    
+  @layer classAPI.components {
+  :where(pre):has(> code) {
+    margin: 0;
+    overflow-x: auto;
+  }
+ 
+  :where(pre) > :where(code) {
+    --bg: -0.8;
+    --fg: -1;
+    background: var(--_bg-color);
+    color: var(--_fg-color);
+    display: block;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --type: -1;
+    padding: calc(0.5 * 1lh) calc(0.75 * 1lh);
+    border-radius: var(--cfg-radius);
+    border: 1px solid var(--_border-strong);
+    tab-size: 2;
+    white-space: pre;
+  }
+  :where(code):not(pre > code) {
+    --bg: -0.4;
+    --fg: -0.9;
+    background: var(--_bg-color);
+    color: var(--_fg-color);
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    padding: 0 calc(0.2 * 1lh);
+    border-radius: var(--cfg-radius);
+  }
+}
+
+ /* ════════════════════════════════════════════════════════════════
+   classAPI.pseudo — rules targeting pseudo-elements that are
+   triggered programmatically. Currently houses syntax highlighting
+   via the CSS Custom Highlight API.
+
+   The ::highlight() pseudo only honors color, background-color,
+   text-decoration, and text-shadow. Custom properties set on
+   ::highlight() do NOT cascade into the painted text, so each rule
+   sets `color` directly via OKLCH relative-color syntax, reading
+   --_bg from the originating element (the surface anchoring the
+   highlighted text).
+
+   Two L formulas, lifted to :where(:root) so they have one
+   definition shared by every token rule:
+     --_token-l    chromatic ink, pinned at 45% L light / 75% L dark
+     --_comment-l  dim ink, pulled toward the surface (35% / 70%)
+
+   Hue shift varies per token category, on a single fixed grid:
+     comments    +0
+     strings    -36
+     numbers    -24
+     punct      -12
+     identifiers +12
+     functions   +24
+     keywords    +36
+
+   To retune, edit --_token-l / --_comment-l for L; edit the
+   per-rule `calc(h ± N)` for hue shift; edit the per-rule chroma
+   (0.10 - 0.15) for saturation.
+   ═══════════════════════════════════════════════════════════ */
+@layer classAPI.pseudo {
+
+  :where(:root) {
+    --_token-l:   calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark));
+    --_comment-l: calc(35% * (1 - var(--cfg-dark)) + 70% * var(--cfg-dark));
+  }
+
+  /* Comments — dim, faintly tinted toward the surface hue. */
+  ::highlight(css-comment),
+  ::highlight(html-comment),
+  ::highlight(python-comment),
+  ::highlight(javascript-comment) {
+    color: oklch(from var(--_bg)
+      var(--_comment-l)
+      calc(c + var(--cfg-fg-tint))
+      h
+    );
+  }
+
+  /* Strings — warm shift. */
+  ::highlight(css-string),
+  ::highlight(html-value),
+  ::highlight(python-string),
+  ::highlight(javascript-string) {
+    color: oklch(from var(--_bg) var(--_token-l) 0.13 calc(h - 36));
+  }
+
+  /* Numbers / units. */
+  ::highlight(css-number),
+  ::highlight(css-unit),
+  ::highlight(python-number),
+  ::highlight(javascript-number) {
+    color: oklch(from var(--_bg) var(--_token-l) 0.13 calc(h - 24));
+  }
+
+  /* Punctuation, operators, brackets. */
+  ::highlight(css-punctuation),
+  ::highlight(html-bracket),
+  ::highlight(python-operator),
+  ::highlight(python-punctuation),
+  ::highlight(javascript-operator),
+  ::highlight(javascript-punctuation) {
+    color: oklch(from var(--_bg) var(--_token-l) 0.10 calc(h - 12));
+  }
+
+  /* Identifiers — properties, vars, selectors, tags, attributes. */
+  ::highlight(css-property),
+  ::highlight(css-var-name),
+  ::highlight(css-selector),
+  ::highlight(html-tag),
+  ::highlight(html-attribute),
+  ::highlight(html-doctype),
+  ::highlight(html-entity) {
+    color: oklch(from var(--_bg) var(--_token-l) 0.13 calc(h + 12));
+  }
+
+  /* Functions, classes, builtins. */
+  ::highlight(python-function),
+  ::highlight(python-class),
+  ::highlight(python-builtin),
+  ::highlight(javascript-function),
+  ::highlight(javascript-class),
+  ::highlight(javascript-builtin) {
+    color: oklch(from var(--_bg) var(--_token-l) 0.14 calc(h + 24));
+  }
+
+  /* Keywords, at-rules, decorators — strongest cool shift. */
+  ::highlight(css-atrule),
+  ::highlight(python-keyword),
+  ::highlight(python-decorator),
+  ::highlight(javascript-keyword),
+  ::highlight(javascript-decorator) {
+    color: oklch(from var(--_bg) var(--_token-l) 0.15 calc(h + 36));
+  }
+}   
