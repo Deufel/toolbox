@@ -1560,8 +1560,16 @@
 @layer classAPI.pseudo {
 
   :where(:root) {
-    --_token-l:   calc(45% * (1 - var(--_is-dark)) + 75% * var(--_is-dark));
-    --_comment-l: calc(35% * (1 - var(--_is-dark)) + 70% * var(--_is-dark));
+    /* Token L is asymmetric across themes to give equal perceptual
+       contrast against the surface in each mode. Light theme: code
+       surface sits at ~90% L (--bg:-0.8 against --cfg-surface-l:0.97),
+       so tokens at 25% L give ~65pt contrast. Dark theme: surface at
+       ~11% L, so tokens at 75% L give ~64pt contrast. The match isn't
+       perfect (OKLCH L isn't linear contrast) but the perceptual
+       weight reads similar. If you tune --cfg-surface-l / --cfg-house-l,
+       you'll need to re-balance these numbers. */
+    --_token-l:   calc(25% * (1 - var(--_is-dark)) + 75% * var(--_is-dark));
+    --_comment-l: calc(40% * (1 - var(--_is-dark)) + 60% * var(--_is-dark));
   }
 
   /* Comments — dim, faintly tinted from the surface's own chroma. */
