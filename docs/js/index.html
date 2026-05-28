@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>JavaScript — Toolbox</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@2133376/css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@47dcc2d/css/style.css">
 <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.1/bundles/datastar.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Deufel/toolbox@latest/js/highlight.js"></script>
 </head>
 <body class="page bg fg"
       data-signals="{theme: 'dark', type: 'md', path: ''}"
@@ -20,6 +21,191 @@
 
   <main class="pg-main pad">
     <h1 style="--type:2">JavaScript</h1>
+ 
+    <h2 style="--type:1">Syntax Highlighter Test</h2>
+    <p>Each block below tests one language. Inline <code>code</code> sits in prose for contrast. Theme toggle to verify light/dark behavior.</p>
+    
+    <h3>CSS</h3>
+    <pre><code class="css">/* OKLCH formula — single source of truth for surface color */
+    @layer styleAPI.color {
+      :where(*) {
+        --hue: 240;
+        --bg: 0;
+        --_l: calc(50% + var(--bg) * 30%);
+        --_bg-color: oklch(var(--_l) 0.1 var(--hue));
+      }
+    }
+    
+    .btn {
+      --bg: 0.3;
+      background: var(--_bg-color);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-size: 1.2em;
+    }
+    
+    @media (pointer: coarse) {
+      .btn { min-block-size: 44px; }
+    }
+    </code></pre>
+    
+    <h3>HTML</h3>
+    <pre><code class="html">&lt;!doctype html&gt;
+    &lt;html lang="en"&gt;
+    &lt;head&gt;
+      &lt;meta charset="utf-8"&gt;
+      &lt;title&gt;Demo&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body class="page bg fg"&gt;
+      &lt;!-- A nav element with active state --&gt;
+      &lt;nav class="pg-navigation"&gt;
+        &lt;a href="/" aria-current="page"&gt;Home&amp;nbsp;&amp;rarr;&lt;/a&gt;
+        &lt;a href="/about"&gt;About&lt;/a&gt;
+      &lt;/nav&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+    </code></pre>
+    
+    <h3>Python</h3>
+    <pre><code class="python"># Reactive kernel — DAG-based notebook
+    from typing import Any, Callable
+    import ast
+    
+    class Cell:
+        """A single notebook cell with code + computed value."""
+    
+        def __init__(self, src: str, deps: list[str] = None):
+            self.src = src
+            self.deps = deps or []
+            self.value: Any = None
+    
+        @property
+        def is_dirty(self) -> bool:
+            return self.value is None
+    
+        async def compute(self, env: dict) -> Any:
+            tree = ast.parse(self.src, mode='exec')
+            exec(compile(tree, '&lt;cell&gt;', 'exec'), env)
+            return env.get('_')
+    
+    # Hex, binary, scientific
+    CONSTANTS = {
+        'tau': 6.283_185_307,
+        'mask': 0xFF_FF_FF,
+        'flags': 0b1010_0101,
+        'big': 1e100,
+    }
+    
+    if __name__ == '__main__':
+        print(f"loaded {len(CONSTANTS)} constants")
+    </code></pre>
+    
+    <h3>JavaScript</h3>
+    <pre><code class="javascript">// Datastar-style signal binding example
+    const signals = new Map();
+    
+    class Signal {
+      #value;
+      #subscribers = new Set();
+    
+      constructor(initial = null) {
+        this.#value = initial;
+      }
+    
+      get value() { return this.#value; }
+    
+      set value(next) {
+        if (next === this.#value) return;
+        this.#value = next;
+        for (const fn of this.#subscribers) fn(next);
+      }
+    
+      subscribe(fn) {
+        this.#subscribers.add(fn);
+        return () =&gt; this.#subscribers.delete(fn);
+      }
+    }
+    
+    // Template literal + optional chaining + nullish coalescing
+    const greet = (user) =&gt; `hello, ${user?.name ?? 'world'}`;
+    
+    // BigInt and numeric separators
+    const BIG = 1_000_000_000n;
+    const HEX = 0xDEAD_BEEF;
+    
+    export { Signal, greet };
+    </code></pre>
+    
+    <h3>Go</h3>
+    <pre><code class="go">// Package main — hub with debounced SSE drain
+    package main
+    
+    import (
+      "context"
+      "fmt"
+      "net/http"
+      "sync"
+      "time"
+    )
+    
+    type Hub struct {
+      mu       sync.RWMutex
+      clients  map[string]chan []byte
+      debounce time.Duration
+    }
+    
+    // NewHub returns a fresh hub with the given debounce window.
+    func NewHub(d time.Duration) *Hub {
+      return &amp;Hub{
+        clients:  make(map[string]chan []byte),
+        debounce: d,
+      }
+    }
+    
+    func (h *Hub) Subscribe(id string) &lt;-chan []byte {
+      h.mu.Lock()
+      defer h.mu.Unlock()
+      ch := make(chan []byte, 16)
+      h.clients[id] = ch
+      return ch
+    }
+    
+    func (h *Hub) Publish(ctx context.Context, msg []byte) error {
+      select {
+      case &lt;-ctx.Done():
+        return ctx.Err()
+      default:
+      }
+      h.mu.RLock()
+      defer h.mu.RUnlock()
+      for _, ch := range h.clients {
+        select {
+        case ch &lt;- msg:
+        default:
+          fmt.Println("dropped: client buffer full")
+        }
+      }
+      return nil
+    }
+    
+    const (
+      defaultPort = ":8080"
+      maxClients  = 1_000
+      pi          = 3.14159
+    )
+    
+    func main() {
+      hub := NewHub(50 * time.Millisecond)
+      http.HandleFunc("/sse", func(w http.ResponseWriter, r *http.Request) {
+        ch := hub.Subscribe(r.RemoteAddr)
+        for msg := range ch {
+          fmt.Fprintf(w, "data: %s\n\n", msg)
+        }
+      })
+      _ = http.ListenAndServe(defaultPort, nil)
+    }
+    </code></pre>
+
   </main>
 
   <footer id="pg-footer"
