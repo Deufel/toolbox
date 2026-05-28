@@ -1519,59 +1519,30 @@
   }
 }
 
-/* ════════════════════════════════════════════════════════════════
-   classAPI.pseudo — rules targeting pseudo-elements that are
-   triggered programmatically. Currently houses syntax highlighting
-   via the CSS Custom Highlight API.
-
-   The ::highlight() pseudo only honors color, background-color,
-   text-decoration, and text-shadow. Custom properties set on
-   ::highlight() do NOT cascade into the painted text, so each rule
-   sets `color` directly via OKLCH relative-color syntax.
-
-   The `from` color is --_bg-opaque (the engine's pre-mixed, always-
-   opaque surface). Using --_bg-color instead would be wrong: if the
-   surface has any alpha < 100%, `from` would carry that transparency
-   into the token color and the text would render see-through.
-
-   Two L formulas, lifted to :where(:root) so they have one
-   definition shared by every token rule:
-     --_token-l    chromatic ink, pinned at 45% L light / 75% L dark
-     --_comment-l  dim ink, pulled toward the surface (35% / 70%)
-
-   Light/dark detection uses --_is-dark from the color engine:
-     light theme -> --_is-dark = 0
-     dark theme  -> --_is-dark = 1
-   (the flag is auto-derived from --cfg-surface-l in the engine)
-
-   Hue shift varies per token category, on a single fixed grid:
-     comments    +0
-     strings    -36
-     numbers    -24
-     punct      -12
-     identifiers +12
-     functions   +24
-     keywords    +36
-
-   To retune, edit --_token-l / --_comment-l for L; edit the
-   per-rule `calc(h ± N)` for hue shift; edit the per-rule chroma
-   (0.10 - 0.15) for saturation.
-   ═══════════════════════════════════════════════════════════ */
 @layer classAPI.pseudo {
-
-  :where(:root) {
-    /* Token L is asymmetric across themes to give equal perceptual
-       contrast against the surface in each mode. Light theme: code
-       surface sits at ~90% L (--bg:-0.8 against --cfg-surface-l:0.97),
-       so tokens at 25% L give ~65pt contrast. Dark theme: surface at
-       ~11% L, so tokens at 75% L give ~64pt contrast. The match isn't
-       perfect (OKLCH L isn't linear contrast) but the perceptual
-       weight reads similar. If you tune --cfg-surface-l / --cfg-house-l,
-       you'll need to re-balance these numbers. */
-    --_token-l:   calc(25% * (1 - var(--_is-dark)) + 75% * var(--_is-dark));
-    --_comment-l: calc(40% * (1 - var(--_is-dark)) + 60% * var(--_is-dark));
+ 
+  /* Token L set per theme directly. Light theme wants tokens dark
+     against a near-white surface; dark theme wants tokens light
+     against a near-black surface. Setting these alongside the
+     existing per-theme --cfg-* knobs in color.css would be even
+     cleaner, but keeping them here means classAPI.pseudo is the
+     single edit-point for syntax color tuning. */
+  :where(:root),
+  [data-ui-theme="light"] {
+    --_token-l:   30%;
+    --_comment-l: 45%;
   }
-
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --_token-l:   75%;
+      --_comment-l: 60%;
+    }
+  }
+  [data-ui-theme="dark"] {
+    --_token-l:   75%;
+    --_comment-l: 60%;
+  }
+ 
   /* Comments — dim, faintly tinted from the surface's own chroma. */
   ::highlight(css-comment),
   ::highlight(html-comment),
@@ -1584,7 +1555,7 @@
       h
     );
   }
-
+ 
   /* Strings — warm shift. */
   ::highlight(css-string),
   ::highlight(html-value),
@@ -1593,7 +1564,7 @@
   ::highlight(go-string) {
     color: oklch(from var(--_bg-opaque) var(--_token-l) 0.13 calc(h - 36));
   }
-
+ 
   /* Numbers / units. */
   ::highlight(css-number),
   ::highlight(css-unit),
@@ -1602,7 +1573,7 @@
   ::highlight(go-number) {
     color: oklch(from var(--_bg-opaque) var(--_token-l) 0.13 calc(h - 24));
   }
-
+ 
   /* Punctuation, operators, brackets. */
   ::highlight(css-punctuation),
   ::highlight(html-bracket),
@@ -1614,7 +1585,7 @@
   ::highlight(go-punctuation) {
     color: oklch(from var(--_bg-opaque) var(--_token-l) 0.10 calc(h - 12));
   }
-
+ 
   /* Identifiers — properties, vars, selectors, tags, attributes. */
   ::highlight(css-property),
   ::highlight(css-var-name),
@@ -1625,7 +1596,7 @@
   ::highlight(html-entity) {
     color: oklch(from var(--_bg-opaque) var(--_token-l) 0.13 calc(h + 12));
   }
-
+ 
   /* Functions, classes, builtins. */
   ::highlight(python-function),
   ::highlight(python-class),
@@ -1638,7 +1609,7 @@
   ::highlight(go-builtin) {
     color: oklch(from var(--_bg-opaque) var(--_token-l) 0.14 calc(h + 24));
   }
-
+ 
   /* Keywords, at-rules, decorators — strongest cool shift. */
   ::highlight(css-atrule),
   ::highlight(python-keyword),
