@@ -140,6 +140,28 @@ non-interactive children as one unit. Anything interactive resets
 
 ---
 
+## Border & focus
+
+Two colors the engine always computes from the current surface. They're
+not applied to anything by default — components opt in:
+
+- **`--border`** — a neutral-ish line, one step off the surface lightness
+  (inky-darker in light, lifted-lighter in dark) with a sliver of the
+  surface hue. Use it for outlines, dividers, input edges.
+- **`--focus`** — the surface pushed up the color road: same hue, turned
+  loud. The one deliberately attention-grabbing color. Use it for rings.
+
+```css
+.card  { border: 1px solid var(--border); }
+.divider { height: 1px; background: var(--border); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+```
+
+Because both read the inherited surface, a border on a chip, a card, and a
+dark well each resolve correctly against their own surface — no variants.
+
+---
+
 ## Theming
 
 A theme is a flat block of constants — no per-element overrides. Light
@@ -182,6 +204,12 @@ lightness poles), `--fg-chroma` (chromatic ink saturation).
 **State** — `--st-hover` (the one feel driver; active and the `bg=0` kick
 derive from it), `--st-fg-gain` (contrast coupling), `--st-neut`
 (per-theme neutral-road boost — dark's compressed band needs more push).
+
+**Tokens** — `--border-step` (border's lightness step off the surface),
+`--border-chroma` (how much surface hue the border keeps), `--focus-bg`
+(where `--focus` sits on the color road), `--focus-chroma` (its chroma as
+a multiple of `--c-peak`). `--cfg-dark` is `1` in dark themes / `0` in
+light — infrastructure that flips the border direction.
 
 ---
 

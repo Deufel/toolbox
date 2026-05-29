@@ -75,6 +75,13 @@
 @property --st-fg-gain { syntax: "<number>"; inherits: true; initial-value: 0.12 } /* contrast nudge per unit state */
 @property --st-neut    { syntax: "<number>"; inherits: true; initial-value: 1 }    /* neutral-road boost (per theme; dark band is compressed) */
 
+/* ── THEME CONSTANTS — derived tokens (border / focus) ─────────────── */
+@property --cfg-dark      { syntax: "<number>";     inherits: true; initial-value: 0 }     /* 1 in dark themes; flips the border direction */
+@property --border-step   { syntax: "<percentage>"; inherits: true; initial-value: 20% }   /* border lightness step off the surface */
+@property --border-chroma { syntax: "<number>";     inherits: true; initial-value: 0.6 }   /* how much of the surface hue the border keeps */
+@property --focus-bg      { syntax: "<number>";     inherits: true; initial-value: 0.7 }   /* where --focus sits on the color road (loud) */
+@property --focus-chroma  { syntax: "<number>";     inherits: true; initial-value: 1.75 }  /* --focus chroma as a multiple of --c-peak */
+
 /* ── INTERMEDIATES ─────────────────────────────────────────────────── */
 @property --_h     { syntax: "<number>";     inherits: false; initial-value: 255 }
 @property --_sp    { syntax: "<number>";     inherits: false; initial-value: 0 }
@@ -96,6 +103,8 @@
 @property --_chr-l { syntax: "<percentage>"; inherits: false; initial-value: 45% }
 @property --_fg-l  { syntax: "<percentage>"; inherits: false; initial-value: 16% }
 @property --_fg-c  { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_brd-l   { syntax: "<percentage>"; inherits: false; initial-value: 84% }
+@property --_focus-c { syntax: "<number>";     inherits: false; initial-value: 0.1 }
 
 
 /* ════════════════════════════════════════════════════════════════════
@@ -104,6 +113,7 @@
 :root {
   color-scheme: light;
   --c-tint: 0.03;
+  --cfg-dark: 0;
   --surf-l: var(--_bg-l);   /* base surface = default contrast target */
 
   /* LIGHT (working defaults) */
@@ -115,14 +125,16 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     color-scheme: dark;
+    --cfg-dark: 1;
     --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut);
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
+  --cfg-dark: 1;
   --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut);
 }
-:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="light"] { color-scheme: light; --cfg-dark: 0; }
 
 
 /* ════════════════════════════════════════════════════════════════════
@@ -159,6 +171,15 @@
   --_fg-c: calc(var(--_bg-c) + var(--_fg-neg)*(0 - var(--_bg-c)) + var(--_fg-pos)*(var(--fg-chroma) - var(--_bg-c)));
 
   color: oklch(var(--_fg-l) var(--_fg-c) var(--_h));
+
+  /* derived tokens — always computed, components opt in by using them.
+     --border: a step off the surface lightness (down in light, up in dark
+       via --cfg-dark), keeping a sliver of the surface hue.
+     --focus:  the surface pushed up the color road — same hue, turned loud. */
+  --_brd-l: calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * var(--border-step));
+  --border: oklch(var(--_brd-l) calc(var(--_bg-c) + var(--c-peak) * var(--border-chroma) * 0.25) var(--_h));
+  --_focus-c: calc(var(--c-peak) * var(--focus-chroma));
+  --focus: oklch(calc(var(--l-base) + var(--focus-bg)*(var(--l-color) - var(--l-base))) var(--_focus-c) var(--_h));
 }
 
 /* ── PAINTER ── set --bg + add .bg to fill; exports surface L to subtree */
