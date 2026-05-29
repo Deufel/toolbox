@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>color.css · six specimens</title>
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   ENGINE (color.css) — color scoped to .screen so the lab chrome stays plain
+   ════════════════════════════════════════════════════════════════════ */
+@property --bg{syntax:"<number>";inherits:false;initial-value:0}
+@property --fg{syntax:"<number>";inherits:true;initial-value:-0.85}
+@property --hue{syntax:"<number>";inherits:true;initial-value:255}
+@property --hue-shift{syntax:"<number>";inherits:true;initial-value:0}
+@property --hue-lock{syntax:"*";inherits:true}
+@property --surface-chroma{syntax:"<number>";inherits:true;initial-value:0.4}
+@property --state{syntax:"<number>";inherits:true;initial-value:0}
+@property --l-base{syntax:"<percentage>";inherits:true;initial-value:98%}
+@property --l-floor{syntax:"<percentage>";inherits:true;initial-value:85%}
+@property --l-color{syntax:"<percentage>";inherits:true;initial-value:50%}
+@property --c-peak{syntax:"<number>";inherits:true;initial-value:0.08}
+@property --surf-curve{syntax:"<number>";inherits:true;initial-value:1}
+@property --c-tint{syntax:"<number>";inherits:true;initial-value:0.03}
+@property --fg-flip{syntax:"<percentage>";inherits:true;initial-value:60%}
+@property --fg-ink-d{syntax:"<percentage>";inherits:true;initial-value:16%}
+@property --fg-ink-l{syntax:"<percentage>";inherits:true;initial-value:96%}
+@property --fg-chr-d{syntax:"<percentage>";inherits:true;initial-value:45%}
+@property --fg-chr-l{syntax:"<percentage>";inherits:true;initial-value:80%}
+@property --fg-chroma{syntax:"<number>";inherits:true;initial-value:0.11}
+@property --st-hover{syntax:"<number>";inherits:true;initial-value:0.35}
+@property --st-fg-gain{syntax:"<number>";inherits:true;initial-value:0.12}
+@property --st-neut{syntax:"<number>";inherits:true;initial-value:1}
+@property --_h{syntax:"<number>";inherits:false;initial-value:255}
+@property --_sp{syntax:"<number>";inherits:false;initial-value:0}
+@property --_sn{syntax:"<number>";inherits:false;initial-value:0}
+@property --_bgs{syntax:"<number>";inherits:false;initial-value:0}
+@property --_fgs{syntax:"<number>";inherits:false;initial-value:-0.85}
+@property --_n{syntax:"<number>";inherits:false;initial-value:0}
+@property --_ne{syntax:"<number>";inherits:false;initial-value:0}
+@property --_p{syntax:"<number>";inherits:false;initial-value:0}
+@property --_tint{syntax:"<number>";inherits:false;initial-value:0.012}
+@property --_bg-l{syntax:"<percentage>";inherits:false;initial-value:98%}
+@property --_bg-c{syntax:"<number>";inherits:false;initial-value:0.012}
+@property --_bg{syntax:"<color>";inherits:false;initial-value:oklch(98% 0.012 255)}
+@property --surf-l{syntax:"<percentage>";inherits:true;initial-value:98%}
+@property --_fg-up{syntax:"<number>";inherits:false;initial-value:0}
+@property --_fg-neg{syntax:"<number>";inherits:false;initial-value:0}
+@property --_fg-pos{syntax:"<number>";inherits:false;initial-value:0}
+@property --_ink-l{syntax:"<percentage>";inherits:false;initial-value:16%}
+@property --_chr-l{syntax:"<percentage>";inherits:false;initial-value:45%}
+@property --_fg-l{syntax:"<percentage>";inherits:false;initial-value:16%}
+@property --_fg-c{syntax:"<number>";inherits:false;initial-value:0}
+
+:root{ --c-tint:0.03; --surf-l:var(--_bg-l); }
+
+:where(*){
+  --_h: var(--hue-lock, calc(var(--hue) + var(--hue-shift)));
+  --_sp: clamp(0, var(--bg), 1);
+  --_sn: clamp(0, calc(-1 * var(--bg)), 1);
+  --_bgs: calc( var(--_sp)*(1 - var(--state)) - var(--_sn)*(1 - var(--state)*var(--st-neut)) + var(--state)*var(--st-hover) );
+  --_fgs: calc( var(--fg) * (1 + var(--state)*var(--st-fg-gain)) );
+  --_n: clamp(0, calc(-1 * var(--_bgs)), 1);
+  --_ne: pow(var(--_n), var(--surf-curve));
+  --_p: clamp(0, var(--_bgs), 1);
+  --_tint: calc(var(--surface-chroma) * var(--c-tint));
+  --_bg-l: calc(var(--l-base) + var(--_p)*(var(--l-color) - var(--l-base)) + var(--_ne)*(min(var(--l-floor), var(--l-base)) - var(--l-base)));
+  --_bg-c: calc(var(--_tint) + var(--_p)*(var(--c-peak) - var(--_tint)));
+  --_bg: oklch(var(--_bg-l) var(--_bg-c) var(--_h));
+  --_fg-up: clamp(0, calc((var(--fg-flip) - var(--surf-l)) / 1% * 10), 1);
+  --_fg-neg: clamp(0, calc(-1 * var(--_fgs)), 1);
+  --_fg-pos: clamp(0, var(--_fgs), 1);
+  --_ink-l: calc(var(--fg-ink-d) + var(--_fg-up)*(var(--fg-ink-l) - var(--fg-ink-d)));
+  --_chr-l: calc(var(--fg-chr-d) + var(--_fg-up)*(var(--fg-chr-l) - var(--fg-chr-d)));
+  --_fg-l: calc(var(--surf-l) + var(--_fg-neg)*(var(--_ink-l) - var(--surf-l)) + var(--_fg-pos)*(var(--_chr-l) - var(--surf-l)));
+  --_fg-c: calc(var(--_bg-c) + var(--_fg-neg)*(0 - var(--_bg-c)) + var(--_fg-pos)*(var(--fg-chroma) - var(--_bg-c)));
+}
+.bg{ background-color:var(--_bg); --surf-l:var(--_bg-l); }
+.screen, .screen :where(*){ color: oklch(var(--_fg-l) var(--_fg-c) var(--_h)); }
+
+.screen :where(button,a,[role="button"],.clickable,.hoverable):not([disabled]):not([aria-disabled="true"]){ --state:0 }
+.screen :where(button,a,[role="button"],.clickable,.hoverable):not([disabled]):not([aria-disabled="true"]):hover{ --state:var(--st-hover) }
+.screen :where(button,a,[role="button"],.clickable,.hoverable):not([disabled]):not([aria-disabled="true"]):active{ --state:calc(-2 * var(--st-hover)) }
+.screen :where([disabled],[aria-disabled="true"]){ --fg:-0.3; --surface-chroma:0; cursor:not-allowed }
+.is-success{--hue-lock:145} .is-info{--hue-lock:255} .is-warning{--hue-lock:75} .is-danger{--hue-lock:25}
+
+/* ════════════════════════════════════════════════════════════════════
+   LAB CHROME — restrained editorial; lets the specimens carry all color
+   ════════════════════════════════════════════════════════════════════ */
+*{box-sizing:border-box}
+body{
+  margin:0; padding:40px 28px 64px;
+  background:
+    radial-gradient(120% 80% at 50% -10%, #1b1d22 0%, #0c0d10 60%, #090a0c 100%);
+  color:#c9ccd2; font:13px/1.5 ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  min-height:100vh;
+}
+.lab-head{max-width:1240px;margin:0 auto 36px;text-align:center}
+.lab-head h1{
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  font-weight:600; font-size:clamp(28px,4vw,46px); letter-spacing:-.02em;
+  color:#f4f5f7; margin:0 0 .35rem;
+}
+.lab-head h1 em{font-style:italic;color:#8b90a0}
+.lab-head p{color:#7e8493;max-width:62ch;margin:.4rem auto 0;font-size:13px}
+.lab-head .rule{width:46px;height:2px;background:#3a3d46;margin:18px auto 0}
+
+.grid{max-width:1240px;margin:0 auto;display:grid;gap:26px;
+  grid-template-columns:repeat(auto-fill,minmax(330px,1fr));justify-items:center}
+
+.card{width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px}
+.card .meta{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:0 2px}
+.card .meta .name{font-family:"Iowan Old Style",Georgia,serif;font-style:italic;font-size:17px;color:#eef0f3}
+.card .meta .kind{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6a6f7d}
+
+/* phone frame */
+.phone{position:relative;border-radius:34px;padding:9px;
+  background:linear-gradient(145deg,#26282e,#131419);
+  box-shadow:0 1px 0 #3a3d45 inset,0 30px 60px -28px rgba(0,0,0,.9),0 0 0 1px #000;}
+.phone::after{content:"";position:absolute;top:15px;left:50%;translate:-50% 0;
+  width:54px;height:5px;border-radius:99px;background:#000a;z-index:3}
+.screen{border-radius:27px;height:560px;overflow:auto;position:relative;
+  scrollbar-width:none;display:flex;flex-direction:column;gap:11px;
+  padding:30px 14px 14px;--bg:-0.85;}
+.screen::-webkit-scrollbar{display:none}
+
+/* controls */
+.ctl{display:flex;align-items:center;gap:10px;padding:0 2px}
+.seg{display:inline-flex;border:1px solid #2c2f37;border-radius:8px;overflow:hidden}
+.seg button{font:inherit;font-size:11px;border:0;background:#141519;color:#8b90a0;padding:5px 11px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:#2a2d35;color:#f0f1f4}
+.hue{flex:1;display:flex;align-items:center;gap:8px}
+.hue label{font-size:10px;letter-spacing:.1em;color:#6a6f7d;text-transform:uppercase}
+.hue input{flex:1;-webkit-appearance:none;appearance:none;height:6px;border-radius:99px;outline:none;
+  background:linear-gradient(90deg,oklch(70% .17 0),oklch(70% .17 60),oklch(70% .17 120),oklch(70% .17 180),oklch(70% .17 240),oklch(70% .17 300),oklch(70% .17 360))}
+.hue input::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;border:2px solid #0008;cursor:pointer}
+.hue input::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:#fff;border:2px solid #0008;cursor:pointer}
+.hue .deg{font-variant-numeric:tabular-nums;color:#8b90a0;width:3.2em;text-align:right;font-size:11px}
+
+/* ── in-screen UI (engine-colored) ── */
+.scr-bar{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:600;--fg:-0.6;padding:0 4px}
+.scr-bar .dots{display:flex;gap:3px} .scr-bar .dots i{width:5px;height:5px;border-radius:50%;background:currentColor;display:block;opacity:.8}
+.scr-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px}
+.scr-top .hi{font-size:10px;--fg:-0.5;letter-spacing:.04em}
+.scr-top .nm{font-size:18px;font-weight:700;--fg:-0.95;font-family:"Iowan Old Style",Georgia,serif}
+.avatar{--bg:0.7;--fg:-1;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;flex:0 0 auto}
+
+.tile{border-radius:var(--radius,14px);padding:13px 14px;display:flex;flex-direction:column;gap:4px}
+.tile .lbl{font-size:10px;--fg:-0.5;letter-spacing:.05em;text-transform:uppercase}
+.hero{ --bg:0; }
+.hero .big{font-size:30px;font-weight:800;--fg:-0.97;letter-spacing:-.02em;line-height:1}
+.hero .delta{display:inline-flex;align-items:center;gap:5px;align-self:flex-start;
+  --bg:0.62;--fg:-1;font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.row2 .tile{--bg:-0.35} .row2 .num{font-size:19px;font-weight:700;--fg:-0.92}
+.row2 .sub{font-size:9px;--fg:0.8;font-weight:700}
+
+.chart{--bg:0;border-radius:var(--radius,14px);padding:13px 14px 11px;display:flex;flex-direction:column;gap:9px}
+.chart .ttl{font-size:10px;--fg:-0.5;letter-spacing:.05em;text-transform:uppercase;display:flex;justify-content:space-between}
+.bars{display:flex;align-items:flex-end;gap:5px;height:64px}
+.bars .b{flex:1;border-radius:4px 4px 2px 2px;min-height:6px}
+
+.list{display:flex;flex-direction:column;gap:6px}
+.li{--bg:-0.1;border-radius:var(--radius,12px);padding:9px 11px;display:flex;align-items:center;gap:9px;cursor:pointer}
+.li .dot{width:9px;height:9px;border-radius:50%;--bg:0.65;--fg:-1;flex:0 0 auto}
+.li .t{flex:1;font-size:12px;--fg:-0.85;font-weight:500}
+.li .v{font-size:11px;--fg:-0.55;font-variant-numeric:tabular-nums}
+
+.acts{display:flex;gap:8px}
+.btn{flex:1;font:inherit;font-size:12px;font-weight:700;border:0;border-radius:var(--radius,11px);
+  padding:11px;cursor:pointer;--bg:0.62;--fg:-1}
+.btn.ghost{--bg:0;--fg:-0.85;border:1px solid color-mix(in oklab,currentColor 22%,transparent)}
+.btn[disabled]{cursor:not-allowed}
+.bottomnav{display:flex;justify-content:space-around;padding:9px 4px 2px;margin-top:2px}
+.bottomnav i{width:18px;height:18px;border-radius:5px;background:currentColor;display:block;--fg:-0.4}
+.bottomnav i:first-child{--fg:0.85}
+.prog{height:6px;border-radius:99px;--bg:0.25;overflow:hidden}
+.prog>div{height:100%;border-radius:99px;--bg:0.7;width:68%}
+</style>
+</head>
+<body>
+  <header class="lab-head">
+    <h1>One engine, <em>six identities</em></h1>
+    <div class="rule"></div>
+    <p>Every screen below is the same markup driven by the same OKLCH formula. Each specimen differs only in its theme constants. Drag a hue, flip light/dark — the whole screen re-resolves: surfaces, contrasting ink, chips, states.</p>
+  </header>
+  <main class="grid" id="grid"></main>
+
+<script>
+/* Each preset is just a block of engine constants for light + dark.
+   --radius is the only non-engine token (component corner vibe). */
+const PRESETS = [
+  { name:"Stripe", kind:"approximation", hue:262, defaultMode:"light",
+    light:{radius:"12px", lBase:100,lFloor:93,lColor:50,cPeak:0.16,surfCurve:1,cTint:0.03,surfaceChroma:0.28,stNeut:1},
+    dark: {radius:"12px", lBase:19,lFloor:9, lColor:74,cPeak:0.15,surfCurve:3,cTint:0.045,surfaceChroma:0.55,stNeut:3} },
+
+  { name:"Material", kind:"approximation", hue:265, defaultMode:"light",
+    light:{radius:"20px", lBase:99,lFloor:90,lColor:48,cPeak:0.17,surfCurve:1,cTint:0.05,surfaceChroma:0.75,stNeut:1},
+    dark: {radius:"20px", lBase:23,lFloor:12,lColor:78,cPeak:0.16,surfCurve:3,cTint:0.05,surfaceChroma:0.85,stNeut:3} },
+
+  { name:"Carbon", kind:"approximation", hue:262, defaultMode:"dark",
+    light:{radius:"2px",  lBase:100,lFloor:91,lColor:47,cPeak:0.16,surfCurve:1,cTint:0.018,surfaceChroma:0.14,stNeut:1},
+    dark: {radius:"2px",  lBase:17,lFloor:6, lColor:72,cPeak:0.16,surfCurve:3,cTint:0.02,surfaceChroma:0.2,stNeut:3} },
+
+  { name:"Dark Amber", kind:"extreme · rich", hue:74, defaultMode:"dark",
+    light:{radius:"13px", lBase:97,lFloor:86,lColor:56,cPeak:0.17,surfCurve:1,cTint:0.06,surfaceChroma:0.85,stNeut:1},
+    dark: {radius:"13px", lBase:17,lFloor:5, lColor:80,cPeak:0.19,surfCurve:3,cTint:0.07,surfaceChroma:1,stNeut:3} },
+
+  { name:"Cyberpunk", kind:"extreme · neon", hue:103, defaultMode:"dark",
+    light:{radius:"3px",  lBase:98,lFloor:87,lColor:62,cPeak:0.2,surfCurve:1,cTint:0.04,surfaceChroma:0.55,stNeut:1},
+    dark: {radius:"3px",  lBase:15,lFloor:4, lColor:90,cPeak:0.22,surfCurve:3,cTint:0.05,surfaceChroma:0.65,stNeut:3.4} },
+
+  { name:"Infrared", kind:"extreme · heat", hue:21, defaultMode:"dark",
+    light:{radius:"15px", lBase:98,lFloor:87,lColor:52,cPeak:0.18,surfCurve:1,cTint:0.05,surfaceChroma:0.8,stNeut:1},
+    dark: {radius:"15px", lBase:15,lFloor:4, lColor:70,cPeak:0.21,surfCurve:3,cTint:0.08,surfaceChroma:1,stNeut:3.2} },
+];
+
+const BARH = [46,68,40,82,58,92,64];
+
+function screenUI(p){
+  return `
+  <div class="scr-bar"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+  <div class="scr-top">
+    <div><div class="hi">Good morning</div><div class="nm">${p.name}</div></div>
+    <div class="avatar bg">${p.name[0]}</div>
+  </div>
+  <div class="tile hero bg">
+    <div class="lbl">Total balance</div>
+    <div class="big">$48,250</div>
+    <span class="delta bg">▲ 12.4% this month</span>
+  </div>
+  <div class="row2">
+    <div class="tile bg"><div class="lbl">Income</div><div class="num">$9,120</div><div class="sub">+4.2%</div></div>
+    <div class="tile bg"><div class="lbl">Spending</div><div class="num">$3,540</div><div class="sub">−1.8%</div></div>
+  </div>
+  <div class="chart bg">
+    <div class="ttl"><span>Weekly flow</span><span>7d</span></div>
+    <div class="bars">${BARH.map((h,i)=>`<div class="b bg" style="--bg:${(0.34+i*0.11).toFixed(2)};height:${h}%"></div>`).join("")}</div>
+  </div>
+  <div class="list">
+    <div class="li bg hoverable"><span class="dot bg is-success"></span><span class="t">Payout cleared</span><span class="v">+$1,200</span></div>
+    <div class="li bg hoverable"><span class="dot bg is-warning"></span><span class="t">Review pending</span><span class="v">$320</span></div>
+    <div class="li bg hoverable"><span class="dot bg is-danger"></span><span class="t">Card declined</span><span class="v">−$45</span></div>
+  </div>
+  <div class="prog bg"><div class="bg"></div></div>
+  <div class="acts">
+    <button class="btn bg">Send</button>
+    <button class="btn bg ghost">Request</button>
+    <button class="btn bg" disabled>Locked</button>
+  </div>
+  <div class="bottomnav"><i></i><i></i><i></i><i></i></div>`;
+}
+
+function applyTheme(screen, p, mode, hue){
+  const t = p[mode];
+  const s = screen.style;
+  s.setProperty('--hue', hue);
+  s.setProperty('--l-base', t.lBase+'%');
+  s.setProperty('--l-floor', t.lFloor+'%');
+  s.setProperty('--l-color', t.lColor+'%');
+  s.setProperty('--c-peak', t.cPeak);
+  s.setProperty('--surf-curve', t.surfCurve);
+  s.setProperty('--c-tint', t.cTint);
+  s.setProperty('--surface-chroma', t.surfaceChroma);
+  s.setProperty('--st-neut', t.stNeut);
+  s.setProperty('--radius', t.radius);
+  s.style; // noop
+  screen.style.colorScheme = mode;
+}
+
+const grid = document.getElementById('grid');
+PRESETS.forEach(p=>{
+  const state = { mode: p.defaultMode, hue: p.hue };
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `
+    <div class="meta"><span class="name">${p.name}</span><span class="kind">${p.kind}</span></div>
+    <div class="phone"><div class="screen bg">${screenUI(p)}</div></div>
+    <div class="ctl">
+      <span class="seg">
+        <button data-m="light" ${state.mode==='light'?'aria-pressed="true"':''}>Light</button>
+        <button data-m="dark"  ${state.mode==='dark' ?'aria-pressed="true"':''}>Dark</button>
+      </span>
+      <span class="hue"><label>Hue</label><input type="range" min="0" max="360" value="${p.hue}"><span class="deg">${p.hue}°</span></span>
+    </div>`;
+  const screen = card.querySelector('.screen');
+  applyTheme(screen, p, state.mode, state.hue);
+
+  card.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{
+    state.mode=b.dataset.m;
+    card.querySelectorAll('.seg button').forEach(x=>x.toggleAttribute('aria-pressed', x.dataset.m===state.mode));
+    applyTheme(screen,p,state.mode,state.hue);
+  });
+  const hue=card.querySelector('.hue input'), deg=card.querySelector('.deg');
+  hue.oninput=()=>{ state.hue=hue.value; deg.textContent=hue.value+'°'; screen.style.setProperty('--hue',hue.value); };
+
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

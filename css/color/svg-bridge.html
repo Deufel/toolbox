@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>color.css · SVG bridge</title>
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   ENGINE (color.css). The whole SVG story is two extra lines at the
+   bottom of this block — see "SVG BRIDGE".
+   ════════════════════════════════════════════════════════════════════ */
+@property --bg{syntax:"<number>";inherits:false;initial-value:0}
+@property --fg{syntax:"<number>";inherits:true;initial-value:-0.85}
+@property --hue{syntax:"<number>";inherits:true;initial-value:255}
+@property --hue-shift{syntax:"<number>";inherits:true;initial-value:0}
+@property --hue-lock{syntax:"*";inherits:true}
+@property --surface-chroma{syntax:"<number>";inherits:true;initial-value:0.4}
+@property --state{syntax:"<number>";inherits:true;initial-value:0}
+@property --l-base{syntax:"<percentage>";inherits:true;initial-value:98%}
+@property --l-floor{syntax:"<percentage>";inherits:true;initial-value:85%}
+@property --l-color{syntax:"<percentage>";inherits:true;initial-value:50%}
+@property --c-peak{syntax:"<number>";inherits:true;initial-value:0.08}
+@property --surf-curve{syntax:"<number>";inherits:true;initial-value:1}
+@property --c-tint{syntax:"<number>";inherits:true;initial-value:0.03}
+@property --fg-flip{syntax:"<percentage>";inherits:true;initial-value:60%}
+@property --fg-ink-d{syntax:"<percentage>";inherits:true;initial-value:16%}
+@property --fg-ink-l{syntax:"<percentage>";inherits:true;initial-value:96%}
+@property --fg-chr-d{syntax:"<percentage>";inherits:true;initial-value:45%}
+@property --fg-chr-l{syntax:"<percentage>";inherits:true;initial-value:80%}
+@property --fg-chroma{syntax:"<number>";inherits:true;initial-value:0.11}
+@property --st-hover{syntax:"<number>";inherits:true;initial-value:0.35}
+@property --st-fg-gain{syntax:"<number>";inherits:true;initial-value:0.12}
+@property --st-neut{syntax:"<number>";inherits:true;initial-value:1}
+@property --_h{syntax:"<number>";inherits:false;initial-value:255}
+@property --_sp{syntax:"<number>";inherits:false;initial-value:0}
+@property --_sn{syntax:"<number>";inherits:false;initial-value:0}
+@property --_bgs{syntax:"<number>";inherits:false;initial-value:0}
+@property --_fgs{syntax:"<number>";inherits:false;initial-value:-0.85}
+@property --_n{syntax:"<number>";inherits:false;initial-value:0}
+@property --_ne{syntax:"<number>";inherits:false;initial-value:0}
+@property --_p{syntax:"<number>";inherits:false;initial-value:0}
+@property --_tint{syntax:"<number>";inherits:false;initial-value:0.012}
+@property --_bg-l{syntax:"<percentage>";inherits:false;initial-value:98%}
+@property --_bg-c{syntax:"<number>";inherits:false;initial-value:0.012}
+@property --_bg{syntax:"<color>";inherits:false;initial-value:oklch(98% 0.012 255)}
+@property --surf-l{syntax:"<percentage>";inherits:true;initial-value:98%}
+@property --_fg-up{syntax:"<number>";inherits:false;initial-value:0}
+@property --_fg-neg{syntax:"<number>";inherits:false;initial-value:0}
+@property --_fg-pos{syntax:"<number>";inherits:false;initial-value:0}
+@property --_ink-l{syntax:"<percentage>";inherits:false;initial-value:16%}
+@property --_chr-l{syntax:"<percentage>";inherits:false;initial-value:45%}
+@property --_fg-l{syntax:"<percentage>";inherits:false;initial-value:16%}
+@property --_fg-c{syntax:"<number>";inherits:false;initial-value:0}
+
+:root{
+  color-scheme:light; --c-tint:0.03; --surf-l:var(--_bg-l);
+  --l-base:98%; --l-floor:85%; --l-color:50%; --c-peak:0.08; --surf-curve:1; --st-neut:1;
+  --dk-l-base:22%; --dk-l-floor:9%; --dk-l-color:72%; --dk-c-peak:0.10; --dk-surf-curve:3; --dk-st-neut:3;
+}
+[data-theme="dark"]{color-scheme:dark;
+  --l-base:var(--dk-l-base);--l-floor:var(--dk-l-floor);--l-color:var(--dk-l-color);--c-peak:var(--dk-c-peak);--surf-curve:var(--dk-surf-curve);--st-neut:var(--dk-st-neut);}
+[data-theme="light"]{color-scheme:light;}
+
+:where(*){
+  --_h: var(--hue-lock, calc(var(--hue) + var(--hue-shift)));
+  --_sp: clamp(0, var(--bg), 1);
+  --_sn: clamp(0, calc(-1 * var(--bg)), 1);
+  --_bgs: calc( var(--_sp)*(1 - var(--state)) - var(--_sn)*(1 - var(--state)*var(--st-neut)) + var(--state)*var(--st-hover) );
+  --_fgs: calc( var(--fg) * (1 + var(--state)*var(--st-fg-gain)) );
+  --_n: clamp(0, calc(-1 * var(--_bgs)), 1);
+  --_ne: pow(var(--_n), var(--surf-curve));
+  --_p: clamp(0, var(--_bgs), 1);
+  --_tint: calc(var(--surface-chroma) * var(--c-tint));
+  --_bg-l: calc(var(--l-base) + var(--_p)*(var(--l-color) - var(--l-base)) + var(--_ne)*(min(var(--l-floor), var(--l-base)) - var(--l-base)));
+  --_bg-c: calc(var(--_tint) + var(--_p)*(var(--c-peak) - var(--_tint)));
+  --_bg: oklch(var(--_bg-l) var(--_bg-c) var(--_h));
+  --_fg-up: clamp(0, calc((var(--fg-flip) - var(--surf-l)) / 1% * 10), 1);
+  --_fg-neg: clamp(0, calc(-1 * var(--_fgs)), 1);
+  --_fg-pos: clamp(0, var(--_fgs), 1);
+  --_ink-l: calc(var(--fg-ink-d) + var(--_fg-up)*(var(--fg-ink-l) - var(--fg-ink-d)));
+  --_chr-l: calc(var(--fg-chr-d) + var(--_fg-up)*(var(--fg-chr-l) - var(--fg-chr-d)));
+  --_fg-l: calc(var(--surf-l) + var(--_fg-neg)*(var(--_ink-l) - var(--surf-l)) + var(--_fg-pos)*(var(--_chr-l) - var(--surf-l)));
+  --_fg-c: calc(var(--_bg-c) + var(--_fg-neg)*(0 - var(--_bg-c)) + var(--_fg-pos)*(var(--fg-chroma) - var(--_bg-c)));
+}
+.bg{ background-color:var(--_bg); --surf-l:var(--_bg-l); }
+.demo, .demo :where(*){ color: oklch(var(--_fg-l) var(--_fg-c) var(--_h)); }
+
+/* ── SVG BRIDGE ──────────────────────────────────────────────────────
+   SVG has no background. But every shape has a fill, and the engine
+   already computed `color` on every element — so currentColor IS the
+   engine color. One rule turns the whole formula loose on SVG.        */
+.demo svg :where(rect,circle,path,line,polyline,polygon,text,ellipse){ fill: currentColor; }
+
+/* ════════════════ lab chrome (fixed, non-engine) ════════════════ */
+*{box-sizing:border-box}
+body{margin:0;padding:48px 24px 80px;min-height:100vh;color:#c9ccd2;
+  font:13px/1.5 ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  background:radial-gradient(120% 80% at 50% -10%,#1b1d22,#0c0d10 60%,#090a0c)}
+.wrap{max-width:920px;margin:0 auto}
+h1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:600;
+  font-size:clamp(26px,3.4vw,40px);letter-spacing:-.02em;color:#f4f5f7;margin:0 0 .3rem}
+h1 em{font-style:italic;color:#8b90a0}
+.lead{color:#7e8493;max-width:64ch;margin:.3rem 0 28px;font-size:13px}
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.seg{display:inline-flex;border:1px solid #2c2f37;border-radius:8px;overflow:hidden}
+.seg button{font:inherit;font-size:12px;border:0;background:#141519;color:#8b90a0;padding:6px 13px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:#2a2d35;color:#f0f1f4}
+.huectl{flex:1;min-width:220px;display:flex;align-items:center;gap:10px}
+.huectl label{font-size:10px;letter-spacing:.12em;color:#6a6f7d;text-transform:uppercase}
+.huectl input{flex:1;-webkit-appearance:none;appearance:none;height:6px;border-radius:99px;outline:none;
+  background:linear-gradient(90deg,oklch(70% .17 0),oklch(70% .17 60),oklch(70% .17 120),oklch(70% .17 180),oklch(70% .17 240),oklch(70% .17 300),oklch(70% .17 360))}
+.huectl input::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #0008;cursor:pointer}
+.huectl input::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #0008;cursor:pointer}
+.huectl .deg{font-variant-numeric:tabular-nums;color:#9aa1ad;width:3.4em;font-size:12px}
+.chips{display:flex;gap:6px}
+.chips button{font:inherit;font-size:11px;border:1px solid #2c2f37;background:#141519;color:#8b90a0;padding:5px 10px;border-radius:7px;cursor:pointer}
+
+/* ── the themed panel (engine surface) ── */
+.demo{--bg:-0.05;border-radius:16px;padding:22px 22px 18px;box-shadow:0 24px 60px -30px #000c}
+.panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:4px}
+.panel-head .title{font-size:15px;font-weight:700;--fg:-0.95}
+.panel-head .count{font-size:12px;--fg:-0.55}
+.panel-head .count b{--fg:0.85;font-weight:700}
+.map{width:100%;height:auto;display:block;margin:6px 0 4px;overflow:visible}
+.cell{rx:2.4px;transition:transform .12s ease}
+.cell:hover{transform:scale(1.35);transform-box:fill-box;transform-origin:center}
+.lbl{font-size:9px;--fg:-0.5;font-family:ui-monospace,monospace}
+.legend{display:flex;align-items:center;gap:6px;justify-content:flex-end;font-size:10px;--fg:-0.5}
+.legend svg{width:96px;height:13px}
+.streaks{display:flex;gap:10px;margin-top:16px}
+.stat{--bg:-0.35;border-radius:10px;padding:11px 13px;flex:1;display:flex;flex-direction:column;gap:3px}
+.stat .k{font-size:9px;--fg:-0.5;letter-spacing:.05em;text-transform:uppercase}
+.stat .n{font-size:18px;font-weight:700;--fg:-0.92}
+.note{margin-top:26px;font-size:12px;color:#6a6f7d;border-top:1px solid #1e2026;padding-top:14px}
+.note code{background:#15171c;color:#aab0bd;padding:.05em .4em;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SVG via <em>currentColor</em></h1>
+  <p class="lead">SVG has no background — but the engine sets <code style="background:#15171c;color:#aab0bd;padding:.05em .4em;border-radius:4px">color</code> on every element, and one rule (<code style="background:#15171c;color:#aab0bd;padding:.05em .4em;border-radius:4px">fill: currentColor</code>) hands that to every shape. The heatmap below is pure engine: each cell is chromatic ink at <code style="background:#15171c;color:#aab0bd;padding:.05em .4em;border-radius:4px">--fg 0→1</code>. Drag the hue, flip the theme — the whole grid re-resolves.</p>
+
+  <div class="bar">
+    <span class="seg">
+      <button id="t-light" aria-pressed="true">Light</button>
+      <button id="t-dark">Dark</button>
+    </span>
+    <span class="huectl"><label>Hue</label><input id="hue" type="range" min="0" max="360" value="145"><span class="deg" id="deg">145°</span></span>
+    <span class="chips">
+      <button data-h="145">green</button>
+      <button data-h="255">blue</button>
+      <button data-h="25">red</button>
+      <button data-h="75">amber</button>
+    </span>
+  </div>
+
+  <div class="demo bg" id="panel">
+    <div class="panel-head">
+      <span class="title">Contributions</span>
+      <span class="count"><b id="total">0</b> in the last year</span>
+    </div>
+    <svg class="map" id="map" viewBox="0 0 800 122" role="img" aria-label="contribution heatmap"></svg>
+    <div class="legend">Less <svg id="leg" viewBox="0 0 96 13"></svg> More</div>
+    <div class="streaks">
+      <div class="stat bg"><span class="k">Current streak</span><span class="n" id="cur">0 days</span></div>
+      <div class="stat bg"><span class="k">Longest streak</span><span class="n" id="lng">0 days</span></div>
+      <div class="stat bg"><span class="k">Best day</span><span class="n" id="best">—</span></div>
+    </div>
+  </div>
+
+  <p class="note">No <code>.bg</code> anywhere in the SVG — surfaces don't exist there. Every cell, label, and legend square is <code>fill: currentColor</code> resolving the engine's ink. Empty cells use a faint <em>neutral</em> <code>--fg</code> (so they stay grey at any hue, like GitHub); filled cells ramp the <em>chromatic</em> side. The contrast flip still fires, so the ramp re-anchors correctly when you switch to dark.</p>
+</div>
+
+<script>
+  const root=document.documentElement, $=id=>document.getElementById(id);
+  const panel=$('panel');
+
+  // intensity → --fg.  0 = faint neutral (grey at any hue), 1..4 = chromatic ramp
+  const FG=[-0.12, 0.34, 0.55, 0.76, 1.0];
+  const PITCH=15, CELL=11, LEFT=30, TOP=18, WEEKS=53;
+
+  // build a year of weeks ending today
+  const today=new Date(); today.setHours(0,0,0,0);
+  const start=new Date(today); start.setDate(start.getDate()-(WEEKS*7-1) - today.getDay());
+  const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  let total=0, cur=0, lng=0, run=0, bestVal=0, bestDate=null;
+  let cells='', months='', d=new Date(start);
+  let lastMonth=-1;
+  for(let w=0; w<WEEKS; w++){
+    // month label when the first day of a week starts a new month
+    if(d.getMonth()!==lastMonth && d.getDate()<=7){
+      months += `<text class="lbl" x="${LEFT + w*PITCH}" y="12">${MONTHS[d.getMonth()]}</text>`;
+      lastMonth=d.getMonth();
+    }
+    for(let day=0; day<7; day++){
+      const future = d>today;
+      // weighted random intensity
+      const r=Math.random();
+      let lvl = future?0 : r<0.5?0 : r<0.7?1 : r<0.85?2 : r<0.95?3 : 4;
+      const x=LEFT + w*PITCH, y=TOP + day*PITCH;
+      cells += `<rect class="cell" x="${x}" y="${y}" width="${CELL}" height="${CELL}" style="--fg:${FG[lvl]}"><title>${d.toDateString()}: ${lvl?lvl+' contributions':'none'}</title></rect>`;
+      if(!future){
+        const c = lvl===0?0 : [0,2,5,9,14][lvl];
+        total+=c;
+        if(lvl>0){ run++; if(run>lng)lng=run; } else run=0;
+        if(c>bestVal){bestVal=c; bestDate=new Date(d);}
+      }
+      d.setDate(d.getDate()+1);
+    }
+  }
+  cur=run;
+  // weekday labels
+  ['Mon','Wed','Fri'].forEach((t,i)=>{ months+=`<text class="lbl" x="2" y="${TOP+(1+i*2)*PITCH+9}">${t}</text>`; });
+
+  $('map').innerHTML = months + cells;
+  $('total').textContent = total.toLocaleString();
+  $('cur').textContent = cur+' days';
+  $('lng').textContent = lng+' days';
+  $('best').textContent = bestDate? bestDate.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+bestVal : '—';
+
+  // legend ramp
+  $('leg').innerHTML = FG.map((f,i)=>`<rect x="${i*19}" y="1" width="11" height="11" rx="2.4" style="--fg:${f}"></rect>`).join('');
+
+  // controls
+  function theme(m){ panel.setAttribute('data-theme',m); $('t-light').setAttribute('aria-pressed',m==='light'); $('t-dark').setAttribute('aria-pressed',m==='dark'); }
+  $('t-light').onclick=()=>theme('light'); $('t-dark').onclick=()=>theme('dark');
+  function setHue(h){ panel.style.setProperty('--hue',h); $('hue').value=h; $('deg').textContent=h+'°'; }
+  $('hue').oninput=e=>setHue(e.target.value);
+  document.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>setHue(b.dataset.h));
+  theme('light'); setHue(145);
+</script>
+</body>
+</html>
