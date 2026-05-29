@@ -1,0 +1,186 @@
+/* ════════════════════════════════════════════════════════════════════
+   color.css — a small OKLCH color system
+
+   Color is a function of a few inherited numbers. Set the numbers, the
+   formula does the rest: surfaces, contrasting ink, hue reflow, and
+   hover/active states all fall out of the same handful of inputs, and
+   stay theme-correct because they re-run the same math.
+
+   ── PUBLIC API ──────────────────────────────────────────────────────
+     --bg   [-1..0..1]   surface.  <0 neutral road (pages, cards, wells;
+                         0 = brightest/on top, -1 = floor) · >0 color road
+                         (chips, heat; chroma + lightness march to the
+                         color end) · 0 = base.
+     --fg   [-1..0..1]   ink ON the surface.  0 = the surface itself
+                         (invisible) · <0 neutral contrasting ink ·
+                         >0 chromatic contrasting ink · |fg| = strength.
+     --hue  [0..360]     base hue. Inherits — set it on a container to
+                         reflow that whole subtree's color.
+     --hue-shift [0..360] per-element delta from the inherited base hue
+                         (chart series / relative palettes rotate together).
+     --hue-lock  [0..360] absolute hue; overrides hue+shift. Unset by
+                         default. `--hue-lock: initial` re-unlocks a subtree.
+     --surface-chroma [0..1]  neutral tint amount (0 = pure grey).
+     --fg              ink level (see above; also the default text color).
+
+   ── PAINTERS / HOOKS ────────────────────────────────────────────────
+     .bg               paint the computed surface; export it to children.
+     .hoverable        non-interactive surface that lifts as a unit on hover.
+     .clickable        same, for clickable non-button elements.
+     button, a, [role=button]  interactive by default (state islands).
+     .is-success/info/warning/danger   semantic hue locks.
+     [disabled], [aria-disabled=true]  drained ink + washed chroma.
+
+   ── USAGE MAP ───────────────────────────────────────────────────────
+     surfaces ....  --bg -1 → 0          (0 = top of the stack)
+     chips/tags ..  --bg ~0.65 ; label --fg -1
+     data-viz ....  --bg sweep 0 → 1
+     text ........  --fg -0.9 heading · -0.55 body · +0.85 chromatic link
+
+   ── THEMING ─────────────────────────────────────────────────────────
+     A theme is a flat block of constants. Light values are the working
+     defaults; dark values live once in the --dk-* bank; two value-free
+     remap blocks switch the bank in (system preference + manual
+     [data-theme]). To tune a theme, edit only its value block.
+   ════════════════════════════════════════════════════════════════════ */
+
+
+/* ── PUBLIC INPUT ──────────────────────────────────────────────────── */
+@property --bg             { syntax: "<number>"; inherits: false; initial-value: 0 }
+@property --fg             { syntax: "<number>"; inherits: true;  initial-value: -0.85 }
+@property --hue            { syntax: "<number>"; inherits: true;  initial-value: 255 }
+@property --hue-shift      { syntax: "<number>"; inherits: true;  initial-value: 0 }
+@property --hue-lock       { syntax: "*";        inherits: true }   /* no initial → guaranteed-invalid when unset (enables the fallback) */
+@property --surface-chroma { syntax: "<number>"; inherits: true;  initial-value: 0.4 }
+@property --state          { syntax: "<number>"; inherits: true;  initial-value: 0 }   /* +hover · −active; set by triggers */
+
+/* ── THEME CONSTANTS — surface ─────────────────────────────────────── */
+@property --l-base    { syntax: "<percentage>"; inherits: true; initial-value: 98% }
+@property --l-floor   { syntax: "<percentage>"; inherits: true; initial-value: 85% }
+@property --l-color   { syntax: "<percentage>"; inherits: true; initial-value: 50% }
+@property --c-peak    { syntax: "<number>";     inherits: true; initial-value: 0.08 }
+@property --surf-curve{ syntax: "<number>";     inherits: true; initial-value: 1 }
+@property --c-tint    { syntax: "<number>";     inherits: true; initial-value: 0.03 }
+
+/* ── THEME CONSTANTS — ink ─────────────────────────────────────────── */
+@property --fg-flip   { syntax: "<percentage>"; inherits: true; initial-value: 60% }  /* contrast flip point; higher favors light ink */
+@property --fg-ink-d  { syntax: "<percentage>"; inherits: true; initial-value: 16% }
+@property --fg-ink-l  { syntax: "<percentage>"; inherits: true; initial-value: 96% }
+@property --fg-chr-d  { syntax: "<percentage>"; inherits: true; initial-value: 45% }
+@property --fg-chr-l  { syntax: "<percentage>"; inherits: true; initial-value: 80% }
+@property --fg-chroma { syntax: "<number>";     inherits: true; initial-value: 0.11 }
+
+/* ── THEME CONSTANTS — state ───────────────────────────────────────── */
+@property --st-hover   { syntax: "<number>"; inherits: true; initial-value: 0.35 } /* THE driver. active = -2× this; bg=0 kick = this */
+@property --st-fg-gain { syntax: "<number>"; inherits: true; initial-value: 0.12 } /* contrast nudge per unit state */
+@property --st-neut    { syntax: "<number>"; inherits: true; initial-value: 1 }    /* neutral-road boost (per theme; dark band is compressed) */
+
+/* ── INTERMEDIATES ─────────────────────────────────────────────────── */
+@property --_h     { syntax: "<number>";     inherits: false; initial-value: 255 }
+@property --_sp    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_sn    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_bgs   { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fgs   { syntax: "<number>";     inherits: false; initial-value: -0.85 }
+@property --_n     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_ne    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_p     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_tint  { syntax: "<number>";     inherits: false; initial-value: 0.012 }
+@property --_bg-l  { syntax: "<percentage>"; inherits: false; initial-value: 98% }
+@property --_bg-c  { syntax: "<number>";     inherits: false; initial-value: 0.012 }
+@property --_bg    { syntax: "<color>";      inherits: false; initial-value: oklch(98% 0.012 255) }
+@property --surf-l { syntax: "<percentage>"; inherits: true;  initial-value: 98% }  /* inherited surface L = ink's contrast target */
+@property --_fg-up { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-neg{ syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-pos{ syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_ink-l { syntax: "<percentage>"; inherits: false; initial-value: 16% }
+@property --_chr-l { syntax: "<percentage>"; inherits: false; initial-value: 45% }
+@property --_fg-l  { syntax: "<percentage>"; inherits: false; initial-value: 16% }
+@property --_fg-c  { syntax: "<number>";     inherits: false; initial-value: 0 }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   THEME — edit only the value blocks; remaps are value-free boilerplate
+   ════════════════════════════════════════════════════════════════════ */
+:root {
+  color-scheme: light;
+  --c-tint: 0.03;
+  --surf-l: var(--_bg-l);   /* base surface = default contrast target */
+
+  /* LIGHT (working defaults) */
+  --l-base: 98%; --l-floor: 85%; --l-color: 50%; --c-peak: 0.08; --surf-curve: 1; --st-neut: 1;
+
+  /* DARK bank (once) */
+  --dk-l-base: 24%; --dk-l-floor: 6%; --dk-l-color: 69%; --dk-c-peak: 0.07; --dk-surf-curve: 3; --dk-st-neut: 3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut);
+}
+:root[data-theme="light"] { color-scheme: light; }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   FORMULA
+   ════════════════════════════════════════════════════════════════════ */
+:where(*) {
+  /* hue: lock overrides, else base + relative shift */
+  --_h: var(--hue-lock, calc(var(--hue) + var(--hue-shift)));
+
+  /* state → bg toward/away from 0, split by road so the neutral boost
+     (--st-neut) only touches bg<0; kick keeps bg=0 elements moving.
+     fg contrast rides the same state (up on hover, down on active). */
+  --_sp: clamp(0, var(--bg), 1);
+  --_sn: clamp(0, calc(-1 * var(--bg)), 1);
+  --_bgs: calc( var(--_sp)*(1 - var(--state)) - var(--_sn)*(1 - var(--state)*var(--st-neut)) + var(--state)*var(--st-hover) );
+  --_fgs: calc( var(--fg) * (1 + var(--state)*var(--st-fg-gain)) );
+
+  /* surface */
+  --_n:  clamp(0, calc(-1 * var(--_bgs)), 1);
+  --_ne: pow(var(--_n), var(--surf-curve));
+  --_p:  clamp(0, var(--_bgs), 1);
+  --_tint: calc(var(--surface-chroma) * var(--c-tint));
+  --_bg-l: calc(var(--l-base) + var(--_p)*(var(--l-color) - var(--l-base)) + var(--_ne)*(min(var(--l-floor), var(--l-base)) - var(--l-base)));
+  --_bg-c: calc(var(--_tint) + var(--_p)*(var(--c-peak) - var(--_tint)));
+  --_bg: oklch(var(--_bg-l) var(--_bg-c) var(--_h));
+
+  /* ink: biasable contrast flip → pole lightnesses → lerp surface→pole by |fg| */
+  --_fg-up:  clamp(0, calc((var(--fg-flip) - var(--surf-l)) / 1% * 10), 1);
+  --_fg-neg: clamp(0, calc(-1 * var(--_fgs)), 1);
+  --_fg-pos: clamp(0, var(--_fgs), 1);
+  --_ink-l: calc(var(--fg-ink-d) + var(--_fg-up)*(var(--fg-ink-l) - var(--fg-ink-d)));
+  --_chr-l: calc(var(--fg-chr-d) + var(--_fg-up)*(var(--fg-chr-l) - var(--fg-chr-d)));
+  --_fg-l: calc(var(--surf-l) + var(--_fg-neg)*(var(--_ink-l) - var(--surf-l)) + var(--_fg-pos)*(var(--_chr-l) - var(--surf-l)));
+  --_fg-c: calc(var(--_bg-c) + var(--_fg-neg)*(0 - var(--_bg-c)) + var(--_fg-pos)*(var(--fg-chroma) - var(--_bg-c)));
+
+  color: oklch(var(--_fg-l) var(--_fg-c) var(--_h));
+}
+
+/* ── PAINTER ── set --bg + add .bg to fill; exports surface L to subtree */
+.bg { background-color: var(--_bg); --surf-l: var(--_bg-l); }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   STATE TRIGGERS
+   Interactive elements are ISLANDS: they reset --state so they don't ride
+   an ancestor's hover, then respond to their own pointer state. A
+   .hoverable surface lifts as a unit, carrying its non-interactive
+   children via the inheriting --state.
+   ════════════════════════════════════════════════════════════════════ */
+:where(button, a, [role="button"], .clickable, .hoverable):not([disabled]):not([aria-disabled="true"]) { --state: 0; }
+:where(button, a, [role="button"], .clickable, .hoverable):not([disabled]):not([aria-disabled="true"]):hover  { --state: var(--st-hover); }
+:where(button, a, [role="button"], .clickable, .hoverable):not([disabled]):not([aria-disabled="true"]):active { --state: calc(-2 * var(--st-hover)); }
+
+/* ── DISABLED ── drain ink toward the surface + wash chroma toward grey */
+:where([disabled], [aria-disabled="true"]) { --fg: -0.3; --surface-chroma: 0; cursor: not-allowed; }
+
+/* ── SEMANTIC HUE LOCKS ── */
+.is-success { --hue-lock: 145 }
+.is-info    { --hue-lock: 255 }
+.is-warning { --hue-lock: 75  }
+.is-danger  { --hue-lock: 25  }
