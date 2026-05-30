@@ -1,0 +1,76 @@
+/* ════════════════════════════════════════════════════════════════════
+   reset.css — minimal, modern-only, and DEFERENTIAL to the styleAPIs.
+
+   This reset deliberately does NOT set font-size or line-height: type.css
+   owns those on :where(*). It avoids px/rem spacing: the space law says
+   spacing is em/lh, derived from type. So the job here is only:
+   box model, margin-zeroing, media/form sanity, a few structural fixes.
+
+   It also declares the layer spine — the authoritative order for the
+   whole system. Everything else slots into these names.
+   ════════════════════════════════════════════════════════════════════ */
+
+@layer reset, styleAPI.color, styleAPI.type, theme, base,
+       classAPI.page, classAPI.layout, classAPI.components,
+       classAPI.utility, classAPI.viewport;
+
+@layer reset {
+  /* box model + kill default margins (no font-size/line-height here) */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    background-repeat: no-repeat;
+  }
+
+  /* let interpolate-size enable height:auto transitions, etc. */
+  :where(html) { interpolate-size: allow-keywords; }
+
+  /* no color-scheme / line-height set at html: theme decides the first
+     via [data-ui-theme] + prefers-color-scheme, type.css owns the second.
+     text-size-adjust off so our fluid scale isn't double-adjusted. */
+  :where(html) {
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+  }
+
+  /* zero the block-end margin browsers add to flow content (we space
+     via layout primitives + em/lh, never default margins) */
+  :where(body, p, h1, h2, h3, h4, h5, h6, figure, blockquote, dl, dd, ul, ol) {
+    margin-block: 0;
+  }
+
+  /* media: block-level, never overflow, preserve aspect */
+  :where(img, picture, svg, video, canvas) {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+  }
+  :where(svg) { color: currentColor; }  /* harmless dup of base; keeps raw SVG sane pre-base */
+
+  /* forms inherit typography (so type.css reaches them) and color */
+  :where(input, button, textarea, select) {
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+  }
+  :where(textarea) { resize: vertical; }
+
+  /* sensible interaction defaults */
+  :where(button, [role="button"], label, summary,
+         input[type="file"]::file-selector-button) { cursor: pointer; }
+  :where(:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
+
+  /* structural niceties */
+  :where(a) { color: inherit; text-decoration: none; }
+  :where(ul, ol):where([role="list"]) { list-style: none; padding: 0; }
+  :where(table) { border-collapse: collapse; }
+  :where(summary) { list-style: none; }
+  :where(:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  /* wrap long words; balance/pretty are cheap modern wins */
+  :where(body) { overflow-wrap: break-word; }
+  :where(p, li) { text-wrap: pretty; }
+  :where(h1, h2, h3, h4, h5, h6) { text-wrap: balance; }
+}

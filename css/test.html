@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" data-ui-theme="light" data-ui-size="md" data-ui-motion="on">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>system · migration test</title>
+<link rel="stylesheet" href="system.css">
+<style>
+  /* page-local scaffolding only — proving the system, not restyling it.
+     Surfaces/spacing come from the system; these just give the shell
+     visible structure while components don't exist yet. */
+  .pg-header, .pg-navigation, .pg-aside, .pg-main-header, .pg-footer { padding: calc(0.5 * 1lh) 1em; }
+  .pg-main { padding: 1lh 1em; }
+  .panel { padding: calc(0.6 * 1lh) 0.9em; border-radius: var(--cfg-radius); }
+  .swatch { block-size: 2.2lh; border-radius: var(--cfg-radius); display: grid; place-items: center; --type: -1; font-weight: 600; }
+  .chip { padding: 0.2em 0.7em; border-radius: 99px; --type: -1; font-weight: 600; }
+  .nav-item { padding: 0.35em 0.6em; border-radius: var(--cfg-radius); --type: -1; }
+  .btn { padding: 0.45em 0.9em; border-radius: var(--cfg-radius); border: 1px solid var(--border); --type: -1; font-weight: 600; }
+  select { font-family: var(--font-mono); }
+  .seg { display: inline-flex; gap: 0.2em; }
+  .lab { --type: -1; --fg: -0.55; }
+  .barchart { display: flex; align-items: flex-end; gap: 0.3em; height: 5lh; }
+  .barchart > div { flex: 1; border-radius: var(--cfg-radius) var(--cfg-radius) 0 0; }
+</style>
+</head>
+<body>
+  <div class="page centered">
+
+    <header class="pg-header bg" style="--bg:-0.15">
+      <div class="lcr">
+        <strong class="row" style="gap:0.4em"><span class="swatch bg is-info" style="--bg:0.7;inline-size:1.6lh">◆</span> Acme Console</strong>
+        <nav class="row" style="gap:0.1em">
+          <a class="nav-item clickable bg" style="--bg:0">Overview</a>
+          <a class="nav-item clickable">Reports</a>
+          <a class="nav-item clickable">Settings</a>
+        </nav>
+        <div class="row" style="gap:0.4em;justify-self:end">
+          <label class="lab">theme
+            <select id="sw-theme"><option value="light">light</option><option value="dark">dark</option><option value="">system</option></select>
+          </label>
+          <label class="lab">size
+            <select id="sw-size"><option>sm</option><option selected>md</option><option>lg</option></select>
+          </label>
+          <label class="lab">motion
+            <select id="sw-motion"><option>on</option><option>off</option><option>debug</option></select>
+          </label>
+          <span class="swatch bg" style="--bg:0.7;inline-size:2.2lh">A</span>
+        </div>
+      </div>
+    </header>
+
+    <nav class="pg-navigation bg" style="--bg:-0.35">
+      <div class="column" style="min-inline-size:11em">
+        <span class="lab">WORKSPACE</span>
+        <a class="nav-item clickable bg" style="--bg:0">Dashboard</a>
+        <a class="nav-item clickable">Customers</a>
+        <a class="nav-item clickable">Invoices</a>
+        <a class="nav-item clickable">Payouts</a>
+        <hr>
+        <span class="lab">SUPPORT</span>
+        <a class="nav-item clickable">Docs</a>
+        <a class="nav-item clickable">Status</a>
+      </div>
+    </nav>
+
+    <div class="pg-main-header bg" style="--bg:-0.05">
+      <div class="spread">
+        <div class="column" style="gap:0">
+          <h3 style="--type:3;margin:0">Dashboard</h3>
+          <span class="lab">Last 30 days · live</span>
+        </div>
+        <div class="row" style="gap:0.4em">
+          <button class="btn bg" style="--bg:0">Export</button>
+          <button class="btn bg" style="--bg:0.62;--fg:-1">New report</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="pg-main">
+      <div class="column" style="gap:1lh">
+
+        <!-- metric row -->
+        <div class="grid" style="--grid-min:13rem">
+          <div class="panel bg" style="--bg:0">
+            <div class="lab">Total balance</div>
+            <div style="--type:4;font-weight:800">$48,250</div>
+            <span class="chip bg is-success" style="--bg:0.6;--fg:-1">▲ 12.4%</span>
+          </div>
+          <div class="panel bg" style="--bg:0">
+            <div class="lab">Income</div>
+            <div style="--type:4;font-weight:800">$9,120</div>
+            <span class="chip bg" style="--bg:0.55;--fg:-1">+4.2%</span>
+          </div>
+          <div class="panel bg" style="--bg:0">
+            <div class="lab">Spending</div>
+            <div style="--type:4;font-weight:800">$3,540</div>
+            <span class="chip bg is-warning" style="--bg:0.6;--fg:-1">−1.8%</span>
+          </div>
+        </div>
+
+        <!-- chart -->
+        <div class="panel bg" style="--bg:0">
+          <div class="spread"><strong>Weekly flow</strong><span class="lab">7d</span></div>
+          <div class="barchart" id="bars" style="margin-top:0.5lh"></div>
+        </div>
+
+        <!-- list with hover -->
+        <div class="panel bg" style="--bg:0">
+          <strong>Recent activity</strong>
+          <div class="column" style="margin-top:0.4lh">
+            <div class="flank clickable bg" style="--bg:-0.1;padding:0.4em 0.6em;border-radius:var(--cfg-radius)">
+              <span class="swatch bg is-success" style="--bg:0.65;inline-size:0.9lh;block-size:0.9lh;border-radius:50%"></span>
+              <div class="spread fill"><span>Payout cleared</span><span class="lab">+$1,200</span></div>
+            </div>
+            <div class="flank clickable bg" style="--bg:-0.1;padding:0.4em 0.6em;border-radius:var(--cfg-radius)">
+              <span class="swatch bg is-warning" style="--bg:0.65;inline-size:0.9lh;block-size:0.9lh;border-radius:50%"></span>
+              <div class="spread fill"><span>Review pending</span><span class="lab">$320</span></div>
+            </div>
+            <div class="flank clickable bg" style="--bg:-0.1;padding:0.4em 0.6em;border-radius:var(--cfg-radius)">
+              <span class="swatch bg is-danger" style="--bg:0.65;inline-size:0.9lh;block-size:0.9lh;border-radius:50%"></span>
+              <div class="spread fill"><span>Card declined</span><span class="lab">−$45</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- form sanity (base element defaults) -->
+        <div class="panel bg" style="--bg:0">
+          <strong>Unstyled form (base layer)</strong>
+          <div class="column" style="margin-top:0.5lh;max-inline-size:24em">
+            <input placeholder="Email address">
+            <textarea placeholder="A note…" rows="2"></textarea>
+            <select><option>Choose a plan</option><option>Pro</option><option>Team</option></select>
+            <div class="row" style="gap:0.5em">
+              <button class="btn bg" style="--bg:0.62;--fg:-1">Save</button>
+              <button class="btn bg" style="--bg:0">Cancel</button>
+              <button class="btn bg" style="--bg:0" disabled>Disabled</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <aside class="pg-aside bg" style="--bg:-0.35">
+      <div class="column" style="min-inline-size:12em">
+        <span class="lab">SURFACE LADDER</span>
+        <div class="swatch bg" style="--bg:-1">−1 floor</div>
+        <div class="swatch bg" style="--bg:-0.5">−0.5</div>
+        <div class="swatch bg" style="--bg:0">0 top</div>
+        <div class="swatch bg" style="--bg:0.4;--fg:-1">0.4</div>
+        <div class="swatch bg" style="--bg:0.7;--fg:-1">0.7 chip</div>
+        <div class="swatch bg" style="--bg:1;--fg:-1">1 loud</div>
+        <span class="lab" style="margin-top:0.4lh">INK ON SURFACE</span>
+        <div class="panel bg" style="--bg:0">
+          <div style="--fg:-0.95;font-weight:700">Heading ink</div>
+          <div style="--fg:-0.55">Muted body ink</div>
+          <div style="--fg:0.85;font-weight:600">Chromatic ink</div>
+        </div>
+      </div>
+    </aside>
+
+    <footer class="pg-footer bg" style="--bg:-0.15">
+      <div class="spread"><span class="lab">system.css · migration test</span><span class="lab">build holds: page · layout · color · type</span></div>
+    </footer>
+
+  </div>
+
+<script>
+  const html=document.documentElement, $=id=>document.getElementById(id);
+  $('sw-theme').onchange=e=>{ const v=e.target.value; v?html.setAttribute('data-ui-theme',v):html.removeAttribute('data-ui-theme'); };
+  $('sw-size').onchange=e=>html.setAttribute('data-ui-size',e.target.value);
+  $('sw-motion').onchange=e=>html.setAttribute('data-ui-motion',e.target.value);
+  // bars sweep the color road as a heat scale
+  $('bars').innerHTML=[46,68,40,82,58,92,64].map((h,i)=>`<div class="bg" style="--bg:${(0.34+i*0.11).toFixed(2)};height:${h}%"></div>`).join('');
+</script>
+</body>
+</html>
