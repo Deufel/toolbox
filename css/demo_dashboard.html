@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en" data-ui-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard — system showcase</title>
+<link rel="stylesheet" href="system.css">
+<style>
+  /* demo-only glue: positions system components on the page grid.
+     No component styling here — that all lives in the system. */
+  body { margin: 0; }
+
+  .pg-header  { --bg: 0.05; }
+  .pg-navigation { --bg: -0.7; }
+  .pg-aside   { --bg: -0.7; }
+  .pg-main    { --bg: -0.4; }
+
+  .pad   { padding: calc(0.5 * 1lh) 0.8em; }
+  .pad-l { padding: calc(0.75 * 1lh) 1em; }
+
+  .brand { --type: 1; font-family: var(--font-display); font-weight: 600; letter-spacing: 0.01em; }
+  .muted { --fg: -0.65; }
+  .tiny  { --type: -1; --fg: -0.6; }
+
+  /* nav items — bare links the system makes interactive (.clickable) */
+  .nav-item {
+    display: flex; align-items: center; gap: 0.6em;
+    padding: calc(0.35 * 1lh) 0.7em; border-radius: var(--cfg-radius);
+    --fg: -0.7; user-select: none;
+  }
+  .nav-item[aria-current="page"] { --bg: 0.5; --fg: -1; background-color: var(--_bg); --surf-l: var(--_bg-l); }
+  .nav-item svg { inline-size: 1.1em; block-size: 1.1em; flex: 0 0 auto; }
+  .nav-section { --type: -1; --fg: -0.5; text-transform: uppercase; letter-spacing: 0.08em; padding: calc(0.5 * 1lh) 0.7em calc(0.2 * 1lh); }
+
+  /* KPI stat */
+  .kpi .stat   { --type: 3; font-family: var(--font-display); line-height: 1.1; }
+  .kpi .label  { --type: -1; --fg: -0.6; }
+  .kpi .delta  { --type: -1; font-weight: 600; }
+  .delta.up    { --hue: 145; --fg: 1; }
+  .delta.down  { --hue: 25;  --fg: 1; }
+
+  /* CSS bar chart — pure surfaces, no library */
+  .bars { display: flex; align-items: flex-end; gap: 0.5em; block-size: 9lh; padding-block-start: 0.5lh; }
+  .bars > div { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 0.3em; block-size: 100%; }
+  .bars .bar { inline-size: 100%; --bg: 0.5; background-color: var(--_bg); --surf-l: var(--_bg-l); border-radius: calc(var(--cfg-radius) - 2px) calc(var(--cfg-radius) - 2px) 0 0; min-block-size: 2px; transition: filter calc(var(--cfg-motion) * 0.15s); }
+  .bars .bar:hover { filter: brightness(1.08); }
+  .bars .blab { --type: -1; --fg: -0.55; }
+
+  /* GitHub-style heatmap. Cells are colored by intensity level using the
+     engine's hue at stepped lightness/chroma, so it themes for free. */
+  .heatmap {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(7, 1fr);
+    gap: 3px;
+    overflow-x: auto;
+  }
+  .hm-cell {
+    inline-size: 0.9em; block-size: 0.9em;
+    border-radius: 2px;
+    background-color: var(--_hm);
+    --_hm: var(--border);
+  }
+  /* level 0 = empty (quiet border tone); 1–4 ramp the hue up in L + C */
+  .hm-cell[data-level="0"] { --_hm: oklch(from var(--_bg) calc(l + (var(--cfg-dark)*2 - 1) * -0.04) c h); }
+  .hm-cell[data-level="1"] { --_hm: oklch(62% 0.06 var(--hue)); }
+  .hm-cell[data-level="2"] { --_hm: oklch(58% 0.11 var(--hue)); }
+  .hm-cell[data-level="3"] { --_hm: oklch(54% 0.15 var(--hue)); }
+  .hm-cell[data-level="4"] { --_hm: oklch(50% 0.19 var(--hue)); }
+  .heatmap .hm-cell:hover { outline: 1px solid var(--focus); }
+
+  /* activity feed rows */
+  .feed-row { display: grid; grid-template-columns: auto 1fr auto; gap: 0.6em; align-items: start; padding-block: calc(0.4 * 1lh); }
+  .feed-row + .feed-row { border-block-start: 1px solid var(--border); }
+  .feed-row .when { --type: -1; --fg: -0.55; white-space: nowrap; }
+
+  .section-title { --type: 0; font-weight: 600; }
+  .grid-min-14 { --grid-min: 14rem; }
+
+  /* let cards/sections carry a raised surface in the recessed main */
+  .panel { --bg: 0.1; background-color: var(--_bg); --surf-l: var(--_bg-l); border: 1px solid var(--border); border-radius: var(--cfg-radius); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="pg-header pad">
+    <div class="lcr">
+      <div class="row" style="gap:0.6em">
+        <span class="avatar" style="--hue: 262; --bg: 0.5; --type:-1">◆</span>
+        <span class="brand">Meridian</span>
+        <nav class="crumbs tiny" aria-label="Breadcrumb" style="margin-inline-start:0.5em">
+          <a class="muted" href="#">Workspace</a>
+          <span aria-current="page">Analytics</span>
+        </nav>
+      </div>
+
+      <input type="search" placeholder="Search…" aria-label="Search" style="--bg:0.1; min-inline-size: 22ch;">
+
+      <div class="row" style="gap:0.5em">
+        <button type="button" aria-label="Notifications"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
+        <button type="button" style="--hue:145; --bg:0.55">New report</button>
+        <span class="avatar" style="--hue: 220; --bg: 0.45; --type:-1">AL</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="pg-navigation pad" aria-label="Primary">
+    <div class="column" style="gap:0.1lh">
+      <div class="nav-section">Overview</div>
+      <a class="nav-item clickable" href="#" aria-current="page">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item clickable" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        Reports
+      </a>
+      <a class="nav-item clickable" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Real-time
+      </a>
+
+      <div class="nav-section">Manage</div>
+      <a class="nav-item clickable" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Audiences
+      </a>
+      <a class="nav-item clickable" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Settings
+      </a>
+
+      <div class="nav-section">Workspace</div>
+      <a class="nav-item clickable" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M2 15h10"/><path d="m9 18 3-3-3-3"/></svg>
+        Exports
+      </a>
+    </div>
+
+    <hr>
+    <div class="column tiny" style="gap:0.2lh">
+      <div class="row" style="gap:0.5em">
+        <span class="avatar" style="--hue:145; --bg:0.4; --type:-2">GH</span>
+        <div class="column" style="gap:0">
+          <strong style="--type:-1">Grace Hopper</strong>
+          <span class="muted">Admin</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="pg-main pad-l">
+    <div class="column" style="gap:0.75lh">
+
+      <!-- title row -->
+      <div class="spread">
+        <div class="column" style="gap:0">
+          <h1 style="--type:3; font-family:var(--font-display)">Analytics</h1>
+          <span class="muted tiny">Last 30 days · updated 4 min ago</span>
+        </div>
+        <div class="tabs" role="group" aria-label="Date range" style="--bg:0.1">
+          <label><input type="radio" name="range"><span>7d</span></label>
+          <label><input type="radio" name="range" checked><span>30d</span></label>
+          <label><input type="radio" name="range"><span>90d</span></label>
+          <label><input type="radio" name="range"><span>1y</span></label>
+        </div>
+      </div>
+
+      <!-- KPI row -->
+      <div class="grid grid-min-14">
+        <div class="panel pad kpi column" style="gap:0.2lh">
+          <span class="label">Revenue</span>
+          <span class="stat">$284.2k</span>
+          <span class="delta up">▲ 12.4%</span>
+        </div>
+        <div class="panel pad kpi column" style="gap:0.2lh">
+          <span class="label">Active users</span>
+          <span class="stat">48,210</span>
+          <span class="delta up">▲ 8.1%</span>
+        </div>
+        <div class="panel pad kpi column" style="gap:0.2lh">
+          <span class="label">Conversion</span>
+          <span class="stat">3.94%</span>
+          <span class="delta down">▼ 0.3%</span>
+        </div>
+        <div class="panel pad kpi column" style="gap:0.2lh">
+          <span class="label">Avg. session</span>
+          <span class="stat">4m 12s</span>
+          <span class="delta up">▲ 5.6%</span>
+        </div>
+      </div>
+
+      <!-- chart + heatmap row -->
+      <div class="split" style="gap:0.75lh">
+        <section class="panel pad-l column" style="gap:0.4lh">
+          <div class="spread">
+            <span class="section-title">Revenue by month</span>
+            <span class="tag" style="--hue:145">▲ trending</span>
+          </div>
+          <div class="bars">
+            <div><div class="bar" style="block-size:38%"></div><span class="blab">Jan</span></div>
+            <div><div class="bar" style="block-size:52%"></div><span class="blab">Feb</span></div>
+            <div><div class="bar" style="block-size:45%"></div><span class="blab">Mar</span></div>
+            <div><div class="bar" style="block-size:67%"></div><span class="blab">Apr</span></div>
+            <div><div class="bar" style="block-size:60%"></div><span class="blab">May</span></div>
+            <div><div class="bar" style="block-size:78%"></div><span class="blab">Jun</span></div>
+            <div><div class="bar" style="block-size:71%"></div><span class="blab">Jul</span></div>
+            <div><div class="bar" style="block-size:92%"></div><span class="blab">Aug</span></div>
+            <div><div class="bar" style="block-size:100%; --bg:0.7"></div><span class="blab">Sep</span></div>
+          </div>
+        </section>
+
+        <section class="panel pad-l column" style="gap:0.4lh">
+          <div class="spread">
+            <span class="section-title">Activity</span>
+            <span class="tiny muted">12,840 events this year</span>
+          </div>
+          <div id="heatmap" class="heatmap" aria-label="Daily activity heatmap"></div>
+          <div class="row tiny muted" style="gap:0.4em; justify-content:flex-end">
+            <span>Less</span>
+            <span class="hm-cell" data-level="0"></span>
+            <span class="hm-cell" data-level="1"></span>
+            <span class="hm-cell" data-level="2"></span>
+            <span class="hm-cell" data-level="3"></span>
+            <span class="hm-cell" data-level="4"></span>
+            <span>More</span>
+          </div>
+        </section>
+      </div>
+
+      <!-- table -->
+      <section class="column" style="gap:0.4lh">
+        <div class="spread">
+          <span class="section-title">Top campaigns</span>
+          <div class="row" style="gap:0.4em">
+            <select style="--bg:0.1; --type:-1" aria-label="Sort">
+              <option>By revenue</option>
+              <option>By conversion</option>
+              <option>By spend</option>
+            </select>
+            <button type="button" style="--type:-1">Export</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Campaign</th><th>Status</th><th class="num">Impressions</th><th class="num">CTR</th><th class="num">Spend</th><th class="num">ROAS</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Summer Launch</td><td><span class="tag" style="--hue:145">Active</span></td><td class="num">1,284,902</td><td class="num">4.2%</td><td class="num">$12,400</td><td class="num">3.8×</td></tr>
+            <tr><td>Retargeting Q3</td><td><span class="tag" style="--hue:145">Active</span></td><td class="num">892,140</td><td class="num">5.1%</td><td class="num">$8,210</td><td class="num">4.4×</td></tr>
+            <tr><td>Brand Awareness</td><td><span class="tag" style="--hue:75">Paused</span></td><td class="num">2,011,008</td><td class="num">2.8%</td><td class="num">$18,900</td><td class="num">2.1×</td></tr>
+            <tr><td>Holiday Preview</td><td><span class="tag" style="--hue:220">Draft</span></td><td class="num">0</td><td class="num">—</td><td class="num">$0</td><td class="num">—</td></tr>
+            <tr><td>Newsletter Drive</td><td><span class="tag" style="--hue:145">Active</span></td><td class="num">318,400</td><td class="num">6.7%</td><td class="num">$3,100</td><td class="num">5.2×</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- disclosure -->
+      <details>
+        <summary>Methodology &amp; data sources</summary>
+        <div class="column tiny" style="gap:0.4lh">
+          <p>Figures are aggregated from first-party event streams and reconciled
+          nightly against the billing ledger. Revenue is net of refunds; ROAS uses
+          attributed conversions within a 7-day click window.</p>
+          <div class="row" style="gap:0.4em">
+            <span class="tag">first-party</span>
+            <span class="tag" style="--hue:145">reconciled</span>
+            <span class="tag" style="--hue:220">7d window</span>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </main>
+
+  <!-- ASIDE -->
+  <aside class="pg-aside pad-l" aria-label="Activity">
+    <div class="column" style="gap:0.75lh">
+
+      <section class="column" style="gap:0.3lh">
+        <div class="spread">
+          <span class="section-title">Goal progress</span>
+          <span class="tiny muted">Q3</span>
+        </div>
+        <div class="column" style="gap:0.5lh">
+          <div class="column" style="gap:0.15lh">
+            <div class="spread tiny"><span>Revenue target</span><span class="muted">$284k / $320k</span></div>
+            <meter value="284" min="0" max="320" style="--hue:145"></meter>
+          </div>
+          <div class="column" style="gap:0.15lh">
+            <div class="spread tiny"><span>New signups</span><span class="muted">4.8k / 5k</span></div>
+            <meter value="4.8" min="0" max="5" style="--hue:220"></meter>
+          </div>
+          <div class="column" style="gap:0.15lh">
+            <div class="spread tiny"><span>Support SLA</span><span class="muted">71% / 90%</span></div>
+            <!-- .smart: low/high/optimum drive the colour — 71% lands in the
+                 "low" band, so it auto-reds without a hand-picked hue -->
+            <meter class="smart" value="71" min="0" max="100" low="75" high="90" optimum="100"></meter>
+          </div>
+        </div>
+      </section>
+
+      <hr>
+
+      <section class="column" style="gap:0.3lh">
+        <span class="section-title">Recent activity</span>
+        <div class="column" style="gap:0">
+          <div class="feed-row">
+            <span class="avatar" style="--hue:220; --bg:0.4; --type:-2">AL</span>
+            <div class="column tiny" style="gap:0"><span><strong>Ada</strong> published <em>Summer Launch</em></span></div>
+            <span class="when">2m</span>
+          </div>
+          <div class="feed-row">
+            <span class="avatar" style="--hue:145; --bg:0.4; --type:-2">KJ</span>
+            <div class="column tiny" style="gap:0"><span><strong>Katherine</strong> closed 3 tickets</span></div>
+            <span class="when">18m</span>
+          </div>
+          <div class="feed-row">
+            <span class="avatar" style="--hue:25; --bg:0.4; --type:-2">ST</span>
+            <div class="column tiny" style="gap:0"><span><strong>Sara</strong> flagged a spend anomaly</span></div>
+            <span class="when">1h</span>
+          </div>
+          <div class="feed-row">
+            <span class="avatar" style="--hue:262; --bg:0.4; --type:-2">EM</span>
+            <div class="column tiny" style="gap:0"><span><strong>Edsger</strong> updated the export schema</span></div>
+            <span class="when">3h</span>
+          </div>
+        </div>
+      </section>
+
+      <hr>
+
+      <section class="column" style="gap:0.4lh">
+        <span class="section-title">Quick note</span>
+        <textarea placeholder="Jot something down…" style="--bg:0.1; block-size:5lh"></textarea>
+        <div class="spread">
+          <label class="row tiny" style="gap:0.4em"><input type="checkbox" checked> Pin to top</label>
+          <button type="button" style="--type:-1; --hue:220; --bg:0.5">Save</button>
+        </div>
+      </section>
+
+    </div>
+  </aside>
+
+  <!-- FOOTER -->
+  <footer class="pg-footer pad tiny">
+    <div class="spread">
+      <span class="muted">Meridian Analytics · v4.8</span>
+      <div class="row" style="gap:1em">
+        <button type="button" class="clickable" style="--type:-1" onclick="document.documentElement.dataset.uiTheme = document.documentElement.dataset.uiTheme === 'dark' ? 'light' : 'dark'">Toggle theme</button>
+        <span class="muted">All systems operational</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // Build a GitHub-style activity heatmap: 53 weeks × 7 days.
+  (function () {
+    const el = document.getElementById('heatmap');
+    if (!el) return;
+    const WEEKS = 53, DAYS = 7;
+    const today = new Date();
+    // weighted intensity — mostly low, occasional bursts, with a gentle
+    // upward trend toward "recent" so it reads like real activity
+    function level(weekIdx) {
+      const recency = weekIdx / WEEKS;            // 0 (old) → 1 (recent)
+      const r = Math.random();
+      const bias = r * (0.55 + recency * 0.6);    // recent weeks skew busier
+      if (bias < 0.32) return 0;
+      if (bias < 0.55) return 1;
+      if (bias < 0.74) return 2;
+      if (bias < 0.9)  return 3;
+      return 4;
+    }
+    const frag = document.createDocumentFragment();
+    for (let w = 0; w < WEEKS; w++) {
+      for (let d = 0; d < DAYS; d++) {
+        const cell = document.createElement('span');
+        const lvl = level(w);
+        cell.className = 'hm-cell';
+        cell.dataset.level = lvl;
+        const daysAgo = (WEEKS - 1 - w) * 7 + (DAYS - 1 - d);
+        const date = new Date(today);
+        date.setDate(today.getDate() - daysAgo);
+        const counts = [0, 3, 8, 15, 27][lvl];
+        cell.title = `${counts} events · ${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+        frag.appendChild(cell);
+      }
+    }
+    el.appendChild(frag);
+  })();
+</script>
+</body>
+</html>

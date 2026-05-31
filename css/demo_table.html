@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" data-ui-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Table — academic / booktabs</title>
+<link rel="stylesheet" href="system.css">
+<style>
+  body { --bg: -0.5; background-color: var(--_bg); --surf-l: var(--_bg-l); min-block-size: 100svh; }
+  .page-wrap { max-inline-size: 54rem; margin-inline: auto; padding: calc(1 * 1lh) 1rem calc(2 * 1lh); }
+  .stack { display: flex; flex-direction: column; gap: calc(1 * 1lh); }
+  h1 { --type: 4; }
+  h2 { --type: 2; margin-block-start: calc(0.5 * 1lh); }
+  p  { --fg: -0.7; max-inline-size: 60ch; }
+  .toolbar { display: flex; gap: 0.5rem; align-items: center; margin-block-end: calc(0.5 * 1lh); }
+</style>
+</head>
+<body>
+<div class="page-wrap stack">
+
+  <div class="toolbar">
+    <button type="button" onclick="document.documentElement.dataset.uiTheme = document.documentElement.dataset.uiTheme === 'dark' ? 'light' : 'dark'">Toggle theme</button>
+    <select class="" onchange="document.documentElement.dataset.uiSize=this.value" aria-label="Size">
+      <option value="sm">Small</option>
+      <option value="md" selected>Medium</option>
+      <option value="lg">Large</option>
+    </select>
+  </div>
+
+  <h1>Tables</h1>
+  <p>Academic / LaTeX <code>booktabs</code> aesthetic: no vertical rules, no body
+  row rules — only a vibrant rule under the header and one closing the foot. The
+  table is framed like a card. Numeric columns use tabular figures, right-aligned.</p>
+
+  <section>
+    <h2>Benchmark results</h2>
+    <table>
+      <caption>Top-1 accuracy (%) on the held-out test split. Best per column in the last row.</caption>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th class="num">Params (M)</th>
+          <th class="num">FLOPs (G)</th>
+          <th class="num">Top-1</th>
+          <th class="num">Top-5</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>ResNet-50 (baseline)</td>   <td class="num">25.6</td>  <td class="num">4.1</td>   <td class="num">76.1</td> <td class="num">92.9</td></tr>
+        <tr><td>ViT-B/16</td>               <td class="num">86.6</td>  <td class="num">17.6</td>  <td class="num">77.9</td> <td class="num">93.6</td></tr>
+        <tr><td>ConvNeXt-T</td>             <td class="num">28.6</td>  <td class="num">4.5</td>   <td class="num">82.1</td> <td class="num">95.9</td></tr>
+        <tr><td>Ours (small)</td>           <td class="num">9.2</td>   <td class="num">1.8</td>   <td class="num">83.4</td> <td class="num">96.4</td></tr>
+        <tr><td>Ours (large)</td>           <td class="num">31.0</td>  <td class="num">5.2</td>   <td class="num">88.7</td> <td class="num">98.1</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Tight data table</h2>
+    <table>
+      <thead>
+        <tr><th>Region</th><th>Lead</th><th class="num">Q3</th><th class="num">Q4</th><th class="num">Δ %</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>North America</td>  <td>A. Lovelace</td>  <td class="num">1,204,991</td> <td class="num">1,388,210</td> <td class="num">15.2</td></tr>
+        <tr><td>EMEA</td>           <td>G. Hopper</td>    <td class="num">892,140</td>   <td class="num">1,002,455</td> <td class="num">12.4</td></tr>
+        <tr><td>APAC</td>           <td>K. Johnson</td>   <td class="num">2,011,008</td> <td class="num">2,540,773</td> <td class="num">26.3</td></tr>
+        <tr><td>LATAM</td>          <td>S. Turing</td>    <td class="num">318,400</td>   <td class="num">301,940</td>   <td class="num">−5.2</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Minimal, two columns</h2>
+    <table style="max-inline-size: 24rem;">
+      <thead><tr><th>Symbol</th><th class="num">Value</th></tr></thead>
+      <tbody>
+        <tr><td>π</td>   <td class="num">3.14159</td></tr>
+        <tr><td>e</td>   <td class="num">2.71828</td></tr>
+        <tr><td>φ</td>   <td class="num">1.61803</td></tr>
+        <tr><td>√2</td>  <td class="num">1.41421</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+</body>
+</html>

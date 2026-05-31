@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-ui-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Progress · Meter · Range</title>
+<link rel="stylesheet" href="system.css">
+<style>
+  body { --bg: -0.5; background-color: var(--_bg); --surf-l: var(--_bg-l); min-block-size: 100svh; }
+  .page-wrap { max-inline-size: 40rem; margin-inline: auto; padding: calc(1 * 1lh) 1rem calc(2 * 1lh); }
+  .stack { display: flex; flex-direction: column; gap: calc(0.9 * 1lh); }
+  h1 { --type: 4; }
+  h2 { --type: 1.5; margin-block-start: calc(0.5 * 1lh); }
+  p  { --fg: -0.7; }
+  .label { --type: -1; --fg: -0.6; }
+  .row3 { display: grid; grid-template-columns: 7rem 1fr; gap: 0.6em 1em; align-items: center; }
+  .toolbar { display: flex; gap: 0.5rem; align-items: center; margin-block-end: calc(0.5 * 1lh); }
+</style>
+</head>
+<body>
+<div class="page-wrap stack">
+
+  <div class="toolbar">
+    <button type="button" onclick="document.documentElement.dataset.uiTheme = document.documentElement.dataset.uiTheme === 'dark' ? 'light' : 'dark'">Toggle theme</button>
+  </div>
+
+  <h1>Progress · Meter · Range</h1>
+  <p>Three native elements sharing one visual language — a pill track with a
+  hue-driven fill. Bare elements, no classes. Fill colour follows <code>--hue</code>.</p>
+
+  <section class="stack">
+    <h2><code>&lt;progress&gt;</code> — a task filling up</h2>
+    <div class="row3">
+      <span class="label">25%</span>     <progress value="0.25"></progress>
+      <span class="label">60%</span>     <progress value="0.6"></progress>
+      <span class="label">95%</span>     <progress value="0.95"></progress>
+      <span class="label">hue 145</span> <progress value="0.7" style="--hue:145"></progress>
+      <span class="label">hue 25</span>  <progress value="0.4" style="--hue:25"></progress>
+      <span class="label">indeterminate</span> <progress></progress>
+    </div>
+  </section>
+
+  <section class="stack">
+    <h2><code>&lt;meter&gt;</code> — a measurement in a range</h2>
+    <p>Manual hue by default (you set <code>--hue</code>, like everything else):</p>
+    <div class="row3">
+      <span class="label">284 / 320</span> <meter value="284" min="0" max="320" style="--hue:145"></meter>
+      <span class="label">4.8 / 5</span>   <meter value="4.8" min="0" max="5" style="--hue:220"></meter>
+      <span class="label">2 / 10</span>    <meter value="2" min="0" max="10" style="--hue:262"></meter>
+    </div>
+    <p>Opt-in <code>.smart</code> — the meter's own <code>low</code>/<code>high</code>/<code>optimum</code>
+    bands drive the colour (success / warning / danger), no hand-picked hue:</p>
+    <div class="row3">
+      <span class="label">92% (good)</span>  <meter class="smart" value="92" min="0" max="100" low="75" high="90" optimum="100"></meter>
+      <span class="label">80% (warn)</span>  <meter class="smart" value="80" min="0" max="100" low="75" high="90" optimum="100"></meter>
+      <span class="label">71% (low)</span>   <meter class="smart" value="71" min="0" max="100" low="75" high="90" optimum="100"></meter>
+    </div>
+  </section>
+
+  <section class="stack">
+    <h2><code>&lt;input type="range"&gt;</code> — user-set slider</h2>
+    <div class="row3">
+      <span class="label">default</span>  <input type="range" min="0" max="100" value="40">
+      <span class="label">hue 145</span>  <input type="range" min="0" max="100" value="65" style="--hue:145">
+      <span class="label">hue 25</span>   <input type="range" min="0" max="100" value="85" style="--hue:25">
+    </div>
+    <p class="label">Drag the thumb; arrow keys work; focus ring on the thumb.</p>
+  </section>
+
+</div>
+</body>
+</html>

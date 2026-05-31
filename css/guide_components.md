@@ -39,10 +39,39 @@ default.
 ### 1 — Style the semantic element when the element *is* the component
 
 If one HTML element maps cleanly to one component, **style the element,
-not a class.** A button is `<button>`; an input is `<input>`. No `.btn`,
-no `.field`. A class is only for things HTML has no element for (a card, a
-tag, a segmented control). This makes the common case classless and the
-markup semantic.
+not a class.** A button is `<button>`; an input is `<input>`; a data table is
+`<table>`; a disclosure is `<details>`/`<summary>`. No `.btn`, no `.field`, no
+`.table`, no `.accordion`. A class is only for things HTML has no element for (a
+card, a tag, an avatar, a segmented control). This makes the common case
+classless and the markup semantic.
+
+**Boundary case — when the semantic element fights you as a layout container.**
+A few native elements carry magic internal layout that breaks modern CSS. The
+worst offender is **`<fieldset>`**: it has an anonymous internal content box, so
+making it a flex/grid container *does not* let its children receive
+`align-items` / `align-self: stretch` — they sit at content height in a taller
+container, in both flex *and* grid. If your grouping element needs its children
+to stretch or fill, **don't use `<fieldset>` as the flex/grid parent** — use a
+`<div role="group" aria-labelledby="…">`, which is semantically equivalent to AT
+(a named group) but has none of the quirk. This is why the segmented control
+(`.tabs`) is a `role="group"` div, while plain field/radio groups — whose
+children don't stretch — stay `<fieldset>`. The tell that you've hit this: an
+`align-self: stretch` you can *see* applied in DevTools that simply has no
+effect. (We lost an afternoon to it once. Isolate by re-parenting the same CSS
+onto a plain `<div>`; if it fills there but not on the native element, the
+element is the cause.)
+
+**Another native-element trap — pseudo-elements with stubborn defaults.** The
+global `box-sizing: border-box` reset targets `*, *::before, *::after` — it does
+*not* reach generated pseudo-elements like **`::details-content`** (the wrapper
+for a `<details>` body). So that pseudo stays `content-box`, and setting it to
+`block-size: 0` collapses only its *content* area — any padding still renders as
+a visible strip. Setting `box-sizing: border-box` on it doesn't reliably take
+either. The fix isn't to fight the box model: when you need such a wrapper to
+fully collapse, zero the padding *and* the size together (and transition both,
+so opening doesn't pop) rather than relying on a clip. The general lesson:
+native pseudo-elements don't inherit your resets — verify their box model rather
+than assuming it.
 
 ### 2 — No variant classes for what the scales already express
 
@@ -357,6 +386,8 @@ encoding decisions the call site should own.
 4. A `-primary` / `-sm` / `-red` variant? → delete it; call-site number or
    project alias.
 5. A class where the semantic element would do? → style the element.
+   (But if that element is a `<fieldset>` used as a flex/grid parent whose
+   children must stretch — switch to `<div role="group">`; Law 1 boundary.)
 6. Restated something `base`/`theme` already sets? → delete it.
 7. Added `.clickable` / `.hoverable` / a transition? → remove it.
 8. Branched on a variant where `:has()` could read the markup? → use
