@@ -5,7 +5,7 @@
    ════════════════════════════════════════════════════════════════════ */
 @layer reset, styleAPI.color, styleAPI.type, theme, base,
        classAPI.page, classAPI.layout, classAPI.components,
-       classAPI.utility, classAPI.viewport;
+       classAPI.pseudo, classAPI.utility, classAPI.viewport;
 
 
 /* ════════════════════════════════════════════════════════════════════
@@ -146,6 +146,10 @@
   /* paint a surface + export its lightness as the ink contrast target */
   .bg { background-color: var(--_bg); --surf-l: var(--_bg-l); }
 
+  /* a themed element establishes its own surface, so its subtree re-themes
+    (not just html). Same two declarations as .bg — paint + re-export --surf-l. */
+  [data-ui-theme] { background-color: var(--_bg); --surf-l: var(--_bg-l); }
+
   /* interactive elements are state islands; reset, then own pointer state */
   :where(button, a, [role="button"], summary, .clickable, .hoverable):not([disabled]):not([aria-disabled="true"]) {
     --state: 0;
@@ -188,6 +192,135 @@
 
 
 /* ════════════════════════════════════════════════════════════════════
+   classAPI.pseudo — syntax highlighting for the Custom Highlight API
+   (pairs with highlight.js; tokens registered there as <lang>-<kind>)
+
+   Color strategy — UPDATED for the new color engine:
+   The ::highlight() pseudo only honors color, background-color,
+   text-decoration, text-shadow. Registered custom properties reach a
+   highlight pseudo ONLY if they inherit, so this layer anchors on the
+   engine's *inheriting* signals — --surf-l (the surface lightness,
+   exported by .bg), --cfg-dark (theme), and --hue/--hue-shift — rather
+   than the old relative-color-from(--_bg) trick (--_bg is now
+   inherits:false and would fall back to its initial value here).
+
+   Result: token L/C are pinned to read against any surface; hue shifts
+   per category; comments recede by following --surf-l, so they track
+   surface depth and theme automatically.
+
+   Two shapes:
+     code ink   L branches on --cfg-dark (dark surface → lighter ink),
+                fixed C per category, hue = base hue + category shift.
+     comment    L pulled toward the surface via --surf-l so it recedes.
+
+   Tune by editing the L pair, the per-category C, and the hue shift.
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.pseudo {
+
+  /* Comments — recede toward the surface. L follows --surf-l (so it
+     tracks surface depth); sign flips with theme so it dims either way. */
+  ::highlight(css-comment),
+  ::highlight(html-comment),
+  ::highlight(python-comment),
+  ::highlight(javascript-comment),
+  ::highlight(go-comment) {
+    color: oklch(
+      calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * 45%)
+      calc(var(--c-tint) - 0.01)
+      calc(var(--hue) + var(--hue-shift))
+    );
+  }
+
+  /* Strings — warm shift */
+  ::highlight(css-string),
+  ::highlight(html-value),
+  ::highlight(python-string),
+  ::highlight(javascript-string),
+  ::highlight(go-string) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(var(--hue) + var(--hue-shift) - 36)
+    );
+  }
+
+  /* Numbers / units */
+  ::highlight(css-number),
+  ::highlight(css-unit),
+  ::highlight(python-number),
+  ::highlight(javascript-number),
+  ::highlight(go-number) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(var(--hue) + var(--hue-shift) - 24)
+    );
+  }
+
+  /* Punctuation / operators / brackets */
+  ::highlight(css-punctuation),
+  ::highlight(html-bracket),
+  ::highlight(python-operator),
+  ::highlight(python-punctuation),
+  ::highlight(javascript-operator),
+  ::highlight(javascript-punctuation),
+  ::highlight(go-operator),
+  ::highlight(go-punctuation) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.09
+      calc(var(--hue) + var(--hue-shift) - 12)
+    );
+  }
+
+  /* Identifiers — properties, vars, selectors, tags, attributes */
+  ::highlight(css-property),
+  ::highlight(css-var-name),
+  ::highlight(css-selector),
+  ::highlight(html-tag),
+  ::highlight(html-attribute),
+  ::highlight(html-doctype),
+  ::highlight(html-entity) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(var(--hue) + var(--hue-shift) + 12)
+    );
+  }
+
+  /* Functions, classes, builtins / primitive types */
+  ::highlight(python-function),
+  ::highlight(python-class),
+  ::highlight(python-builtin),
+  ::highlight(javascript-function),
+  ::highlight(javascript-class),
+  ::highlight(javascript-builtin),
+  ::highlight(go-function),
+  ::highlight(go-class),
+  ::highlight(go-builtin) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.14
+      calc(var(--hue) + var(--hue-shift) + 24)
+    );
+  }
+
+  /* Keywords / atrules / decorators — strongest cool shift */
+  ::highlight(css-atrule),
+  ::highlight(python-keyword),
+  ::highlight(python-decorator),
+  ::highlight(javascript-keyword),
+  ::highlight(javascript-decorator),
+  ::highlight(go-keyword) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.15
+      calc(var(--hue) + var(--hue-shift) + 36)
+    );
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
    theme — project config (values only). Each styleAPI also ships its
    own theme block; this layer holds the cross-cutting tokens + switches.
    Switches (set on <html>/<body>):
@@ -223,7 +356,7 @@
     --font-mono:    ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
 
-    color-scheme: light;
+    color-scheme: light-dark;
   }
 
   /* ── color theme switch ── */
