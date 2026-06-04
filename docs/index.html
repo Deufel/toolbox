@@ -1,31 +1,1724 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-ui-theme="light" data-ui-size="md" data-ui-motion="on">
 <head>
+<<<<<<< HEAD
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toolbox</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Deufel/toolbox@45751576d56e2901878acccaeaa0e1d85c7a2d63/css/style.css">
 <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.1/bundles/datastar.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/Deufel/toolbox@45751576d56e2901878acccaeaa0e1d85c7a2d63/js/highlight.js"></script>
+=======
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>system.css — component catalog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style id="syscss">
+/* ════════════════════════════════════════════════════════════════════
+   system.css — a small design system in OKLCH + a type-driven space scale
+
+   Layer spine (authoritative order). Later layers win.
+   ════════════════════════════════════════════════════════════════════ */
+@layer reset, styleAPI.color, styleAPI.type, theme, base,
+       classAPI.page, classAPI.layout, classAPI.components,
+       classAPI.pseudo, classAPI.utility, classAPI.viewport;
+
+
+/* ════════════════════════════════════════════════════════════════════
+   @property registrations (must sit outside @layer)
+   ════════════════════════════════════════════════════════════════════ */
+/* color — public */
+@property --bg             { syntax: "<number>"; inherits: false; initial-value: 0 }
+@property --fg             { syntax: "<number>"; inherits: true;  initial-value: -0.85 }
+@property --hue            { syntax: "<number>"; inherits: true;  initial-value: 255 }
+@property --hue-shift      { syntax: "<number>"; inherits: true;  initial-value: 0 }
+@property --hue-lock       { syntax: "*";        inherits: true }   /* unset = guaranteed-invalid → enables the fallback */
+@property --surface-chroma { syntax: "<number>"; inherits: true;  initial-value: 0.4 }
+@property --state          { syntax: "<number>"; inherits: true;  initial-value: 0 }
+/* color — surface constants */
+@property --l-base    { syntax: "<percentage>"; inherits: true; initial-value: 98% }
+@property --l-floor   { syntax: "<percentage>"; inherits: true; initial-value: 85% }
+@property --l-color   { syntax: "<percentage>"; inherits: true; initial-value: 50% }
+@property --c-peak    { syntax: "<number>";     inherits: true; initial-value: 0.08 }
+@property --surf-curve{ syntax: "<number>";     inherits: true; initial-value: 1 }
+@property --c-tint    { syntax: "<number>";     inherits: true; initial-value: 0.03 }
+/* color — ink constants */
+@property --fg-flip   { syntax: "<percentage>"; inherits: true; initial-value: 60% }
+@property --fg-ink-d  { syntax: "<percentage>"; inherits: true; initial-value: 16% }
+@property --fg-ink-l  { syntax: "<percentage>"; inherits: true; initial-value: 96% }
+@property --fg-chr-d  { syntax: "<percentage>"; inherits: true; initial-value: 45% }
+@property --fg-chr-l  { syntax: "<percentage>"; inherits: true; initial-value: 80% }
+@property --fg-chroma { syntax: "<number>";     inherits: true; initial-value: 0.11 }
+/* color — state constants */
+@property --st-hover   { syntax: "<number>"; inherits: true; initial-value: 0.35 }
+@property --st-fg-gain { syntax: "<number>"; inherits: true; initial-value: 0.12 }
+@property --st-neut    { syntax: "<number>"; inherits: true; initial-value: 1 }
+/* color — token constants */
+@property --cfg-dark      { syntax: "<number>";     inherits: true; initial-value: 0 }
+@property --border-step   { syntax: "<percentage>"; inherits: true; initial-value: 20% }
+@property --border-chroma { syntax: "<number>";     inherits: true; initial-value: 0.6 }
+@property --focus-bg      { syntax: "<number>";     inherits: true; initial-value: 0.7 }
+@property --focus-chroma  { syntax: "<number>";     inherits: true; initial-value: 1.75 }
+/* color — intermediates */
+@property --_h     { syntax: "<number>";     inherits: false; initial-value: 255 }
+@property --_sp    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_sn    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_bgs   { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fgs   { syntax: "<number>";     inherits: false; initial-value: -0.85 }
+@property --_n     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_ne    { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_p     { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_tint  { syntax: "<number>";     inherits: false; initial-value: 0.012 }
+@property --_bg-l  { syntax: "<percentage>"; inherits: false; initial-value: 98% }
+@property --_bg-c  { syntax: "<number>";     inherits: false; initial-value: 0.012 }
+@property --_bg    { syntax: "<color>";      inherits: false; initial-value: oklch(98% 0.012 255) }
+@property --surf-l { syntax: "<percentage>"; inherits: true;  initial-value: 98% }
+@property --_fg-up { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-neg{ syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_fg-pos{ syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_ink-l { syntax: "<percentage>"; inherits: false; initial-value: 16% }
+@property --_chr-l { syntax: "<percentage>"; inherits: false; initial-value: 45% }
+@property --_fg-l  { syntax: "<percentage>"; inherits: false; initial-value: 16% }
+@property --_fg-c  { syntax: "<number>";     inherits: false; initial-value: 0 }
+@property --_brd-l { syntax: "<percentage>"; inherits: false; initial-value: 84% }
+@property --_focus-c{syntax: "<number>";     inherits: false; initial-value: 0.1 }
+/* type */
+@property --type             { syntax: "<number>"; inherits: false; initial-value: 0 }
+@property --scale            { syntax: "<number>"; inherits: true;  initial-value: 1 }
+/* layout — non-inheriting so a field's row share never leaks to siblings/children */
+@property --row-width        { syntax: "<number>"; inherits: false; initial-value: 1 }
+@property --cfg-fluid-min-vp { syntax: "<length>"; inherits: true;  initial-value: 320px }
+@property --cfg-fluid-max-vp { syntax: "<length>"; inherits: true;  initial-value: 1280px }
+@property --cfg-wght-base    { syntax: "<number>"; inherits: true;  initial-value: 400 }
+@property --cfg-wght-step    { syntax: "<number>"; inherits: true;  initial-value: 90 }
+@property --cfg-wght-max     { syntax: "<number>"; inherits: true;  initial-value: 850 }
+/* motion */
+@property --cfg-motion { syntax: "<number>"; inherits: true; initial-value: 1 }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   reset — minimal, modern-only, deferential to the styleAPIs.
+   No font-size / line-height (type owns them). No px/rem spacing.
+   ════════════════════════════════════════════════════════════════════ */
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; background-repeat: no-repeat; }
+  :where(html) { interpolate-size: allow-keywords; -webkit-text-size-adjust: none; text-size-adjust: none; overscroll-behavior: none; }
+  :where(body, p, h1, h2, h3, h4, h5, h6, figure, blockquote, dl, dd, ul, ol) { margin-block: 0; }
+  :where(img, picture, svg, video, canvas) { display: block; max-inline-size: 100%; block-size: auto; }
+  :where(input, button, textarea, select) { font: inherit; letter-spacing: inherit; color: inherit; background: none; border: 0; }
+  :where(textarea) { resize: vertical; }
+  :where(fieldset) { margin: 0; padding: 0; border: 0; min-inline-size: 0; }  /* min-inline-size:0 → flex children can shrink */
+  :where(legend) { padding: 0; }
+  :where(button, [role="button"], label, summary, input[type="file"]::file-selector-button) { cursor: pointer; }
+  :where(:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
+  :where(a) { color: inherit; text-decoration: none; }
+  :where(ul, ol):where([role="list"]) { list-style: none; padding: 0; }
+  :where(table) { border-collapse: collapse; }
+  :where(summary) { list-style: none; }
+  :where(:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+  :where(body) { overflow-wrap: break-word; }
+  :where(p, li) { text-wrap: pretty; }
+  :where(h1, h2, h3, h4, h5, h6) { text-wrap: balance; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   styleAPI.color — surface (--bg) + ink (--fg) + hue + state, in OKLCH.
+   Derived tokens --border / --focus. See README for the public API.
+   ════════════════════════════════════════════════════════════════════ */
+@layer styleAPI.color {
+  :where(*) {
+    --_h: var(--hue-lock, calc(var(--hue) + var(--hue-shift)));
+
+    --_sp: clamp(0, var(--bg), 1);
+    --_sn: clamp(0, calc(-1 * var(--bg)), 1);
+    --_bgs: calc( var(--_sp)*(1 - var(--state)) - var(--_sn)*(1 - var(--state)*var(--st-neut)) + var(--state)*var(--st-hover) );
+    --_fgs: calc( var(--fg) * (1 + var(--state)*var(--st-fg-gain)) );
+
+    --_n: clamp(0, calc(-1 * var(--_bgs)), 1);
+    --_ne: pow(var(--_n), var(--surf-curve));
+    --_p: clamp(0, var(--_bgs), 1);
+    --_tint: calc(var(--surface-chroma) * var(--c-tint));
+    --_bg-l: calc(var(--l-base) + var(--_p)*(var(--l-color) - var(--l-base)) + var(--_ne)*(min(var(--l-floor), var(--l-base)) - var(--l-base)));
+    --_bg-c: calc(var(--_tint) + var(--_p)*(var(--c-peak) - var(--_tint)));
+    --_bg: oklch(var(--_bg-l) var(--_bg-c) var(--_h));
+
+    --_fg-up: clamp(0, calc((var(--fg-flip) - var(--surf-l)) / 1% * 10), 1);
+    --_fg-neg: clamp(0, calc(-1 * var(--_fgs)), 1);
+    --_fg-pos: clamp(0, var(--_fgs), 1);
+    --_ink-l: calc(var(--fg-ink-d) + var(--_fg-up)*(var(--fg-ink-l) - var(--fg-ink-d)));
+    --_chr-l: calc(var(--fg-chr-d) + var(--_fg-up)*(var(--fg-chr-l) - var(--fg-chr-d)));
+    --_fg-l: calc(var(--surf-l) + var(--_fg-neg)*(var(--_ink-l) - var(--surf-l)) + var(--_fg-pos)*(var(--_chr-l) - var(--surf-l)));
+    --_fg-c: calc(var(--_bg-c) + var(--_fg-neg)*(0 - var(--_bg-c)) + var(--_fg-pos)*(var(--fg-chroma) - var(--_bg-c)));
+    color: oklch(var(--_fg-l) var(--_fg-c) var(--_h));
+
+    /* derived tokens — always computed, components opt in */
+    --_brd-l: calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * var(--border-step));
+    --border: oklch(var(--_brd-l) calc(var(--_bg-c) + var(--c-peak) * var(--border-chroma) * 0.25) var(--_h));
+    --_focus-c: calc(var(--c-peak) * var(--focus-chroma));
+    --focus: oklch(calc(var(--l-base) + var(--focus-bg)*(var(--l-color) - var(--l-base))) var(--_focus-c) var(--_h));
+  }
+
+  /* paint a surface + export its lightness as the ink contrast target */
+  .bg { background-color: var(--_bg); --surf-l: var(--_bg-l); }
+
+  /* a themed element establishes its own surface, so its subtree re-themes
+    (not just html). Same two declarations as .bg — paint + re-export --surf-l. */
+  [data-ui-theme] { background-color: var(--_bg); --surf-l: var(--_bg-l); }
+
+  /* interactive elements are state islands; reset, then own pointer state */
+  :where(button, a, [role="button"], summary, .clickable):not([disabled]):not([aria-disabled="true"]) {
+    --state: 0;
+    &:hover  { --state: var(--st-hover); }
+    &:active { --state: calc(-2 * var(--st-hover)); }
+  }
+
+  /* disabled — drain ink toward surface + wash chroma */
+  :where([disabled], [aria-disabled="true"]) { --fg: -0.3; --surface-chroma: 0; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   styleAPI.type — type is the spacing system. Only em/lh downstream.
+     --type  local step (non-inheriting) · --scale regional zoom (inherits)
+   ════════════════════════════════════════════════════════════════════ */
+@layer styleAPI.type {
+  :where(*) {
+    --_t-min: calc(var(--cfg-type-min) * pow(var(--cfg-type-min-ratio), var(--type)));
+    --_t-max: calc(var(--cfg-type-max) * pow(var(--cfg-type-max-ratio), var(--type)));
+    --_font-size: calc(
+      clamp( var(--_t-min),
+        calc( var(--_t-min) + (var(--_t-max) - var(--_t-min))
+          * (100vi - var(--cfg-fluid-min-vp)) / (var(--cfg-fluid-max-vp) - var(--cfg-fluid-min-vp)) ),
+        var(--_t-max) ) * var(--scale) );
+    font-size: var(--_font-size);
+    letter-spacing: clamp(-0.04em, calc(0.01em - var(--type) * 0.012em), 0.04em);
+    line-height:    clamp(1.1, calc(1.5 - var(--type) * 0.075), 1.6);
+
+    /* Optical weight — weight is a function of --type, like size. Climbs
+       only above type 0; clamp floor keeps body/small at base weight no
+       matter the step. Display sizes carry more weight gracefully. */
+    font-weight: clamp(
+      var(--cfg-wght-base),
+      calc(var(--cfg-wght-base) + var(--type) * var(--cfg-wght-step)),
+      var(--cfg-wght-max)
+    );
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.pseudo — syntax highlighting for the Custom Highlight API
+   (pairs with highlight.js; tokens registered there as <lang>-<kind>)
+
+   Color strategy — UPDATED for the new color engine:
+   The ::highlight() pseudo only honors color, background-color,
+   text-decoration, text-shadow. Registered custom properties reach a
+   highlight pseudo ONLY if they inherit, so this layer anchors on the
+   engine's *inheriting* signals — --surf-l (the surface lightness,
+   exported by .bg), --cfg-dark (theme), and --hue/--hue-shift — rather
+   than the old relative-color-from(--_bg) trick (--_bg is now
+   inherits:false and would fall back to its initial value here).
+
+   Result: token L/C are pinned to read against any surface; hue shifts
+   per category; comments recede by following --surf-l, so they track
+   surface depth and theme automatically.
+
+   Two shapes:
+     code ink   L branches on --cfg-dark (dark surface → lighter ink),
+                fixed C per category, hue = base hue + category shift.
+     comment    L pulled toward the surface via --surf-l so it recedes.
+
+   Tune by editing the L pair, the per-category C, and the hue shift.
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.pseudo {
+
+  /* Comments — recede toward the surface. L follows --surf-l (so it
+     tracks surface depth); sign flips with theme so it dims either way. */
+  ::highlight(css-comment),
+  ::highlight(html-comment),
+  ::highlight(python-comment),
+  ::highlight(javascript-comment),
+  ::highlight(go-comment) {
+    color: oklch(
+      calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * 45%)
+      calc(var(--c-tint) - 0.01)
+      calc(var(--hue) + var(--hue-shift))
+    );
+  }
+
+  /* Strings — warm shift */
+  ::highlight(css-string),
+  ::highlight(html-value),
+  ::highlight(python-string),
+  ::highlight(javascript-string),
+  ::highlight(go-string) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(var(--hue) + var(--hue-shift) - 36)
+    );
+  }
+
+  /* Numbers / units */
+  ::highlight(css-number),
+  ::highlight(css-unit),
+  ::highlight(python-number),
+  ::highlight(javascript-number),
+  ::highlight(go-number) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(var(--hue) + var(--hue-shift) - 24)
+    );
+  }
+
+  /* Punctuation / operators / brackets */
+  ::highlight(css-punctuation),
+  ::highlight(html-bracket),
+  ::highlight(python-operator),
+  ::highlight(python-punctuation),
+  ::highlight(javascript-operator),
+  ::highlight(javascript-punctuation),
+  ::highlight(go-operator),
+  ::highlight(go-punctuation) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.09
+      calc(var(--hue) + var(--hue-shift) - 12)
+    );
+  }
+
+  /* Identifiers — properties, vars, selectors, tags, attributes */
+  ::highlight(css-property),
+  ::highlight(css-var-name),
+  ::highlight(css-selector),
+  ::highlight(html-tag),
+  ::highlight(html-attribute),
+  ::highlight(html-doctype),
+  ::highlight(html-entity) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.13
+      calc(var(--hue) + var(--hue-shift) + 12)
+    );
+  }
+
+  /* Functions, classes, builtins / primitive types */
+  ::highlight(python-function),
+  ::highlight(python-class),
+  ::highlight(python-builtin),
+  ::highlight(javascript-function),
+  ::highlight(javascript-class),
+  ::highlight(javascript-builtin),
+  ::highlight(go-function),
+  ::highlight(go-class),
+  ::highlight(go-builtin) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.14
+      calc(var(--hue) + var(--hue-shift) + 24)
+    );
+  }
+
+  /* Keywords / atrules / decorators — strongest cool shift */
+  ::highlight(css-atrule),
+  ::highlight(python-keyword),
+  ::highlight(python-decorator),
+  ::highlight(javascript-keyword),
+  ::highlight(javascript-decorator),
+  ::highlight(go-keyword) {
+    color: oklch(
+      calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
+      0.15
+      calc(var(--hue) + var(--hue-shift) + 36)
+    );
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   theme — project config (values only). Each styleAPI also ships its
+   own theme block; this layer holds the cross-cutting tokens + switches.
+   Switches (set on <html>/<body>):
+     data-ui-theme  = light | dark   (unset → OS)
+     data-ui-size   = sm | md | lg
+     data-ui-motion = off | on | debug
+   ════════════════════════════════════════════════════════════════════ */
+@layer theme {
+  :root {
+    /* color foundations — light defaults + dark bank */
+    --cfg-dark: 0;
+    --c-tint: 0.03;
+    --surf-l: var(--_bg-l);
+    --l-base: 98%; --l-floor: 85%; --l-color: 50%; --c-peak: 0.08; --surf-curve: 1; --st-neut: 1;
+    --dk-l-base: 24%; --dk-l-floor: 6%; --dk-l-color: 69%; --dk-c-peak: 0.07; --dk-surf-curve: 3; --dk-st-neut: 3;
+
+    /* type foundations — rem-valued, so plain (not registrable) */
+    --cfg-type-min: 0.75rem;  --cfg-type-min-ratio: 1.2;
+    --cfg-type-max: 0.875rem; --cfg-type-max-ratio: 1.26;
+    /* optical weight — climbs above type 0 (registered, so listed for tuning) */
+    --cfg-wght-base: 400; --cfg-wght-step: 90; --cfg-wght-max: 850;
+
+    /* geometry & fonts */
+    --cfg-radius: 6px;                                  /* 0 sharp … ~16px soft; 4–10 typical */
+
+    /* semantic hues — one home; .suc/.inf/.wrn/.dgr helpers + state rules consume these */
+    --hue-suc: 145;   /* success */
+    --hue-inf: 255;   /* info    */
+    --hue-wrn: 75;    /* warning */
+    --hue-dgr: 25;    /* danger  */
+
+    --font-ui:      -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-mono:    ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+
+    color-scheme: light-dark;
+  }
+
+  /* ── color theme switch ── */
+  /* dark — activated by OS preference (when theme unset) OR explicit attribute.
+     The engine reads --l-base/--l-floor/etc directly (styleAPI.color), so each
+     trigger swaps the light bank for the *-dark bank. The two triggers are
+     different mechanisms — a media query can't join a selector list with an
+     attribute selector — so the remap is stated under each. Kept verbatim
+     identical; if one bank value changes, change both. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-ui-theme]) { color-scheme: dark; --cfg-dark: 1;
+      --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut); }
+  }
+  [data-ui-theme="dark"] { color-scheme: dark; --cfg-dark: 1;
+    --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut); }
+  [data-ui-theme="light"] { color-scheme: light; --cfg-dark: 0; }
+
+  /* ── size switch — reconfigures the scale shape (base + ratio) ── */
+  [data-ui-size="sm"] { --cfg-type-min: 0.72rem; --cfg-type-min-ratio: 1.14; --cfg-type-max: 0.8rem;   --cfg-type-max-ratio: 1.18; }
+  [data-ui-size="md"] { --cfg-type-min: 0.75rem; --cfg-type-min-ratio: 1.2;  --cfg-type-max: 0.875rem; --cfg-type-max-ratio: 1.26; }
+  [data-ui-size="lg"] { --cfg-type-min: 0.85rem; --cfg-type-min-ratio: 1.25; --cfg-type-max: 1.0rem;   --cfg-type-max-ratio: 1.33; }
+
+  /* ── motion switch — scales every transition duration ── */
+  [data-ui-motion="off"]   { --cfg-motion: 0  }
+  [data-ui-motion="on"]    { --cfg-motion: 1  }
+  [data-ui-motion="debug"] { --cfg-motion: 10 }
+  @media (prefers-reduced-motion: reduce) { :root, [data-ui-motion] { --cfg-motion: 0 } }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   base — bare-element defaults that consume the substrate.
+   Unclassed HTML should already look right.
+   ════════════════════════════════════════════════════════════════════ */
+@layer base {
+  :where(html) { font-family: var(--font-ui); }
+  :where(body) { --bg: -1; background-color: var(--_bg); --surf-l: var(--_bg-l); min-block-size: 100svh; }
+
+  :where(svg, svg *) { color: currentColor; }   /* the bridge: SVG ink = engine ink (fill/stroke use currentColor) */
+  :where(hr)  { border: 0; block-size: 1px; background: var(--border); margin-block: 1lh; }
+
+  /* scrollbars — thin, transparent track, themed thumb. The standard
+     properties cover Firefox + modern engines; the webkit pseudos give the
+     same look where those aren't honoured. Thumb is --border (the quiet line),
+     so it tracks hue + theme; it brightens toward --focus on hover. */
+  :where(*) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  :where(*)::-webkit-scrollbar { inline-size: 0.6em; block-size: 0.6em; }
+  :where(*)::-webkit-scrollbar-track { background: transparent; }
+  :where(*)::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
+  }
+  :where(*)::-webkit-scrollbar-thumb:hover { background: var(--focus); }
+  :where(*)::-webkit-scrollbar-corner { background: transparent; }
+
+  :where(h1) { --type: 5 } :where(h2) { --type: 4 } :where(h3) { --type: 3 }
+  :where(h4) { --type: 2 } :where(h5) { --type: 1 } :where(h6) { --type: 0 }
+  /* h1–h5 weight comes from the engine (optical, via --type). h6 sits at
+     type 0 so the engine gives it body weight — nudge it just enough to
+     read as a heading. */
+  :where(h6) { font-weight: 600; }
+  :where(small) { --type: -1 }
+  /* code / kbd / samp / pre — monospace family. The font is shared; each then
+     takes its own surface treatment below. */
+  :where(code, kbd, samp, pre) { font-family: var(--font-mono); }
+
+  /* inline <code> — a quiet recessed chip. Tinted surface, small em padding so
+     it scales with the surrounding text, slightly down in size. */
+  :where(code) {
+    --bg: 0.08;
+    --type: -0.5;
+    padding: 0.1em 0.35em;
+    border-radius: max(2px, calc(var(--cfg-radius) - 3px));
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+  }
+
+  /* <kbd> — a keycap. Like inline code but with a defining border (the key
+     edge) and a touch of weight, so it reads as a physical key. */
+  :where(kbd) {
+    --bg: 0.04;
+    --type: -0.5;
+    padding: 0.1em 0.4em;
+    border-radius: max(2px, calc(var(--cfg-radius) - 3px));
+    border: 1px solid var(--border);
+    border-block-end-width: 2px;                 /* a hint of keycap depth */
+    font-weight: 600;
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+  }
+
+  /* <pre> — a code block panel. A larger recessed surface that scrolls
+     horizontally for long lines; the child <code> inherits the block's type
+     and drops its inline-chip treatment (it's already inside the panel). */
+  :where(pre) {
+    --bg: 0.08;
+    --type: -0.5;
+    padding: 0.5lh 0.7em;
+    border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+    overflow-x: auto;
+    & > :where(code) {
+      --type: inherit;                           /* scale with the block, not its own step */
+      padding: 0;
+      border-radius: 0;
+      background: none;                          /* no nested chip — the panel is the surface */
+    }
+  }
+
+  :where(a:not([class])) {
+    --fg: 0.85; text-decoration: underline; text-underline-offset: 0.15em;
+    transition:
+      --fg        calc(var(--cfg-motion) * 0.2s) ease-out,
+      --hue-shift calc(var(--cfg-motion) * 0.2s) ease-out;
+  }
+  /* link hover — engine-native feedback: full chroma + a uniform hue rotation.
+     Works in light/dark automatically (it just rotates hue), and is consistent
+     across every link in the system. Eases via the motion-gated transition above. */
+  :where(a:not([class])):hover { --fg: 1; --hue-shift: 30; }
+  :where(b, strong) { font-weight: 700; }
+
+  /* native form controls get a surface + border so unstyled forms are usable.
+     Height matches <button> by intent (2lh + 0.35em vertical) so an input and
+     a button sit equal side by side and both scale with --type. box-sizing is
+     border-box, so the 1px border sits inside the 2lh box (button has none) —
+     outer heights stay equal. NOT yet tokenized: still iterating; promote to a
+     shared --cfg-control-height only once the system settles. */
+  :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select) {
+    --bg: 0; background-color: var(--_bg); --surf-l: var(--_bg-l);
+    border: 1px solid var(--border); border-radius: var(--cfg-radius);
+    padding: 0.35em 0.8em; min-block-size: 2lh;
+  }
+  /* 16px floor on touch defeats iOS focus-zoom (same pattern as buttons).
+     checkbox/radio/range excluded — they handle their own touch sizing. */
+  @media (pointer: coarse) {
+    :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select) { font-size: max(16px, var(--_font-size)); }
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.page — full-viewport application shells.
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.page {
+  /* .page — 9-slot app grid; slots opt-in via pg-* children, empty
+     tracks collapse. Only nav/main/aside scroll; the shell never does. */
+  :where(.page) {
+    display: grid;
+    grid-template:
+      "b  b  b" auto
+      "h  h  h" auto
+      "s  s  s" auto
+      "n  mh a" auto
+      "n  m  a" 1fr
+      "n  mf a" auto
+      "f  f  f" auto /
+      auto 1fr auto;
+    height: 100svh; overflow: hidden;
+
+    &:where(.centered) { max-inline-size: 1200px; margin-inline: auto; }
+
+    /* regions paint their own surface — set --bg on any pg-* child and it
+       renders (the engine already sets ink/color on every element; only the
+       surface needs opting in, via the painter: paint --_bg + export --surf-l
+       so descendants resolve their ink contrast against this surface). */
+    & > :where([class^="pg-"], [class*=" pg-"]) {
+      background-color: var(--_bg);
+      --surf-l: var(--_bg-l);
+    }
+
+    & > :where(.pg-banner)      { grid-area: b;  --bg: 0.2  }   /* colourful — attention */
+    & > :where(.pg-header)      { grid-area: h;  --bg: -1   }   /* blends into the body floor */
+    & > :where(.pg-subheader)   { grid-area: s;  --bg: -1   }   /* blends into the body floor */
+    & > :where(.pg-navigation)  { grid-area: n;  --bg: 0.1;  overflow-y: auto; overscroll-behavior: contain; min-height: 0 }   /* a touch of colour */
+    & > :where(.pg-main-header)  { grid-area: mh; --bg: -0.6 }
+    & > :where(.pg-main)        { grid-area: m;  --bg: -0.6; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; min-height: 0 }   /* neutral, headroom to climb toward 0 */
+    & > :where(.pg-main-footer) { grid-area: mf; --bg: -0.6 }
+    & > :where(.pg-aside)       { grid-area: a;  --bg: -0.8; overflow-y: auto; overscroll-behavior: contain; min-height: 0 }   /* above the floor */
+    & > :where(.pg-footer)      { grid-area: f;  --bg: -0.8 }   /* above the floor */
+  }
+
+  /* modal <dialog> & [popover] — top layer, centred by default. The reset
+     zeroes margin, which cancels the UA centring, so restore inset:0 +
+     margin:auto here; .drawer opts out (it anchors to an edge). */
+  :where(dialog:not(.drawer), [popover]:not(.drawer)) {
+    inset: 0; margin: auto;
+    min-inline-size: 18em; max-inline-size: min(92vw, 34em);
+  }
+
+  /* .drawer — edge-anchored overlay (<dialog> or popover), composite-only slide */
+  :where(.drawer) {
+    --_dur: calc(var(--cfg-motion) * 0.25s);
+    position: fixed; inset: auto; margin: 0; padding: 0; border: 0;
+    max-block-size: none; max-inline-size: none;
+    transition: translate var(--_dur) ease-out, opacity var(--_dur) ease-out,
+                display var(--_dur) allow-discrete, overlay var(--_dur) allow-discrete;
+    translate: 0 0; opacity: 1;
+
+    &:not(:is([open], :popover-open)) { opacity: 0; translate: var(--_translate-closed); }
+    @starting-style { &:is([open], :popover-open) { opacity: 0; translate: var(--_translate-closed); } }
+
+    &:where(.left)   { --_translate-closed: -100% 0; inset: 0 auto 0 0; inline-size: min(85vw,320px); block-size: 100svh; border-radius: 0 var(--cfg-radius) var(--cfg-radius) 0; }
+    &:where(.right)  { --_translate-closed: 100% 0;  inset: 0 0 0 auto; inline-size: min(85vw,320px); block-size: 100svh; border-radius: var(--cfg-radius) 0 0 var(--cfg-radius); }
+    &:where(.top)    { --_translate-closed: 0 -100%; inset: 0 0 auto 0; inline-size: 100vw; block-size: min(85svh,240px); border-radius: 0 0 var(--cfg-radius) var(--cfg-radius); }
+    &:where(.bottom) { --_translate-closed: 0 100%;  inset: auto 0 0 0; inline-size: 100vw; block-size: min(85svh,240px); border-radius: var(--cfg-radius) var(--cfg-radius) 0 0; }
+  }
+  :where(dialog.drawer) {
+    --_dur: calc(var(--cfg-motion) * 0.25s);
+    &::backdrop { background: oklch(0% 0 0 / 0.5);
+      transition: background-color var(--_dur) ease-out, display var(--_dur) allow-discrete, overlay var(--_dur) allow-discrete; }
+    &:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
+    @starting-style { &[open]::backdrop { background: oklch(0% 0 0 / 0); } }
+  }
+
+  /* .hud — full-viewport overlay; click-through container, interactive
+     children. Slot classes: t/c/b row × l/c/r column. */
+  :where(.hud) {
+    position: fixed; inset: 0; display: grid; grid-template-areas: "hud";
+    pointer-events: none; z-index: 1;
+    & > :where(*) { grid-area: hud; justify-self: center; align-self: center; pointer-events: auto; }
+    & > :where(.tl) { justify-self: start;  align-self: start  }
+    & > :where(.tc) { justify-self: center; align-self: start  }
+    & > :where(.tr) { justify-self: end;    align-self: start  }
+    & > :where(.cl) { justify-self: start;  align-self: center }
+    & > :where(.cc) { justify-self: center; align-self: center }
+    & > :where(.cr) { justify-self: end;    align-self: center }
+    & > :where(.bl) { justify-self: start;  align-self: end    }
+    & > :where(.bc) { justify-self: center; align-self: end    }
+    & > :where(.br) { justify-self: end;    align-self: end    }
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.layout — composition primitives. Zero specificity, pure
+   geometry. Gap = calc(0.25 * 1lh): spacing derives from line-height.
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.layout {
+  :where(.column) { display: flex; flex-direction: column; gap: calc(0.25 * 1lh); }
+  :where(.row)    { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: calc(0.25 * 1lh); }
+  :where(.split)  { display: grid; grid-template-columns: 1fr 1fr; gap: calc(0.25 * 1lh); }
+  :where(.spread) { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: calc(0.25 * 1lh); }
+  :where(.spread-column) { display: flex; flex-direction: column; justify-content: space-between; gap: calc(0.25 * 1lh); }
+
+  :where(.lcr) {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: calc(0.25 * 1lh);
+    & > :where(:first-child:not(style):not(script))      { justify-self: start  }
+    & > :where(:nth-child(2 of :not(style):not(script))) { justify-self: center }
+    & > :where(:last-child:not(style):not(script))       { justify-self: end    }
+  }
+
+  :where(.flank, .flank-start) {
+    display: flex; flex-direction: row; align-items: center; gap: calc(0.25 * 1lh);
+    & > :where(:first-child:not(style):not(script)) { flex: 0 0 auto }
+    & > :where(:last-child:not(style):not(script))  { flex: 1 1 auto; min-inline-size: 0 }
+  }
+  :where(.flank-end) {
+    display: flex; flex-direction: row; align-items: center; gap: calc(0.25 * 1lh);
+    & > :where(:first-child:not(style):not(script)) { flex: 1 1 auto; min-inline-size: 0 }
+    & > :where(:last-child:not(style):not(script))  { flex: 0 0 auto }
+  }
+
+  :where(.frame) { aspect-ratio: 16 / 9; overflow: hidden; & > * { inline-size: 100%; block-size: 100%; object-fit: cover } }
+  :where(.grid)  { display: grid; gap: calc(0.25 * 1lh); grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min, 16rem)), 1fr)); }
+  :where(.ngrid) { display: grid; gap: calc(0.25 * 1lh); grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr); grid-auto-rows: auto; }
+  :where(.stack) { display: grid; grid-template-areas: "stack"; & > * { grid-area: stack } }
+
+  /* .container — establish an inline-size query container so the container-gated
+     visibility classes (.small / .medium / .large) measure THIS box's width.
+     Container queries require a container; nothing else in the system sets one,
+     so those classes are inert until an ancestor opts in here. */
+  :where(.container) { container-type: inline-size; }
+
+  :where(.hero) {
+    display: grid;
+    grid-template: "t t t" auto "l m r" 1fr "b b b" auto / auto 1fr auto;
+    height: 100%; overflow: hidden;
+    & > :where(.top)    { grid-area: t }
+    & > :where(.bottom) { grid-area: b }
+    & > :where(.left)   { grid-area: l; overflow-y: auto; min-height: 0 }
+    & > :where(.main)   { grid-area: m; overflow-y: auto; scrollbar-gutter: stable; min-height: 0 }
+    & > :where(.right)  { grid-area: r; overflow-y: auto; min-height: 0 }
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.components — populated next (buttons, cards, fields)
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.components {
+
+  /* ── button ──────────────────────────────────────────────────────
+     Bare <button> is the component — no class needed. Sits at --bg 0.6;
+     theme per instance with --hue / --bg / --type.
+
+     Auto-shapes by content via :has():
+       <svg> only        → square icon button
+       <svg> + <small>   → square, icon stacked over tiny caption (dock)
+       <svg> + text      → inline icon + label (the normal labeled button)
+       text only         → default text button                          */
+  :where(button) {
+    --bg: 0.6;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 0.45em;
+    min-block-size: 2lh; min-inline-size: 2lh;   /* touch floor */
+    padding: 0.35em 0.8em;
+    border-radius: var(--cfg-radius);
+    font-weight: 600;
+    user-select: none; -webkit-user-select: none;   /* label not selectable */
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+
+    & > svg { inline-size: 1.15em; block-size: 1.15em; flex: 0 0 auto; }
+  }
+
+  /* touch hardening.
+     16px font floor on ANY coarse pointer — iOS zooms a focused control
+     whenever its font is < 16px, on phone or tablet, so the floor isn't
+     screen-size-gated. (This is why the type engine captured --_font-size.)
+     44px target on coarse + small screen, per the spec for this system. */
+  @media (pointer: coarse) {
+    :where(button) { font-size: max(16px, var(--_font-size)); }
+  }
+  @media (pointer: coarse) and (max-width: 768px) {
+    :where(button) { min-block-size: max(44px, 2lh); min-inline-size: max(44px, 2lh); }
+  }
+
+  /* icon-only: an accessible label + svg, no caption → square.
+     keyed on [aria-label] because :only-child can't see the text node
+     in <button><svg/>label</button>, and an icon-only button needs the
+     label anyway. svg + text (no aria-label) falls through to inline. */
+  :where(button[aria-label]:has(> svg):not(:has(> small))) {
+    padding: 0; aspect-ratio: 1;
+  }
+
+  /* dock button: svg + <small> → square, icon over tiny caption */
+  :where(button:has(> svg):has(> small)) {
+    flex-direction: column; gap: 0.15em;
+    padding: 0.3em; aspect-ratio: 1;
+    & > small { --type: -2; font-weight: 600; line-height: 1; }
+  }
+
+  /* ── card ─────────────────────────────────────────────────────────
+     A painted surface with a defining edge. The author sets --bg to place
+     it in the depth stack (no auto-nesting — the component never guesses
+     hierarchy). Unlike a button it has no interaction to read as an edge,
+     so it carries a quiet border.
+       .card → quiet line (--border)
+       .Card → vibrant line (--focus), for a surface that should stand out */
+  :where(.card, .Card) {
+    --bg: 0;
+    padding: 0.4lh 0.5em;                     /* clears a focused child's ring (2px offset + 2px) on both axes */
+    border-radius: var(--cfg-radius);
+    border: 1px solid var(--border);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+  }
+    :where(.Card) { border-color: var(--focus); }
+
+  /* .menu — a popover that anchors to its invoker and stacks its items in a
+     column. Link it with anchor-name on the trigger + position-anchor here (the
+     implicit popovertarget anchor isn't supported everywhere yet). Opens into
+     the side with the most room and flips to stay on screen — pure HTML + CSS,
+     no script. It lives in classAPI.components, a later layer than
+     classAPI.layout, so its display rules win over the layout primitives by
+     cascade order — the closed state stays hidden even if .column et al. are
+     composed on, no specificity needed. */
+  :where(.menu) {
+    --bg: 0;
+    display: none; flex-direction: column; gap: calc(0.15 * 1lh);
+    position: fixed; inset: auto; margin: 0.4lh;
+    position-area: block-end span-inline-end;          /* prefer: below, start-aligned */
+    position-try-order: most-block-size;               /* else the side with the most room */
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    position-visibility: anchors-visible;              /* fold away if the anchor scrolls off */
+    min-inline-size: 10em; max-inline-size: 22em;
+    padding: 0.3lh 0.3em;
+    border-radius: var(--cfg-radius);
+    border: 1px solid var(--border);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+    & > :where(button) { --bg: 0; justify-content: flex-start; border-radius: calc(var(--cfg-radius) - 0.15em); }
+  }
+  :where(.menu:popover-open) { display: flex; }
+
+  /* ── blockquote ────────────────────────────────────────────────────
+     Bare <blockquote> is the component (Law 1 — no class). Quoted content
+     from a source: a lightly tinted surface, italic chromatic quote ink, and
+     accent quote marks that flow INLINE with the words (generated on the
+     quote <p>, like the crumbs separator — they hug wherever the quote begins
+     and ends, at any length). A trailing <cite> carries the attribution.
+       <blockquote>
+         <p>The quoted sentence.</p>
+         <cite>Author, <cite>Work</cite> (Publisher, year)</cite>
+       </blockquote>
+     The opening mark sits on the first paragraph, the closing on the last, so
+     a multi-paragraph quote isn't littered with marks. NOT a callout — that's
+     .alert.  Recolour with --hue / a semantic helper; rescale with --type. */
+  :where(blockquote) {
+    --bg: 0.1;                                   /* lightly tinted surface */
+    --fg: 0.9;                                   /* chromatic quote ink */
+    --type: -1;                                  /* body one step down — children inherit it, so a
+                                                    --type on the blockquote rescales quote + cite */
+    max-inline-size: 65ch;                       /* readable measure */
+    margin-inline: auto;                         /* centre the capped block in a wider column (else it strands left) */
+    padding: 0.5lh 0.7em;
+    border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+    font-style: italic;
+
+    /* quote paragraphs flow inline so the marks wrap the words; a multi-para
+       quote stacks via a top margin on subsequent paragraphs. Full chromatic
+       quote ink. */
+    & > :where(p) { --type: inherit; --fg: 1; margin: 0; display: inline; }
+    & > :where(p) ~ :where(p) { display: block; margin-block-start: 0.5lh; }
+
+    /* the accent quote marks — generated, inline. Opening on the first
+       paragraph, closing on the last, so they bracket the whole quote once. */
+    & > :where(p:first-of-type)::before { content: "\201C"; color: var(--focus); }
+    & > :where(p:last-of-type)::after   { content: "\201D"; color: var(--focus); }
+
+    /* attribution — the trailing <cite>. Upright (the quote is already italic),
+       quiet neutral ink, em-dashed. A nested <cite> (the work title) gets a
+       touch of weight; everything else stays plain. */
+    & > :where(cite) {
+      display: block;
+      --type: inherit;                           /* match the body's step */
+      --fg: -0.85;                               /* quiet neutral author ink */
+      text-align: end;                           /* pushed to the line end */
+      font-style: normal;                        /* attribution is NOT italic — contrasts the quote */
+      &::before { content: "— "; }
+      & :where(cite) { --type: inherit; font-weight: 600; font-style: normal; }   /* nested work title — inherits the step so it scales too */
+    }
+  }
+
+  /* ── lists ──────────────────────────────────────────────────────────
+     Prose <ul>/<ol> get a hanging indent of one line-height instead of the
+     browser's ~40px, so the marker offset scales with the type rhythm and
+     nested levels step consistently. role="list" lists stay stripped (reset). */
+  :where(ul, ol):where(:not([role="list"])) { padding-inline-start: 1lh; }
+
+  /* ── definition list ────────────────────────────────────────────────
+     Bare <dl> is the component (Law 1 — no class). Term + definition pairs:
+     the term takes label weight (the sanctioned weight use, like an eyebrow,
+     not hierarchy), the definition indents and recedes a touch, and pairs are
+     separated in lh so they read as discrete entries rather than a flat run.
+       <dl>
+         <dt>Workspace</dt><dd>The top-level container for events and billing.</dd>
+         <dt>Backfill</dt><dd>A one-time import of historical events.</dd>
+       </dl>  */
+  :where(dt) { font-weight: 600; }                                  /* the term — label weight */
+  :where(dd) { --fg: -0.4; margin-inline-start: 1em; }              /* the definition — indented, gently quiet */
+  :where(dt:not(:first-child)) { margin-block-start: 0.6lh; }       /* breathing room between pairs */
+
+  /* ── latex (justified prose) ─────────────────────────────────────────
+     An opt-in "typeset" treatment for a block of running prose: justified
+     edges with automatic hyphenation, and a spacing rhythm that's tight
+     within a block but looser between, so the structure reads at a glance.
+     Weight and size stay the type engine's job — nothing here sets them.
+
+     You supply the measure — this never sets a width, and justify NEEDS a
+     constrained line (~55-65ch reads best). Pair with .read, a width, or a
+     container:
+       <article class="latex read">…</article>
+       <article class="latex" style="max-inline-size: 62ch">…</article>
+
+     The subtlety: the reset gives every p/li text-wrap:pretty, which in
+     justified text stretches spaces rather than hyphenating (rivers). This
+     overrides it back to greedy wrap so hyphenation carries the slack.
+     Rescale with --type, recolour with --hue; loosen hyphenate-limit-chars
+     for more breaks (more even), tighten for fewer. */
+  :where(.latex) {
+    text-align: justify;
+    hyphens: auto; -webkit-hyphens: auto;
+    hyphenate-limit-chars: 6 3 3;                /* word>=6, >=3 each side; loosen for more breaks */
+    hanging-punctuation: first allow-end last;   /* optical margins — Safari, no-op elsewhere */
+
+    /* p/li: opt OUT of the reset's text-wrap:pretty (later layer wins), and
+       tighten leading so wrapped lines cohere into one block */
+    & :where(p, li) { text-wrap: wrap; line-height: 1.3; }
+
+    /* rhythm — tight within a block, looser between, so structure reads */
+    & :where(p) + :where(p)   { margin-block-start: 0.9lh; }
+    & :where(ul, ol)          { margin-block: 0.7lh; }
+    & :where(li) + :where(li) { margin-block-start: 0.55lh; }
+    & :where(blockquote)      { margin-block: 0.9lh; }
+
+    /* headings keep their engine weight/size — just don't justify or
+       hyphenate them, and bind each to the text it introduces (more above) */
+    & :where(h1, h2, h3, h4, h5, h6) { text-align: start; hyphens: manual; }
+    & :where(h2, h3, h4, h5, h6)     { margin-block-start: 1lh; margin-block-end: 0.3lh; }
+    & :where(h1)                     { margin-block-end: 0.5lh; }
+    & > :where(:first-child)         { margin-block-start: 0; }
+  }
+
+  /* ── alert ─────────────────────────────────────────────────────────
+     A standing message that carries a semantic hue. Self-contained (it
+     inlines the card frame — padding, paint, border — rather than requiring
+     a separate .card, since that's three trivial lines). Pair with a
+     semantic helper for meaning, and add the ARIA role yourself per urgency:
+       <div class="alert wrn" role="status">Heads up — check your input.</div>
+       <div class="alert dgr" role="alert"><svg>…</svg><div>Couldn't save.</div></div>
+     The tinted --bg lets the semantic hue colour the fill; the border stays
+     quiet (--border). An optional leading icon (first child) is sized and
+     aligned; the content (last child) takes the rest. CSS-only — no dismiss. */
+  :where(.alert) {
+    --bg: 0.12;                                  /* low tinted surface — the hue colours the fill */
+    --fg: -0.85;                                 /* near-neutral ink, legible on the tint */
+    display: flex; align-items: flex-start; gap: calc(0.35 * 1lh);
+    padding: 0.4lh 0.6em;
+    border-radius: var(--cfg-radius);
+    border: 1px solid var(--border);             /* quiet edge — the tinted fill carries the hue */
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+
+    /* optional leading icon — sized to the text, holds its size, hue-inked */
+    & > :where(svg:first-child) {
+      inline-size: 1.15em; block-size: 1.15em; flex: 0 0 auto;
+      margin-block-start: 0.1em;                 /* optical centre with the first line */
+      --fg: 0.8;                                 /* the icon takes chromatic hue ink to pop */
+    }
+    /* content takes the remaining width */
+    & > :where(:last-child) { flex: 1 1 auto; min-inline-size: 0; }
+  }
+
+  /* ── table ─────────────────────────────────────────────────────────
+     Bare <table> is the component (Law 1 — no class needed). Academic /
+     LaTeX booktabs aesthetic: NO vertical rules, NO body row rules — rows
+     are separated by rhythm alone. Only two horizontal rules, both vibrant
+     (--focus): one under the header (the \midrule) and one at the foot (the
+     \bottomrule). The whole table is framed like a .card (quiet --border).
+     Restraint is the point: let whitespace and the two rules do the work.
+
+     Numeric columns: add .num to the cells. (CSS can't propagate text
+     alignment from a <col> to its cells — only the cell class does it — so
+     mark the <th> and <td> cells, not the column.)
+       <table>
+         <thead><tr><th>Method</th><th class="num">Accuracy</th></tr></thead>
+         <tbody>
+           <tr><td>Baseline</td><td class="num">71.4</td></tr>
+           <tr><td>Ours</td><td class="num">92.8</td></tr>
+         </tbody>
+       </table>                                                            */
+  :where(table) {
+    --bg: 0;
+    inline-size: 100%;
+    border-collapse: separate;                  /* not collapse: lets the table box
+                                                   keep a real border + radius (collapse
+                                                   breaks both). spacing 0 = looks flush. */
+    border-spacing: 0;
+    border: 1px solid var(--border);            /* card-style frame */
+    border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+
+    /* cells — tight academic padding (a touch more vertical lead than
+       horizontal, so columns stay close but rows breathe) */
+    & :where(th, td) {
+      padding: calc(0.18 * 1lh) 0.7em;
+      text-align: start;
+      vertical-align: baseline;
+    }
+
+    /* header — quiet ink, the label row; its bottom edge is the \midrule */
+    & :where(thead th) {
+      --fg: -0.75;
+      font-weight: 600;
+      border-block-end: 1px solid var(--focus);  /* the vibrant under-header rule */
+    }
+
+    /* the \bottomrule — vibrant line closing the table body */
+    & :where(tbody) {
+      border-block-end: 1px solid var(--focus);
+    }
+
+    /* numeric cells — tabular figures, right-aligned so digits stack */
+    & :where(th.num, td.num) {
+      text-align: end;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;          /* belt + suspenders for older UAs */
+    }
+
+    /* optional caption — sits above, quiet and small, like a figure label */
+    & :where(caption) {
+      --type: -1; --fg: -0.7;
+      text-align: start;
+      padding: calc(0.18 * 1lh) 0.7em;
+      caption-side: top;
+    }
+  }
+
+  /* ── tag ──────────────────────────────────────────────────────────
+     A small dense label on a <span>. Optional leading and/or trailing
+     <svg> (icons size to the text). Quiet 0.1 surface, vibrant --focus
+     edge, max chromatic ink. State is server-rendered, not interactive.
+       <span class="tag">Label</span>                       default
+       <span class="tag" data-ui-state="off">Offline</span>  greyed, neutral
+       <span class="tag" data-ui-state="on">Live</span>      focus outline
+       <span class="tag" aria-disabled="true">…</span>       inert            */
+  :where(.tag) {
+    --bg: 0.4;
+    --fg: -0.9;
+    --type: -1;
+    display: inline-flex; align-items: center; gap: 0.3em;
+    padding: 0.1em 0.4em;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--cfg-radius) / 2);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+    white-space: nowrap;
+    user-select: none; -webkit-user-select: none;   /* label isn't selectable */
+
+    & > svg { inline-size: 1em; block-size: 1em; flex: 0 0 auto; }
+  }
+  :where(.tag[data-ui-state="off"]) {
+    --bg: 0.1; --fg: -0.4; --surface-chroma: 0;
+    border: 1px solid var(--border);
+  }
+  :where(.tag[data-ui-state="on"])     { outline: 1px solid var(--focus); border-color: var(--focus); & > svg { color: var(--focus); } }
+  :where(.tag[aria-disabled="true"])   { --bg: 0.05; --fg: -0.6; border-color: var(--border); }
+
+  /* ── avatar ────────────────────────────────────────────────────────
+     A square monogram / icon / image chip. Sized in lh so it scales with
+     the type system. The author colours it by setting --bg / --hue inline.
+     Serif by intent (--font-display) — monograms read better in a serif.
+       <span class="avatar">AL</span>                     monogram
+       <span class="avatar" style="--hue: 145">GH</span>  tinted
+       <span class="avatar"><img src="…" alt="…"></span>  photo (cropped)
+       <span class="avatar"><svg>…</svg></span>           generic face   */
+  :where(.avatar) {
+    --bg: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    block-size: 2.4lh;
+    aspect-ratio: 1;
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    user-select: none; -webkit-user-select: none;   /* monogram isn't selectable text */
+
+    /* an image fills the chip and crops to the rounded shape */
+    & > :where(img) {
+      inline-size: 100%; block-size: 100%;
+      object-fit: cover;
+    }
+    /* an svg (generic face, icon) sits a little inside the chip */
+    & > :where(svg) {
+      inline-size: 70%; block-size: 70%;
+    }
+  }
+  /* clip ONLY when there's an image to crop — an unscoped overflow:hidden
+     would also clip a corner badge, which is meant to straddle the edge.
+     A monogram / face avatar needs no clip. */
+  :where(.avatar:has(> img)) { overflow: hidden; }
+
+  /* ── crumbs (breadcrumb trail) ─────────────────────────────────────
+     A <nav class="crumbs"> of links ending in the current page. Separators
+     are generated (not in the markup) via ::before. Links read as default
+     links (underlined, chromatic) and brighten on hover; the current page is
+     aria-current="page" — a non-link, emphasized.
+       <nav class="crumbs" aria-label="Breadcrumb">
+         <a href="/">Home</a>
+         <a href="/dash">Dashboard</a>
+         <span aria-current="page">Calendar</span>
+       </nav>
+     A crumb may hold an inline icon (svg) alongside or instead of text — the
+     icon sizes to the label (1em) and inherits the crumb's ink:
+       <a href="/"><svg>…</svg> Home</a>     icon + text
+       <a href="/" aria-label="Home"><svg>…</svg></a>   icon-only
+
+     The separator is a masked SVG (a chevron), NOT a text glyph. Why: the
+     separator pseudo lives inside an underlined <a>, and an ancestor's
+     text-decoration is painted through descendants — a text separator can't
+     shed that underline (text-decoration:none and inline-block both fail to
+     stop it). A masked box has no text to underline, so it's immune. The mask
+     is painted with background-color:var(--border) — the system's quiet-line
+     token — so it still tracks hue + theme. Override the glyph per instance:
+       <nav class="crumbs" style="--crumb-sep:url('data:image/svg+xml,…')">   */
+  :where(.crumbs) {
+    /* default separator: a thin chevron. Override with any mask URL. */
+    --crumb-sep: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+    --type: -1;                                  /* the component's type step — set this on an
+                                                    instance to rescale the WHOLE trail (children
+                                                    inherit it below, so all em/lh spacing follows) */
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 0.45em;                                 /* the single spacing knob — sits on both sides
+                                                    of each separator (no separator margin) */
+
+    /* each crumb — a link consumes the chromatic ink position; the engine
+       turns the number into colour. inline-flex so an inline svg sits ON the
+       text row (the reset makes svg display:block, which would otherwise drop
+       the icon to its own line). --type:inherit pulls the wrapper's step down
+       (the registered property is non-inheriting by default) so every crumb,
+       icon, and separator shares one font-size — and one --type on .crumbs
+       rescales them together. */
+    & > :where(a, span) {
+      --type: inherit;
+      --fg: 0.85;                                /* chromatic link ink (same position as a bare link) */
+      display: inline-flex; align-items: center; gap: 0.35em;
+    }
+    & > :where(a, span) > :where(svg) {
+      inline-size: 1em; block-size: 1em; flex: 0 0 auto;   /* size to the label, inherit currentColor */
+    }
+    & > :where([aria-current="page"]) {
+      --fg: -1; font-weight: 600;                /* the current page — neutral ink, emphasized, not a link */
+    }
+
+    /* generated separator before every crumb except the first — a masked box,
+       not text (see header note). Painted with --border, the system's quiet,
+       hue-aware, theme-tracking line token. Sized in lh against the inherited
+       --type, so it scales with the trail. */
+    & > :where(a, span) + :where(a, span)::before {
+      content: "";
+      inline-size: 1lh; block-size: 1lh;         /* ≈ the line height — scales with --type */
+      background-color: var(--border);
+      mask: var(--crumb-sep) center / contain no-repeat;
+      -webkit-mask: var(--crumb-sep) center / contain no-repeat;
+    }
+  }
+
+  /* ── disclosure (details / summary) ────────────────────────────────
+     Bare <details> is the component (Law 1 — no class). Native open/close,
+     no JS. Card-framed like the rest; the <summary> is the clickable header
+     (it's in the interaction state-island selector, so it gets hover/active
+     from the engine); a CSS chevron rotates on open. The body sits below a
+     hairline divider. Open/close height animates when motion is on.
+       <details>
+         <summary>More detail</summary>
+         <p>Hidden until opened…</p>
+       </details>
+       <details open> … </details>   start expanded                       */
+  :where(details) {
+    --bg: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+
+    /* the header — clickable, paints its own surface so hover/active read */
+    & > :where(summary) {
+      display: flex; align-items: center; gap: 0.5em;
+      padding: calc(0.3 * 1lh) 0.7em;
+      border-radius: var(--cfg-radius);          /* round all corners when closed */
+      font-weight: 600;
+      list-style: none;                          /* belt: also kill the marker */
+      user-select: none; -webkit-user-select: none;   /* the click target shouldn't highlight */
+      background-color: var(--_bg); --surf-l: var(--_bg-l);
+
+      &::-webkit-details-marker { display: none; }   /* suspenders: Safari marker */
+
+      /* CSS chevron — a rotated corner that points right (closed), down (open).
+         Drawn in em so it tracks the type system; no SVG dependency. */
+      &::after {
+        content: "";
+        inline-size: 0.5em; block-size: 0.5em;
+        margin-inline-start: auto;               /* push the chevron to the end */
+        border: 0.12em solid currentColor;
+        border-block-start: 0; border-inline-start: 0;   /* keep right + bottom edges → ⌟ */
+        rotate: -45deg;                          /* points right when closed */
+        translate: 0 -0.1em;                     /* optical centering */
+        transition: rotate calc(var(--cfg-motion) * 0.18s) ease;
+        opacity: 0.6;
+      }
+    }
+    /* open: chevron points down; summary becomes the top section (round only
+       its top corners) and grows a divider below it */
+    &[open] > :where(summary) {
+      border-end-start-radius: 0; border-end-end-radius: 0;
+      border-block-end: 1px solid var(--border);
+    }
+    &[open] > :where(summary)::after { rotate: 45deg; }
+
+    /* the body wrapper. Closed = zero height AND zero padding so it fully
+       collapses (box-sizing:border-box doesn't reliably apply to this pseudo,
+       so padding must be zeroed explicitly, not just clipped). Both block-size
+       and padding-block transition together, so opening doesn't pop. */
+    &::details-content {
+      overflow: hidden;
+      block-size: 0;
+      padding: 0 0.7em;
+      transition:
+        block-size    calc(var(--cfg-motion) * 0.2s) ease,
+        padding-block calc(var(--cfg-motion) * 0.2s) ease,
+        content-visibility calc(var(--cfg-motion) * 0.2s) allow-discrete;
+    }
+    &[open]::details-content {
+      block-size: auto;
+      padding-block: calc(0.3 * 1lh);
+    }
+  }
+
+  /* ── form surface ─────────────────────────────────────────────────
+     A form is a recessed panel (--bg: -0.8). Controls inside sit RAISED
+     against it (--bg: 0.1), so surface difference alone defines them — the
+     base border is dropped (transparent, not removed, so the border-box
+     height stays identical and the line can return for states). Controls
+     OUTSIDE a form keep the base border: with no form surface to sit
+     against, the line is what defines them. */
+  :where(form, [role="form"]) {
+    --bg: -0.8; background-color: var(--_bg); --surf-l: var(--_bg-l);
+    padding: 0.4lh 0.5em;                     /* same as .card — clears a focused child's ring */
+    border-radius: var(--cfg-radius);         /* same as .card */
+
+    & :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select) {
+      --bg: 0.1;
+      border-color: transparent;              /* raised surface defines it; line returns for states */
+    }
+  }
+
+  /* ── field ────────────────────────────────────────────────────────
+     No class — a <label> inside a form IS a field. Shape:
+       <label>
+         <span>Label text</span>
+         <small>feedback</small>   ← always present, between label & input
+         <input>                   ← or select / textarea
+       </label>
+     The <small> sits ABOVE the control (reading flow: label → problem →
+     field) and is ALWAYS in the DOM at a fixed 1lh, so showing/hiding its
+     text causes zero layout shift. Everything below nests under the label
+     so rules target by structure. Validation rides aria-invalid; a green
+     "valid" cue is just the .suc helper (no ARIA backing to justify a state). */
+  :where(form, [role="form"]) :where(label):has(> input, > select, > textarea):not(:has(> input:is([type="checkbox"], [type="radio"]))) {
+    display: grid;
+    grid-template-columns: auto 1fr;          /* label | feedback, both left, packed */
+    grid-template-rows: 1lh auto;             /* row 1 fixed → feedback text can't shift the input */
+    align-items: baseline;                    /* span + small on one baseline */
+    column-gap: 0.5em;                         /* breathing room between label and feedback */
+
+    & > :where(span) {
+      --type: 0; --fg: -0.75;                 /* label text — neutral */
+      grid-column: 1;
+    }
+
+    & > :where(small) {
+      --type: -1; --fg: -0.8;                 /* feedback — neutral at rest, left of the gap */
+      grid-column: 2; justify-self: start;
+      /* reserved slot → zero shift: a FIXED 1lh box (not just a min) so the
+         empty and filled states are the exact same height. Content is laid
+         out inside via inline-flex so an empty <small> can't fall back to
+         box-edge baseline alignment and nudge the row. */
+      block-size: 1lh; display: inline-flex; align-items: center; line-height: 1;
+    }
+
+    & > :where(input, select, textarea) {
+      grid-column: 1 / -1; inline-size: 100%; /* control spans both, row 2 */
+    }
+
+    /* required → asterisk on the label, danger hue */
+    &:has(:where(input, select, textarea):required) > :where(span)::after {
+      content: " *"; --hue-lock: var(--hue-dgr); --fg: 0.8;
+    }
+
+    /* invalid → danger hue on feedback + control, and the border returns:
+       in-form controls are borderless by default (transparent), so the line
+       is reinstated here to carry the state — using the loud --focus (already
+       at the danger hue from --hue-lock) so the error edge reads strongly. */
+    &:has([aria-invalid="true"]) {
+      & > :where(small) { --hue-lock: var(--hue-dgr); }
+      & > :where([aria-invalid="true"]) { --hue-lock: var(--hue-dgr); border-color: var(--focus); }
+    }
+
+    /* feedback goes chromatic only when a semantic hue is in play — a
+       helper on the field, or an invalid control. Otherwise it stays neutral. */
+    &:is(.suc, .inf, .wrn, .dgr) > :where(small),
+    &:has([aria-invalid="true"]) > :where(small) {
+      --fg: 1;
+    }
+
+    /* a semantic hue on the field also returns the control's border so the
+       state reads on the input edge, not just the feedback text — loud --focus */
+    &:is(.suc, .inf, .wrn, .dgr) > :where(input, select, textarea) {
+      border-color: var(--focus);
+    }
+  }
+
+  /* ── field group ──────────────────────────────────────────────────
+     A <fieldset> forces its child fields onto one row. Each field's share
+     of the row is its --row-width (a flex ratio, default 1 → equal split).
+       <fieldset>
+         <label style="--row-width: 2">…</label>   ← 2/3 of the row
+         <label>…</label>                           ← 1/3
+       </fieldset>
+     With a <legend>, the group gets a field-style header: the legend is the
+     group label and an optional <small> right after it is the group feedback
+     (same look + no-shift as a single field). Legend and small span full
+     width; the controls wrap to a row beneath.
+       <fieldset>
+         <legend>Card type</legend>
+         <small>Pick one.</small>
+         <label><input type="radio" …><span>Visa</span></label> …
+       </fieldset>
+     Scoped to the fieldset so the share rule targets only its own fields. */
+  @scope (fieldset) {
+    :scope {
+      display: flex; flex-wrap: wrap;
+      gap: calc(0.25 * 1lh);
+      align-items: start;                     /* fields with differing feedback line up at the top */
+    }
+    :scope > * { flex: var(--row-width); min-inline-size: 0; }
+
+    /* a group with a legend is a radio/checkbox set: its option labels size to
+       content and pack/wrap (don't stretch to equal shares like field-row inputs) */
+    :scope:has(> legend) > label { flex: 0 0 auto; min-inline-size: max-content; }
+
+    /* legend = the group's header line. It claims the full width (flex
+       1 0 100%) so the control row always wraps beneath it. A <small> placed
+       INSIDE the legend is the group feedback and rides the same line —
+       structurally the legend IS the label, the small its annotation. */
+    :scope > legend {
+      display: flex; align-items: baseline; gap: 0.5em;
+      flex: 1 0 100%;
+      --type: 0; --fg: -0.75;                 /* matches the field label <span> */
+
+      & > small {
+        --type: -1; --fg: -0.8;
+        block-size: 1lh; display: flex; align-items: center; line-height: 1;
+      }
+    }
+  }
+
+  /* group validation — a danger hue on the fieldset colors its header, same
+     as a field. (Set .dgr on the fieldset, or aria-invalid on a control.) */
+  :where(fieldset:is(.suc, .inf, .wrn, .dgr), fieldset:has([aria-invalid="true"])) > :where(legend) > :where(small) {
+    --fg: 1;
+  }
+  :where(fieldset:has([aria-invalid="true"])) > :where(legend) { --hue-lock: var(--hue-dgr); }
+
+  /* ── segmented radio (.tabs) ───────────────────────────────────────
+     Opt-in: a radio group rendered as a segmented control. The radios are
+     REAL native inputs (keyboard, form, AT intact), shown beside each label.
+     The track is a full-width recessed groove (same surface + height as a text
+     input); the label breaks out ABOVE it; each option is a tile that fills the
+     track height and centers its content; the selected tile lifts subtly (like
+     a selected tag), not a loud fill. Best for 2–5 short options; long/many →
+     use a plain radio list instead.
+
+     WHY A DIV, NOT A FIELDSET: <fieldset> has a magic internal anonymous
+     content box that breaks the flex/grid formatting context — children can't
+     receive align-items/align-self:stretch through it, so tiles refused to fill
+     the track height (proven by isolation test: identical CSS fills on a div,
+     not on a fieldset, in both flex and grid). So the track is a
+     <div role="group"> with an aria-labelledby pointing at its .legend — same
+     "named group of radios" semantics to AT, without the fieldset quirk.
+       <div role="group" class="tabs" aria-labelledby="cc-lbl">
+         <span class="legend" id="cc-lbl">Card type <small>Pick one.</small></span>
+         <label><input type="radio" name="cc" checked><span>Visa</span></label>
+         <label><input type="radio" name="cc"><span>Mastercard</span></label>
+       </div>
+     Works anywhere — in a form, a toolbar, a card header. The .legend is
+     optional; omit it (or visually-hide it with .vh) when a nearby heading
+     already names the group. The top-margin that reserves the breakout space
+     is only applied when a .legend is actually present.                      */
+  :where(.tabs) {
+    /* the track — a recessed groove matching the form inputs.
+       wraps to rows on narrow screens rather than overflowing. */
+    display: flex; flex-wrap: wrap;
+    align-items: stretch;                       /* tiles fill the track height (single row) */
+    gap: calc(0.1 * 1lh);
+    --bg: 0.1; background-color: var(--_bg); --surf-l: var(--_bg-l);
+    border-radius: var(--cfg-radius);
+    padding: calc(0.15 * 1lh);
+    min-block-size: 2lh;                        /* the ONE height decision; tiles inherit it */
+    position: relative;                         /* anchor for the label breakout */
+
+    /* reserve breakout space ONLY when there's a legend to lift above the track */
+    &:has(> .legend) { margin-block-start: 1lh; }
+
+    /* group label breaks out ABOVE the groove (out of flow) so it sits on the
+       surface above, like a field label — not on the track. */
+    & > :where(.legend) {
+      position: absolute;
+      inset-block-end: 100%; inset-inline-start: 0;
+      inline-size: 100%;
+      display: flex; align-items: baseline; gap: 0.5em;
+      padding: 0; background: none;
+      --type: 0; --fg: -0.75;
+      & > :where(small) {
+        --type: -1; --fg: -0.8;
+        block-size: 1lh; display: flex; align-items: center; line-height: 1;
+      }
+    }
+
+    /* a tile — decisionless: content-width, fills the track height, centers */
+    & > :where(label) {
+      flex: 0 0 auto;                           /* content-width segments (pack, don't stretch wide) */
+      align-self: stretch;                      /* fill the track height on a single row */
+      min-block-size: 2lh;                      /* keep comfortable height when wrapped to rows too */
+      display: flex; align-items: center; justify-content: center; gap: 0.4em;
+      padding-inline: 0.8em;
+      border-radius: calc(var(--cfg-radius) - 0.15lh);
+      user-select: none; -webkit-user-select: none;
+      transition: background-color calc(var(--cfg-motion) * 0.12s) ease;
+
+      @media (pointer: coarse) { font-size: max(16px, var(--_font-size)); }
+
+      & > :where(span) {
+        --fg: -0.6;                             /* quiet label until selected */
+        @media (pointer: coarse) { font-size: max(16px, var(--_font-size)); }
+      }
+      & > :where(input[type="radio"]) {
+        margin: 0; flex: 0 0 auto;              /* visible, left of the text */
+        outline: none;                          /* the segment carries focus, not the radio */
+      }
+
+      &:has(:checked) {                         /* selected — subtle lift, chromatic label */
+        --bg: 0.3;
+        background-color: var(--_bg); --surf-l: var(--_bg-l);
+        border-radius: var(--cfg-radius);       /* full config radius — rounder than resting tiles */
+        & > :where(span) { --fg: 1; }
+      }
+      &:has(:focus-visible) {                    /* focus rides the whole segment */
+        outline: 2px solid var(--focus); outline-offset: -2px;
+      }
+    }
+
+    /* touch: track resolves to the same 44px target as buttons/inputs */
+    @media (pointer: coarse) and (max-width: 768px) {
+      min-block-size: max(44px, 2lh);
+    }
+  }
+
+  /* ── checkbox / radio ─────────────────────────────────────────────
+     Bare <input type="checkbox|radio"> — no class, no appearance:none, no
+     reskin. The browser's native control is excellent (and on iOS often
+     nicer than anything we'd draw); we only theme it. accent-color takes
+     the engine's resolved ink so a checked box matches the page hue, and a
+     semantic hue (.suc / aria-invalid) recolors it for free. */
+  :where(input[type="checkbox"], input[type="radio"]) {
+    --fg: 0.8;                                  /* checked fill = chromatic engine ink */
+    accent-color: currentColor;                 /* currentColor = the engine-resolved --fg ink */
+    inline-size: 1.15em; block-size: 1.15em; flex: 0 0 auto;
+
+    /* touch: bump the font-size so the em-sized box grows into a comfortable
+       target (type and control scale together — no separate size bump needed). */
+    @media (pointer: coarse) { font-size: max(1.4rem, var(--_font-size)); }
+  }
+  :where(input[type="radio"]) { border-radius: 50%; }   /* round box → round focus ring */
+
+  /* ── checkbox / radio field ───────────────────────────────────────
+     A <label> wrapping a checkbox/radio is a HORIZONTAL field: control
+     beside the label text, with the same no-shift <small> feedback slot
+     (e.g. "you must accept the terms"). Validation rides aria-invalid:
+     a danger hue recolors both the feedback and the control's accent. */
+  :where(form, [role="form"]) :where(label):has(> input:is([type="checkbox"], [type="radio"])):not(:where(.tabs *)) {
+    display: grid;
+    grid-template-columns: auto 1fr;            /* control | (label text + feedback) */
+    column-gap: 0.5em;
+    align-items: start;
+
+    & > :where(input) { grid-row: 1; align-self: center; }
+    & > :where(span)  { --fg: -0.75; grid-column: 2; }
+    & > :where(small) {
+      --type: -1; --fg: -0.8; grid-column: 2;
+      block-size: 1lh; display: inline-flex; align-items: center; line-height: 1;  /* reserved → zero shift */
+    }
+
+    /* invalid → danger hue on feedback + the control's accent */
+    &:has([aria-invalid="true"]) {
+      & > :where(small) { --hue-lock: var(--hue-dgr); }
+      & > :where([aria-invalid="true"]) { --hue-lock: var(--hue-dgr); }
+    }
+    &:is(.suc, .inf, .wrn, .dgr) > :where(small),
+    &:has([aria-invalid="true"]) > :where(small) { --fg: 1; }
+  }
+
+  /* ── progress / meter / range — the track+fill family ──────────────
+     Three native elements that share ONE visual language (a pill track
+     with a hue-driven fill at the system's 0.5lh control-line height) but
+     need separate pseudo-element plumbing because the browser exposes
+     each differently. All bare elements (Law 1), all painted from the
+     engine so they theme for free. Fill colour follows --hue; set it at
+     the call site to recolour.
+
+       <progress value="0.6"></progress>      task filling up (0–1 or value/max)
+       <progress></progress>                  indeterminate (animated)
+       <meter value="284" min="0" max="320"></meter>   a measurement in a range
+       <input type="range" min="0" max="100" value="40">   user-set slider
+
+     SHARED TRACK GEOMETRY — one set of tokens both readouts use. */
+  :where(progress, meter) {
+    --bg: 0.15;                                 /* track surface (quiet) */
+    --_fill: 0.6;                               /* fill surface (loud) */
+    appearance: none; -webkit-appearance: none;
+    inline-size: 100%; block-size: calc(0.5 * 1lh);
+    border: 0; border-radius: 999px;
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+    overflow: hidden;
+  }
+  /* progress fill (determinate) — value bar painted at the loud surface */
+  :where(progress)::-webkit-progress-bar { background: var(--_bg); border-radius: 999px; }
+  :where(progress)::-webkit-progress-value {
+    background-color: oklch(
+      calc(50% + var(--_fill) * 20%)
+      calc(var(--_fill) * 0.18)
+      var(--hue));
+    border-radius: 999px;
+  }
+  :where(progress)::-moz-progress-bar {
+    background-color: oklch(
+      calc(50% + var(--_fill) * 20%)
+      calc(var(--_fill) * 0.18)
+      var(--hue));
+    border-radius: 999px;
+  }
+  /* indeterminate progress — animated sheen, motion-gated */
+  /* indeterminate progress — a soft sheen drifting across at a calm, constant
+     pace. Linear timing (no acceleration), slow (~5.5s), and the gradient is
+     wide and soft so the loop reset is imperceptible — reads as "working",
+     not "racing". */
+  :where(progress:indeterminate) {
+    background:
+      linear-gradient(90deg,
+        transparent 0%,
+        oklch(calc(50% + var(--_fill) * 20%) calc(var(--_fill) * 0.18) var(--hue) / 0.85) 50%,
+        transparent 100%) no-repeat,
+      var(--_bg);
+    background-size: 65% 100%;
+    animation: progress-slide calc(var(--cfg-motion) * 5.5s) linear infinite;
+  }
+  :where(progress:indeterminate)::-webkit-progress-bar { background: transparent; }
+  @keyframes progress-slide {
+    0%   { background-position: -65% 0; }
+    100% { background-position: 165% 0; }
+  }
+
+  /* meter fill — manual hue by default. The fill colour is computed onto the
+     meter element itself (custom props reach the value pseudo reliably this
+     way; referencing var(--hue) directly inside the pseudo can fall back to
+     the UA default in some engines). Same formula as progress → same look. */
+  :where(meter) {
+    --_fill-color: oklch(
+      calc(50% + var(--_fill) * 20%)
+      calc(var(--_fill) * 0.18)
+      var(--hue));
+  }
+  :where(meter)::-webkit-meter-bar {
+    background: var(--_bg); border-radius: 999px;
+    block-size: calc(0.5 * 1lh);                /* full track height, no UA inset */
+  }
+  :where(meter)::-webkit-meter-optimum-value,
+  :where(meter)::-webkit-meter-suboptimum-value,
+  :where(meter)::-webkit-meter-even-less-good-value {
+    background: var(--_fill-color); border-radius: 999px;
+    block-size: 100%;                           /* fill the bar's full thickness (Chrome
+                                                   otherwise renders the value thinner) */
+  }
+  :where(meter)::-moz-meter-bar { background: var(--_fill-color); border-radius: 999px; }
+
+  /* OPT-IN semantic colouring (.smart) — the meter's own low/high/optimum
+     bands drive the hue: in range = success, sub-optimum = warning, far =
+     danger. Reach for this when the measurement has a "good/bad" meaning. */
+  :where(meter.smart) {
+    --_c-opt:  oklch(58% 0.16 var(--hue-suc));
+    --_c-sub:  oklch(64% 0.15 var(--hue-wrn));
+    --_c-bad:  oklch(56% 0.18 var(--hue-dgr));
+  }
+  :where(meter.smart)::-webkit-meter-optimum-value       { background: var(--_c-opt); }
+  :where(meter.smart)::-webkit-meter-suboptimum-value    { background: var(--_c-sub); }
+  :where(meter.smart)::-webkit-meter-even-less-good-value { background: var(--_c-bad); }
+  :where(meter.smart):-moz-meter-optimum::-moz-meter-bar        { background: var(--_c-opt); }
+  :where(meter.smart):-moz-meter-sub-optimum::-moz-meter-bar    { background: var(--_c-sub); }
+  :where(meter.smart):-moz-meter-sub-sub-optimum::-moz-meter-bar { background: var(--_c-bad); }
+
+  /* ── range slider — interactive track+thumb, same family ──────────── */
+  :where(input[type="range"]) {
+    --bg: 0.15;                                 /* track */
+    --_fill: 0.6;                               /* thumb / active */
+    appearance: none; -webkit-appearance: none;
+    inline-size: 100%; block-size: calc(0.5 * 1lh);
+    background: transparent; cursor: pointer; margin-block: calc(0.4 * 1lh);
+  }
+  /* track */
+  :where(input[type="range"])::-webkit-slider-runnable-track {
+    block-size: calc(0.5 * 1lh); border-radius: 999px;
+    background-color: var(--_bg);
+  }
+  :where(input[type="range"])::-moz-range-track {
+    block-size: calc(0.5 * 1lh); border-radius: 999px;
+    background-color: var(--_bg);
+  }
+  :where(input[type="range"])::-moz-range-progress {
+    block-size: calc(0.5 * 1lh); border-radius: 999px;
+    background-color: oklch(calc(50% + var(--_fill) * 20%) calc(var(--_fill) * 0.18) var(--hue));
+  }
+  /* thumb — a round handle at the loud fill colour, centered on the track */
+  :where(input[type="range"])::-webkit-slider-thumb {
+    appearance: none; -webkit-appearance: none;
+    inline-size: 1.1lh; block-size: 1.1lh; border-radius: 50%;
+    background-color: oklch(calc(50% + var(--_fill) * 20%) calc(var(--_fill) * 0.18) var(--hue));
+    border: 2px solid var(--_bg);
+    margin-block-start: calc((0.5lh - 1.1lh) / 2);   /* center on the track */
+    cursor: grab;
+  }
+  :where(input[type="range"])::-moz-range-thumb {
+    inline-size: 1.1lh; block-size: 1.1lh; border-radius: 50%;
+    background-color: oklch(calc(50% + var(--_fill) * 20%) calc(var(--_fill) * 0.18) var(--hue));
+    border: 2px solid var(--_bg);
+    cursor: grab;
+  }
+  :where(input[type="range"]):focus-visible::-webkit-slider-thumb { outline: 2px solid var(--focus); outline-offset: 2px; }
+  :where(input[type="range"]):focus-visible::-moz-range-thumb     { outline: 2px solid var(--focus); outline-offset: 2px; }
+  :where(input[type="range"]):active::-webkit-slider-thumb { cursor: grabbing; }
+  :where(input[type="range"]) { @media (pointer: coarse) { block-size: calc(0.6 * 1lh); } }
+
+
+  /* ── select (customizable) ────────────────────────────────────────
+     Plain <select> + <option> — NO <button>/<selectedcontent> ceremony.
+     Those are optional; without them the browser renders the selected
+     value itself, exactly like a classic select (the author button is just
+     an inert display:contents placeholder, so styling it fought the clone).
+     We opt into base-select and style the picker + options from the engine.
+     The closed control keeps base's input styling. Native fallback where
+     unsupported. */
+  @supports (appearance: base-select) {
+    :where(select), :where(select)::picker(select) { appearance: base-select; }
+
+    :where(select) {
+      display: inline-flex; align-items: center;   /* center the value like other inputs */
+      &::picker-icon {
+        --fg: -0.5; margin-inline-start: auto;      /* arrow to the end */
+        transition: rotate calc(var(--cfg-motion) * 0.15s) ease;
+      }
+      &:open::picker-icon { rotate: 180deg; }
+      &:open { border-color: var(--focus); }
+    }
+
+    ::picker(select) {
+      background-color: var(--_bg); --surf-l: var(--_bg-l);   /* inherited themed surface */
+      border: 1px solid var(--border);
+      border-radius: var(--cfg-radius);
+      margin-block-start: calc(0.25 * 1lh);
+      padding: calc(0.2 * 1lh);
+    }
+
+    :where(select) option {
+      display: flex; align-items: center; gap: 0.5em;
+      padding: calc(0.2 * 1lh) 0.6em;
+      border-radius: max(0px, calc(var(--cfg-radius) - 0.2lh));
+      &:hover, &:focus { --bg: 0.5; --fg: -1; background-color: var(--_bg); --surf-l: var(--_bg-l); }
+      &:checked { --fg: 0.8; font-weight: 600; }
+      & svg { inline-size: 1.1em; block-size: 1.1em; flex: 0 0 auto; }
+    }
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.utility — single-purpose overrides. Last meaningful = wins.
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.utility {
+  :where(.nowrap)   { white-space: nowrap; }
+  :where(.truncate) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-inline-size: 0; }
+  :where(.center)   { text-align: center; }
+  :where(.read)     { max-inline-size: var(--measure, 65ch); margin-inline: auto; }
+  :where(.fill)     { inline-size: 100%; }
+  :where(.vh) { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* semantic hue helpers — lock an element to a semantic hue (tokens in theme).
+     Four-letter names align in markup. */
+  :where(.suc) { --hue-lock: var(--hue-suc) }
+  :where(.inf) { --hue-lock: var(--hue-inf) }
+  :where(.wrn) { --hue-lock: var(--hue-wrn) }
+  :where(.dgr) { --hue-lock: var(--hue-dgr) }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   classAPI.viewport — responsive show/hide via revert-layer.
+   Last layer, so it out-ranks component display. (Inline display still
+   wins — don't set display inline on a gated element.)
+   ════════════════════════════════════════════════════════════════════ */
+@layer classAPI.viewport {
+  :where(.mobile, .tablet, .desktop) { display: none }
+  @media (width < 768px)            { :where(.mobile)  { display: revert-layer } }
+  @media (768px <= width < 1024px)  { :where(.tablet)  { display: revert-layer } }
+  @media (width >= 1024px)          { :where(.desktop) { display: revert-layer } }
+
+  :where(.small, .medium, .large) { display: none }
+  @container (width < 320px)           { :where(.small)  { display: revert-layer } }
+  @container (320px <= width < 560px)  { :where(.medium) { display: revert-layer } }
+  @container (width >= 560px)          { :where(.large)  { display: revert-layer } }
+}
+
+
+    body.material { --hue:302; --c-peak:0.14; --c-tint:0.05; --cfg-radius:16px;
+      --font-ui:"Roboto",system-ui,sans-serif; --font-display:"Roboto",sans-serif; --font-mono:"Roboto Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+    body.carbon { --hue:264; --c-peak:0.16; --c-tint:0.006; --cfg-radius:0px;
+      --font-ui:"IBM Plex Sans",system-ui,sans-serif; --font-display:"IBM Plex Sans",sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+    body.tw { --hue:233; --c-peak:0.15; --c-tint:0.012; --cfg-radius:8px;
+      --font-ui:"Inter",system-ui,sans-serif; --font-display:"Inter",sans-serif; --font-mono:"JetBrains Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+    .mininav { --type:0; --crumb-sep:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 4v16'/%3E%3C/svg%3E"); }
+
+</style>
+>>>>>>> f700abf (docs: new simple site)
 </head>
-<body class="page bg fg centered"
-      data-signals="{theme: 'dark', type: 'md', path: ''}"
-      data-init="$path = window.location.pathname"
-      data-effect="document.body.setAttribute('data-ui-theme', $theme); document.body.setAttribute('data-ui-type', $type)">
+<body>
+<div class="page"><div class="pg-banner center" style="padding:0.25lh 1em"><small>system.css — component catalog &amp; QC sheet</small></div><header class="pg-header spread" style="--bg:0.06; padding:0.4lh 1.2em; align-items:center; gap:1em; flex-wrap:wrap"><strong style="--type:1; font-family:var(--font-display)">system.css</strong><div class="row" style="gap:0.9em; align-items:center; flex-wrap:wrap"><div role="group" class="tabs" aria-labelledby="theme-lbl"><span class="legend vh" id="theme-lbl">Theme</span><label><input type="radio" name="theme" checked onchange="setSkin('')"><span>System</span></label><label><input type="radio" name="theme" onchange="setSkin('material')"><span>Material</span></label><label><input type="radio" name="theme" onchange="setSkin('carbon')"><span>Carbon</span></label><label><input type="radio" name="theme" onchange="setSkin('tw')"><span>Tailwind</span></label></div><div role="group" class="tabs" aria-labelledby="mode-lbl"><span class="legend vh" id="mode-lbl">Mode</span><label><input type="radio" name="mode" checked onchange="setMode('light')"><span>Light</span></label><label><input type="radio" name="mode" onchange="setMode('dark')"><span>Dark</span></label><label><input type="radio" name="mode" onchange="setMode('auto')"><span>Auto</span></label></div></div></header><div class="pg-subheader spread" style="--bg:0.03; padding:0.35lh 1.2em; align-items:center; gap:1em; flex-wrap:wrap"><div class="row" style="gap:0.9em; align-items:center; flex-wrap:wrap"><div role="group" class="tabs" aria-labelledby="size-lbl"><span class="legend vh" id="size-lbl">Size</span><label><input type="radio" name="size" onchange="setSize('sm')"><span>S</span></label><label><input type="radio" name="size" checked onchange="setSize('md')"><span>M</span></label><label><input type="radio" name="size" onchange="setSize('lg')"><span>L</span></label></div><div role="group" class="tabs" aria-labelledby="motion-lbl"><span class="legend vh" id="motion-lbl">Motion</span><label><input type="radio" name="motion" onchange="setMotion('off')"><span>Off</span></label><label><input type="radio" name="motion" checked onchange="setMotion('on')"><span>On</span></label><label><input type="radio" name="motion" onchange="setMotion('debug')"><span>Debug</span></label></div></div><output id="readout" style="--fg:-0.55; font-family:var(--font-mono)">system · light · md · on</output></div><nav class="pg-navigation column" aria-label="Sections" style="--bg:0.06; padding:1lh 0.9em; gap:0.1lh"><small style="--fg:-0.6; font-weight:700; letter-spacing:0.04em">CATALOG</small><a href="#foundations" style="--fg:-0.6; padding-block:0.15lh">Foundations</a><a href="#typography" style="--fg:-0.6; padding-block:0.15lh">Typography</a><a href="#buttons" style="--fg:-0.6; padding-block:0.15lh">Buttons</a><a href="#forms" style="--fg:-0.6; padding-block:0.15lh">Forms</a><a href="#data" style="--fg:-0.6; padding-block:0.15lh">Data display</a><a href="#feedback" style="--fg:-0.6; padding-block:0.15lh">Feedback</a><a href="#navigation" style="--fg:-0.6; padding-block:0.15lh">Navigation</a><a href="#overlays" style="--fg:-0.6; padding-block:0.15lh">Overlays</a><a href="#layout" style="--fg:-0.6; padding-block:0.15lh">Layout</a></nav><div class="pg-main-header" style="--bg:-0.6; padding:0.7lh 1.4em"><h1 style="--type:4; font-family:var(--font-display); margin:0">Components</h1></div><main class="pg-main" style="--bg:-0.6; padding:0.5lh 1.4em"><div class="column" style="max-inline-size:62rem"><section id="foundations" class="column" style="gap:0.7lh; padding-block-end:1lh; scroll-margin-top:5lh"><h2 style="--type:3; font-family:var(--font-display)">Foundations</h2><p style="--fg:-0.6">The engine outputs. Flip theme / mode / size above and watch these recompute — the fastest regression check.</p><small style="--fg:-0.55">Surfaces — <code>--bg</code> from floor to colour</small><div class="row" style="flex-wrap:wrap; gap:0.4em"><div class="bg column center" style="--bg:-1; min-inline-size:4.2em; padding:0.7lh 0.3em; border-radius:var(--cfg-radius); border:1px solid var(--border)"><small>-1</small></div><div class="bg column center" style="--bg:-0.75; min-inline-size:4.2em; padding:0.7lh 0.3em; border-radius:var(--cfg-radius); border:1px solid var(--border)"><small>-0.75</small></div><div class="bg column center" style="--bg:-0.5; min-inline-size:4.2em; padding:0.7lh 0.3em; border-radius:var(--cfg-radius); border:1px solid var(--border)"><small>-0.5</small></div><div class="bg column center" style="--bg:-0.25; min-inline-size:4.2em; padding:0.7lh 0.3em; border-radius:var(--cfg-radius); border:1px solid var(--border)"><small>-0.25</small></div><div class="bg column center" style="--bg:0; min-inline-size:4.2em; padding:0.7lh 0.3em; border-radius:var(--cfg-radius); border:1px solid var(--border)"><small>0</small></div><div class="bg column center" style="--bg:0.25; min-inline-size:4.2em; padding:0.7lh 0.3em; border-radius:var(--cfg-radius); border:1px solid var(--border)"><small>0.25</small></div><div class="bg column center" style="--bg:0.5; min-inline-size:4.2em; padding:0.7lh 0.3em; border-radius:var(--cfg-radius); border:1px solid var(--border)"><small>0.5</small></div><div class="bg column center" style="--bg:0.75; min-inline-size:4.2em; padding:0.7lh 0.3em; border-radius:var(--cfg-radius); border:1px solid var(--border)"><small>0.75</small></div><div class="bg column center" style="--bg:1; min-inline-size:4.2em; padding:0.7lh 0.3em; border-radius:var(--cfg-radius); border:1px solid var(--border)"><small>1</small></div></div><small style="--fg:-0.55">Ink — <code>--fg</code> neutral (negative) &amp; chromatic (positive)</small><div class="row" style="flex-wrap:wrap; gap:0.9em; align-items:baseline"><span style="--fg:-1">fg -1</span><span style="--fg:-0.85">fg -0.85</span><span style="--fg:-0.7">fg -0.7</span><span style="--fg:-0.5">fg -0.5</span><span style="--fg:-0.25">fg -0.25</span><span style="--fg:0.25">fg 0.25</span><span style="--fg:0.5">fg 0.5</span><span style="--fg:0.75">fg 0.75</span><span style="--fg:1">fg 1</span></div><small style="--fg:-0.55">Type scale — <code>--type</code> steps</small><div class="column" style="gap:0.1lh"><span style="--type:4; font-family:var(--font-display)">type 4 — Grumpy wizards make toxic brew</span><span style="--type:3; font-family:var(--font-display)">type 3 — Grumpy wizards make toxic brew</span><span style="--type:2; font-family:var(--font-display)">type 2 — Grumpy wizards make toxic brew</span><span style="--type:1; font-family:var(--font-display)">type 1 — Grumpy wizards make toxic brew</span><span style="--type:0; font-family:var(--font-display)">type 0 — Grumpy wizards make toxic brew</span><span style="--type:-1; font-family:var(--font-display)">type -1 — Grumpy wizards make toxic brew</span><span style="--type:-2; font-family:var(--font-display)">type -2 — Grumpy wizards make toxic brew</span></div></section><hr><section id="typography" class="column" style="gap:0.7lh; padding-block-end:1lh; scroll-margin-top:5lh"><h2 style="--type:3; font-family:var(--font-display)">Typography</h2><p style="--fg:-0.6">Headings, prose, quotes, justified body, code, and lists — weight comes from the type engine, never hand-set.</p><div class="column" style="gap:0.1lh"><h1 style="margin:0">Heading 1</h1><h2 style="margin:0">Heading 2</h2><h3 style="margin:0">Heading 3</h3><h4 style="margin:0">Heading 4</h4><h5 style="margin:0">Heading 5</h5><h6 style="margin:0">Heading 6</h6></div><hr><div class="read" style="--measure:60ch"><p>The system treats type as the spacing system: every gap, pad, and rhythm derives from line-height, so text and layout scale together. Here is a list:</p><ul><li>First item in an unordered list</li><li>Second item, a little longer to show wrapping behaviour</li><li>Third</li></ul><ol><li>Ordered one</li><li>Ordered two</li></ol><blockquote>A quiet, indented quote that carries a citation beneath it.<cite>Ada Lovelace</cite></blockquote></div><p>Body text with <a href="#">an inline link</a> that consumes the chromatic ink position.</p><hr><small style="--fg:-0.55">Justified prose — <code>.latex</code></small><div class="latex read" style="--measure:60ch"><p>This paragraph is set with the <code>.latex</code> class: justified, hyphenated, with the greedy wrap that lets hyphenation carry the slack instead of stretching the spaces into rivers. It is meant for long-form, document-style reading where an even right edge matters.</p><p>A second paragraph confirms the inter-paragraph rhythm and the justified edge hold across blocks.</p></div><hr><small style="--fg:-0.55">Mono — code · kbd · pre</small><p style="--fg:-0.7">Inline <code>code</code>, a keycap <kbd>⌘</kbd> <kbd>K</kbd>, then a block:</p><pre><code>body.carbon {
+  --hue: 264;
+  --cfg-radius: 0px;
+  --font-ui: "IBM Plex Sans";
+}</code></pre><hr><small style="--fg:-0.55">Description list &amp; rule</small><dl><dt>Surface</dt><dd>A painted background placed in the depth stack via <code>--bg</code>.</dd><dt>Ink</dt><dd>Foreground colour resolved from <code>--fg</code> against the surface.</dd></dl></section><hr><section id="buttons" class="column" style="gap:0.7lh; padding-block-end:1lh; scroll-margin-top:5lh"><h2 style="--type:3; font-family:var(--font-display)">Buttons</h2><p style="--fg:-0.6">A bare &lt;button&gt; is the component; its inner content auto-selects the shape.</p><small style="--fg:-0.55">Text — primary is a hue at the call site, semantics are a class</small><div class="row" style="gap:0.5em; flex-wrap:wrap"><button type="button" style="--bg:0.6" >Primary</button><button type="button" style="--bg:0.6" >Default</button><button type="button" class="suc" style="--bg:0.6" >Confirm</button><button type="button" class="dgr" style="--bg:0.6" >Delete</button><button type="button" style="--bg:0.05" >Subtle</button><button type="button" disabled>Disabled</button></div><small style="--fg:-0.55">Icon + label · icon only (auto-square) · dock (icon over caption) — shape follows content</small><div class="row" style="gap:0.5em; flex-wrap:wrap; align-items:center"><button type="button" style="--bg:0.6" ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>New</button><button type="button" style="--bg:0.12" ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Export</button><button type="button" aria-label="Search" style="--bg:0.12"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button><button type="button" aria-label="Notifications" style="--bg:0.12"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg></button><button type="button" aria-label="Settings" style="--bg:0.12"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 13a1.65 1.65 0 0 0 .33 1.82l.05.05a2 2 0 1 1-2.83 2.83l-.05-.05a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.07a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.05.05a2 2 0 1 1-2.83-2.83l.05-.05a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.07a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.05-.05a2 2 0 1 1 2.83-2.83l.05.05a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.07a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.05-.05a2 2 0 1 1 2.83 2.83l-.05.05a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.07a1.65 1.65 0 0 0-1.51 1z"/></svg></button><button type="button" class="dgr" aria-label="Delete" style="--bg:0.12"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button><button type="button" style="--bg:0.12"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><small>Home</small></button><button type="button" style="--bg:0.12"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><small>Search</small></button><button type="button" style="--bg:0.12"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><small>Alerts</small></button></div></section><hr><section id="forms" class="column" style="gap:0.7lh; padding-block-end:1lh; scroll-margin-top:5lh"><h2 style="--type:3; font-family:var(--font-display)">Forms</h2><p style="--fg:-0.6">A &lt;form&gt; is a recessed panel; each field is span → small → control. Required gets an asterisk, <code>aria-invalid</code> goes red, <code>.suc</code> goes green; <code>--row-width</code> sets the row ratios.</p><form class="column" style="gap:0.6lh; padding:1.1lh 1.2em; max-inline-size:34rem"><strong style="--type:1; font-family:var(--font-display)">Account</strong><label><span>Full name</span><small>As it appears on file.</small><input placeholder="Ada Lovelace" required></label><label class="suc"><span>Email</span><small>Looks good.</small><input type="email" value="ada@example.com"></label><fieldset><label class="suc" style="--row-width:2"><span>City</span><small>Recognized.</small><input value="Naperville"></label><label><span>State</span><small></small><select><option>IL</option><option>CA</option><option>NY</option><option>TX</option><option>WA</option></select></label><label style="--row-width:1.4"><span>ZIP</span><small>5 digits</small><input value="605" required aria-invalid="true"></label></fieldset><label><span>Bio</span><small></small><textarea rows="2" placeholder="A sentence or two."></textarea></label><label class="column" style="gap:0.15lh"><span>Threshold</span><small></small><input type="range" min="0" max="100" value="40"></label><div role="group" class="tabs" aria-labelledby="plan-lbl"><span class="legend" id="plan-lbl">Plan <small></small></span><label><input type="radio" name="plan" checked><span>Free</span></label><label><input type="radio" name="plan"><span>Pro</span></label><label><input type="radio" name="plan"><span>Team</span></label></div><label><input type="checkbox" checked><span>Email me product updates</span><small></small></label><div class="row" style="gap:0.5em"><button type="button" style="--bg:0.6" >Save</button><button type="button" style="--bg:0.05" >Cancel</button></div></form></section><hr><section id="data" class="column" style="gap:0.7lh; padding-block-end:1lh; scroll-margin-top:5lh"><h2 style="--type:3; font-family:var(--font-display)">Data display</h2><p style="--fg:-0.6">Tables, tags, avatars, and progress indicators.</p><table><caption>Edge nodes</caption><thead><tr><th>Node</th><th>Owner</th><th>Status</th><th class="num">Latency</th></tr></thead><tbody><tr><td>nyc-01</td><td>Dana R.</td><td><span class="tag suc">online</span></td><td class="num">42ms</td></tr><tr><td>lhr-01</td><td>Marcus T.</td><td><span class="tag wrn">degraded</span></td><td class="num">118ms</td></tr><tr><td>fra-03</td><td>Priya S.</td><td><span class="tag dgr">offline</span></td><td class="num">—</td></tr><tr><td>sin-01</td><td>Sam W.</td><td><span class="tag suc">online</span></td><td class="num">73ms</td></tr></tbody></table><hr><small style="--fg:-0.55">Tags</small><div class="column" style="gap:0.5lh"><small style="--fg:-0.55">Semantic</small><div class="row" style="gap:0.5em; flex-wrap:wrap"><span class="tag">label</span><span class="tag suc">done</span><span class="tag wrn">pending</span><span class="tag dgr">failed</span><span class="tag inf">info</span></div><small style="--fg:-0.55">State — data-ui-state (server-stamped) · icons leading/trailing</small><div class="row" style="gap:0.5em; flex-wrap:wrap; align-items:center"><span class="tag" data-ui-state="on"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="6"/></svg>Live</span><span class="tag" data-ui-state="off">Idle</span><span class="tag" aria-disabled="true">Archived</span><span class="tag suc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Verified</span><span class="tag">Filter<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span><span class="tag"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="6"/></svg>Design<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span></div></div><hr><small style="--fg:-0.55">Avatars (shape follows --cfg-radius)</small><div class="row" style="gap:0.4em; align-items:center"><span class="avatar" style="--bg:0.6; --type:2">DR</span><span class="avatar" style="--bg:0.6; --hue:145">AB</span><span class="avatar" style="--bg:0.6; --hue:300">CD</span><span class="avatar" style="--bg:0.12; --fg:-0.6">+5</span></div><hr><small style="--fg:-0.55">Meter &amp; progress</small><div class="column" style="gap:0.4lh; max-inline-size:28rem"><label class="column" style="gap:0.1lh"><small>Storage · 64%</small><meter class="smart" value="64" min="0" max="100" low="50" high="80" optimum="30"></meter></label><label class="column" style="gap:0.1lh"><small>Build · 72%</small><progress value="0.72"></progress></label></div></section><hr><section id="feedback" class="column" style="gap:0.7lh; padding-block-end:1lh; scroll-margin-top:5lh"><h2 style="--type:3; font-family:var(--font-display)">Feedback &amp; disclosure</h2><p style="--fg:-0.6">Alerts carry a role and a semantic hue; the toast rides the HUD overlay.</p><div class="column" style="gap:0.5lh; max-inline-size:40rem"><div class="alert" role="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="inline-size:1.2em;block-size:1.2em;flex:0 0 auto"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><div>A plain, neutral notice.</div></div><div class="alert inf" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="inline-size:1.2em;block-size:1.2em;flex:0 0 auto"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><div>Informational — a sync is in progress.</div></div><div class="alert suc" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="inline-size:1.2em;block-size:1.2em;flex:0 0 auto"><path d="M20 6 9 17l-5-5"/></svg><div>Success — your changes were saved.</div></div><div class="alert wrn" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="inline-size:1.2em;block-size:1.2em;flex:0 0 auto"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><div>Warning — your trial ends in 3 days.</div></div><div class="alert dgr" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="inline-size:1.2em;block-size:1.2em;flex:0 0 auto"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><div>Error — could not reach the server.</div></div></div><hr><small style="--fg:-0.55">Disclosure — &lt;details&gt;/&lt;summary&gt;</small><details style="max-inline-size:40rem"><summary>What is progressive disclosure?</summary><p style="--fg:-0.6; margin-block-start:0.5lh">Content hidden behind an explicit, user-driven toggle — not a hover. The summary is always visible; the detail is one click away.</p></details><hr><small style="--fg:-0.55">Segmented control — standalone .tabs</small><div role="group" class="tabs" aria-label="Range" style="max-inline-size:24rem"><label><input type="radio" name="rng" checked><span>Day</span></label><label><input type="radio" name="rng"><span>Week</span></label><label><input type="radio" name="rng"><span>Month</span></label></div><hr><small style="--fg:-0.55">Indeterminate progress · toast</small><div class="row" style="gap:1em; align-items:center"><progress style="max-inline-size:14rem"></progress><button type="button" style="--bg:0.6" onclick="toast()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Show toast</button></div></section><hr><section id="navigation" class="column" style="gap:0.7lh; padding-block-end:1lh; scroll-margin-top:5lh"><h2 style="--type:3; font-family:var(--font-display)">Navigation</h2><p style="--fg:-0.6">Crumbs, twice: a trail and a repurposed section bar.</p><small style="--fg:-0.55">Breadcrumb — default chevron separator, last crumb is current</small><nav class="crumbs" aria-label="Breadcrumb"><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</a><a href="#">Catalog</a><span>Navigation</span></nav><hr><small style="--fg:-0.55">Mini-nav — bar separator (<code>--crumb-sep</code>) + a size bump</small><nav class="crumbs mininav" aria-label="Sections"><span aria-current="true">Overview</span><a href="#">Activity</a><a href="#">Members</a><a href="#">Settings</a></nav></section><hr><section id="overlays" class="column" style="gap:0.7lh; padding-block-end:1lh; scroll-margin-top:5lh"><h2 style="--type:3; font-family:var(--font-display)">Overlays</h2><p style="--fg:-0.6">Triggers live in the right rail (<code>pg-aside</code>) so any overlay is reachable from any scroll position. The matrix: four edges × {dialog, popover} drawers, plus a centered modal dialog and a light-dismiss popover.</p></section><hr><section id="layout" class="column" style="gap:0.7lh; padding-block-end:1lh; scroll-margin-top:5lh"><h2 style="--type:3; font-family:var(--font-display)">Layout</h2><p style="--fg:-0.6">How the page assembles, and the flex primitives underneath it.</p><small style="--fg:-0.55">Page shell anatomy</small><div class="column" style="gap:0.3lh"><small style="--fg:-0.55">The <code>.page</code> shell — all nine slots, dashed and labeled (rendered in an iframe so it gets its own viewport). Re-themes with the controls.</small><iframe id="shell" title="page shell anatomy" style="inline-size:100%; block-size:460px; border:1px solid var(--border); border-radius:var(--cfg-radius)"></iframe></div><hr><small style="--fg:-0.55">Composition primitives</small><div class="grid" style="--grid-min:13rem; gap:1em"><div class="column" style="gap:0.2lh"><small style="--fg:-0.55"><code>.column</code></small><div class="column" style="gap:0.3lh"><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">a</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">b</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">c</div></div></div><div class="column" style="gap:0.2lh"><small style="--fg:-0.55"><code>.row</code></small><div class="row" style="gap:0.4em"><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">a</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">b</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">c</div></div></div><div class="column" style="gap:0.2lh"><small style="--fg:-0.55"><code>.split</code></small><div class="split" style="gap:0.4em"><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">a</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">b</div></div></div><div class="column" style="gap:0.2lh"><small style="--fg:-0.55"><code>.spread</code></small><div class="spread"><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">a</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">b</div></div></div><div class="column" style="gap:0.2lh"><small style="--fg:-0.55"><code>.lcr</code></small><div class="lcr" style="gap:0.4em"><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">L</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">C</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">R</div></div></div><div class="column" style="gap:0.2lh"><small style="--fg:-0.55"><code>.flank-start</code></small><div class="flank-start" style="gap:0.4em"><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); inline-size:4.5em">fixed</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">flex</div></div></div><div class="column" style="gap:0.2lh"><small style="--fg:-0.55"><code>.grid</code></small><div class="grid" style="--grid-min:4rem; gap:0.4em"><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">1</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">2</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">3</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">4</div></div></div><div class="column" style="gap:0.2lh"><small style="--fg:-0.55"><code>.ngrid</code></small><div class="ngrid" style="--cols:3; gap:0.4em"><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">1</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">2</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">3</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">4</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">5</div><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); ">6</div></div></div><div class="column" style="gap:0.2lh"><small style="--fg:-0.55"><code>.frame</code></small><div class="frame" style="--ratio:16/9; max-inline-size:11rem"><div style="border:2px dashed var(--focus); padding:0.5lh 0.6em; --type:-1; border-radius:calc(var(--cfg-radius) - 2px); block-size:100%">16:9</div></div></div></div></section><hr></div></main><div class="pg-main-footer center" style="--bg:-0.6; padding:0.3lh 1em"><small style="--fg:-0.5">end of catalog</small></div><aside class="pg-aside" style="--bg:0.04; padding:1lh 1em"><div class="column" style="gap:0.7lh"><strong style="--type:1; font-family:var(--font-display)">Overlays</strong><small style="--fg:-0.55">Drawer · dialog (modal)</small><div class="row" style="gap:0.35em; flex-wrap:wrap"><button type="button" style="--bg:0.12" onclick="document.getElementById('dlg-left').showModal()">Left</button><button type="button" style="--bg:0.12" onclick="document.getElementById('dlg-right').showModal()">Right</button><button type="button" style="--bg:0.12" onclick="document.getElementById('dlg-top').showModal()">Top</button><button type="button" style="--bg:0.12" onclick="document.getElementById('dlg-bottom').showModal()">Bottom</button></div><small style="--fg:-0.55">Drawer · popover (light-dismiss)</small><div class="row" style="gap:0.35em; flex-wrap:wrap"><button type="button" style="--bg:0.12" popovertarget="pop-left">Left</button><button type="button" style="--bg:0.12" popovertarget="pop-right">Right</button><button type="button" style="--bg:0.12" popovertarget="pop-top">Top</button><button type="button" style="--bg:0.12" popovertarget="pop-bottom">Bottom</button></div><small style="--fg:-0.55">Dialog &amp; popover</small><div class="row" style="gap:0.35em; flex-wrap:wrap"><button type="button" style="--bg:0.6" onclick="document.getElementById('modal').showModal()">Modal dialog</button><button type="button" style="--bg:0.12" popovertarget="lpop">Popover</button></div><small style="--fg:-0.55">Anchored popover — CSS anchor positioning</small><div class="row" style="gap:0.35em"><button type="button" style="--bg:0.6; anchor-name:--menu" popovertarget="anchored-pop">Open menu</button></div></div></aside><footer class="pg-footer spread" style="--bg:-0.85; padding:0.3lh 1.2em; align-items:center"><small style="--fg:-0.5">system.css</small><small style="--fg:-0.5">theme × mode × size × motion</small></footer></div><dialog id="dlg-left" class="drawer left bg" style="--bg:0; padding:1.2lh 1.2em"><div class="column" style="gap:0.6lh"><strong style="--type:1; font-family:var(--font-display)">Left drawer</strong><small style="--fg:-0.6">&lt;dialog&gt; — modal, dimmed backdrop, Esc to close.</small><button type="button" style="--bg:0.6" onclick="this.closest('dialog').close()">Close</button></div></dialog><dialog id="dlg-right" class="drawer right bg" style="--bg:0; padding:1.2lh 1.2em"><div class="column" style="gap:0.6lh"><strong style="--type:1; font-family:var(--font-display)">Right drawer</strong><small style="--fg:-0.6">&lt;dialog&gt; — modal, dimmed backdrop, Esc to close.</small><button type="button" style="--bg:0.6" onclick="this.closest('dialog').close()">Close</button></div></dialog><dialog id="dlg-top" class="drawer top bg" style="--bg:0; padding:1.2lh 1.2em"><div class="column" style="gap:0.6lh"><strong style="--type:1; font-family:var(--font-display)">Top drawer</strong><small style="--fg:-0.6">&lt;dialog&gt; — modal, dimmed backdrop, Esc to close.</small><button type="button" style="--bg:0.6" onclick="this.closest('dialog').close()">Close</button></div></dialog><dialog id="dlg-bottom" class="drawer bottom bg" style="--bg:0; padding:1.2lh 1.2em"><div class="column" style="gap:0.6lh"><strong style="--type:1; font-family:var(--font-display)">Bottom drawer</strong><small style="--fg:-0.6">&lt;dialog&gt; — modal, dimmed backdrop, Esc to close.</small><button type="button" style="--bg:0.6" onclick="this.closest('dialog').close()">Close</button></div></dialog><aside id="pop-left" popover class="drawer left bg" style="--bg:0; padding:1.2lh 1.2em"><div class="column" style="gap:0.6lh"><strong style="--type:1; font-family:var(--font-display)">Left drawer</strong><small style="--fg:-0.6">popover — light-dismiss, click outside or Esc.</small><button type="button" style="--bg:0.12" popovertarget="pop-left" popovertargetaction="hide">Close</button></div></aside><aside id="pop-right" popover class="drawer right bg" style="--bg:0; padding:1.2lh 1.2em"><div class="column" style="gap:0.6lh"><strong style="--type:1; font-family:var(--font-display)">Right drawer</strong><small style="--fg:-0.6">popover — light-dismiss, click outside or Esc.</small><button type="button" style="--bg:0.12" popovertarget="pop-right" popovertargetaction="hide">Close</button></div></aside><aside id="pop-top" popover class="drawer top bg" style="--bg:0; padding:1.2lh 1.2em"><div class="column" style="gap:0.6lh"><strong style="--type:1; font-family:var(--font-display)">Top drawer</strong><small style="--fg:-0.6">popover — light-dismiss, click outside or Esc.</small><button type="button" style="--bg:0.12" popovertarget="pop-top" popovertargetaction="hide">Close</button></div></aside><aside id="pop-bottom" popover class="drawer bottom bg" style="--bg:0; padding:1.2lh 1.2em"><div class="column" style="gap:0.6lh"><strong style="--type:1; font-family:var(--font-display)">Bottom drawer</strong><small style="--fg:-0.6">popover — light-dismiss, click outside or Esc.</small><button type="button" style="--bg:0.12" popovertarget="pop-bottom" popovertargetaction="hide">Close</button></div></aside><dialog id="modal" class="bg" style="--bg:0; border:0; border-radius:var(--cfg-radius); padding:1.4lh 1.4em; max-inline-size:min(90vw,30rem)"><div class="column" style="gap:0.6lh"><strong style="--type:2; font-family:var(--font-display)">Centered dialog</strong><p style="--fg:-0.7">A standard modal <code>&lt;dialog&gt;</code>: centered by the browser, dimmed backdrop, focus-trapped.</p><div class="row" style="gap:0.5em"><button type="button" style="--bg:0.6" onclick="document.getElementById('modal').close()">OK</button><button type="button" style="--bg:0.05" onclick="document.getElementById('modal').close()">Cancel</button></div></div></dialog><div id="lpop" popover class="bg" style="--bg:0; border:1px solid var(--border); border-radius:var(--cfg-radius); padding:1lh 1.1em; max-inline-size:22rem"><div class="column" style="gap:0.4lh"><strong style="--type:1; font-family:var(--font-display)">Popover</strong><small style="--fg:-0.6">Auto popover — top layer, light-dismiss, one at a time.</small></div></div><div id="anchored-pop" popover class="menu" style="position-anchor:--menu"><button type="button" style="--type:-0.5">Edit</button><button type="button" style="--type:-0.5">Duplicate</button><button type="button" style="--type:-0.5; --hue:25">Delete</button></div><div class="hud"><div class="alert suc br" role="status" id="toast" onclick="this.style.display='none'" style="display:none; cursor:pointer; margin:1.5em; max-inline-size:22rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="inline-size:1.2em;block-size:1.2em;flex:0 0 auto"><path d="M20 6 9 17l-5-5"/></svg><div><strong>Saved.</strong> Your toast appeared in the HUD.</div></div></div>
 
-  <header id="pg-header"
-          data-init="@get('/toolbox/chrome/pg-header.html')"></header>
-
-  <nav id="pg-navigation"
-       data-init="@get('/toolbox/chrome/pg-navigation.html')"></nav>
-
-  <main class="pg-main pad">
-    <h1 style="--type:2">Toolbox</h1>
-    <p>Notes and references — CSS, Go, JavaScript, Python.</p>
-  </main>
-
-  <footer id="pg-footer"
-          data-init="@get('/toolbox/chrome/pg-footer.html')"></footer>
+<script>
+  var state = { skin:'', mode:'light', size:'md', motion:'on' };
+  function applyState(doc){
+    var r = doc.documentElement;
+    if (state.mode === 'auto') r.removeAttribute('data-ui-theme'); else r.setAttribute('data-ui-theme', state.mode);
+    r.setAttribute('data-ui-size', state.size);
+    r.setAttribute('data-ui-motion', state.motion);
+    if (doc.body) doc.body.className = state.skin;
+  }
+  function applyAll(){
+    applyState(document);
+    if (window.__shellDoc) applyState(window.__shellDoc);
+    var o = document.getElementById('readout');
+    if (o) o.textContent = (state.skin || 'system') + ' · ' + state.mode + ' · ' + state.size + ' · ' + state.motion;
+  }
+  function setSkin(v){ state.skin = v; applyAll(); }
+  function setMode(v){ state.mode = v; applyAll(); }
+  function setSize(v){ state.size = v; applyAll(); }
+  function setMotion(v){ state.motion = v; applyAll(); }
+  function toast(){ var t = document.getElementById('toast'); t.style.display=''; clearTimeout(t._t); t._t = setTimeout(function(){ t.style.display='none'; }, 3500); }
+  function buildShell(){
+    var f = document.getElementById('shell'); if (!f) return;
+    var css = document.getElementById('syscss').textContent;
+    var dash = 'border:2px dashed var(--focus); padding:0.5em; --type:-1;';
+    function box(tag, cls, label, extra){ extra = extra || ''; return '<' + tag + ' class="' + cls + '" style="' + dash + extra + '">' + label + '</' + tag + '>'; }
+    var filler = 'pg-main · scrolls<br><br>·<br><br>·<br><br>·<br><br>·';
+    var shell = '<div class="page">'
+      + box('div','pg-banner','pg-banner')
+      + box('header','pg-header','pg-header · pinned')
+      + box('div','pg-subheader','pg-subheader')
+      + box('nav','pg-navigation','pg-navigation · scrolls')
+      + box('div','pg-main-header','pg-main-header · sticky')
+      + box('main','pg-main', filler)
+      + box('div','pg-main-footer','pg-main-footer · sticky')
+      + box('aside','pg-aside','pg-aside · scrolls')
+      + box('footer','pg-footer','pg-footer · pinned')
+      + '</div>';
+    var docHtml = '<!doctype html><html lang="en"><head><meta charset="utf-8"><style>' + css + '</style></head><body>' + shell + '</body></html>';
+    var d = f.contentDocument || f.contentWindow.document;
+    d.open(); d.write(docHtml); d.close();
+    window.__shellDoc = d;
+    applyState(d);
+  }
+  window.addEventListener('DOMContentLoaded', function(){ buildShell(); applyAll(); });
+</script>
 
 </body>
 </html>
