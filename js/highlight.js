@@ -1,6 +1,6 @@
-// v1.2 🎨 highlight.js — Custom Highlight API syntax highlighting
+// v1.3 🎨 highlight.js — Custom Highlight API syntax highlighting
 // Pattern: <pre><code class="language">…</code></pre>
-// Languages registered: css, html, python, js
+// Languages registered: css, html, python, javascript, go, sqlite
 // By: Michael Deufel 
 
 const CSS_LANG = [
@@ -115,12 +115,73 @@ const GO_LANG = [
   ['go-punctuation', /[{}()[\],;.:]/g],
 ];
 
+// SQL is case-insensitive, so keyword/type/function patterns carry the `i` flag.
+const SQLITE_KEYWORDS =
+  'ABORT|ACTION|ADD|AFTER|ALL|ALTER|ALWAYS|ANALYZE|AND|AS|ASC|ATTACH|'
+  + 'AUTOINCREMENT|BEFORE|BEGIN|BETWEEN|BY|CASCADE|CASE|CAST|CHECK|COLLATE|'
+  + 'COLUMN|COMMIT|CONFLICT|CONSTRAINT|CREATE|CROSS|CURRENT|CURRENT_DATE|'
+  + 'CURRENT_TIME|CURRENT_TIMESTAMP|DATABASE|DEFAULT|DEFERRABLE|DEFERRED|'
+  + 'DELETE|DESC|DETACH|DISTINCT|DO|DROP|EACH|ELSE|END|ESCAPE|EXCEPT|'
+  + 'EXCLUDE|EXCLUSIVE|EXISTS|EXPLAIN|FAIL|FALSE|FILTER|FIRST|FOLLOWING|'
+  + 'FOR|FOREIGN|FROM|FULL|GENERATED|GLOB|GROUP|GROUPS|HAVING|IF|IGNORE|'
+  + 'IMMEDIATE|IN|INDEX|INDEXED|INITIALLY|INNER|INSERT|INSTEAD|INTERSECT|'
+  + 'INTO|IS|ISNULL|JOIN|KEY|LAST|LEFT|LIKE|LIMIT|MATCH|MATERIALIZED|'
+  + 'NATURAL|NO|NOT|NOTHING|NOTNULL|NULL|NULLS|OF|OFFSET|ON|OR|ORDER|'
+  + 'OTHERS|OUTER|OVER|PARTITION|PLAN|PRAGMA|PRECEDING|PRIMARY|QUERY|RAISE|'
+  + 'RANGE|RECURSIVE|REFERENCES|REGEXP|REINDEX|RELEASE|RENAME|REPLACE|'
+  + 'RESTRICT|RETURNING|RIGHT|ROLLBACK|ROW|ROWS|SAVEPOINT|SELECT|SET|TABLE|'
+  + 'TEMP|TEMPORARY|THEN|TIES|TO|TRANSACTION|TRIGGER|TRUE|UNBOUNDED|UNION|'
+  + 'UNIQUE|UPDATE|USING|VACUUM|VALUES|VIEW|VIRTUAL|WHEN|WHERE|WINDOW|WITH|'
+  + 'WITHOUT';
+
+// Type-affinity names (not reserved words, but conventional to colour in DDL).
+const SQLITE_TYPES =
+  'INTEGER|INT2|INT8|INT|TINYINT|SMALLINT|MEDIUMINT|BIGINT|UNSIGNED|'
+  + 'CHARACTER|VARCHAR|NVARCHAR|NCHAR|CHAR|CLOB|TEXT|'
+  + 'BLOB|REAL|DOUBLE|FLOAT|NUMERIC|DECIMAL|BOOLEAN';
+
+// Core scalar / aggregate / date / JSON built-in functions.
+const SQLITE_FUNCTIONS =
+  'abs|avg|changes|coalesce|concat_ws|concat|count|datetime|date|'
+  + 'format|group_concat|hex|ifnull|iif|instr|json_array_length|json_array|'
+  + 'json_extract|json_group_array|json_group_object|json_insert|json_object|'
+  + 'json_patch|json_quote|json_remove|json_replace|json_set|json_type|'
+  + 'json_valid|jsonb|json|julianday|last_insert_rowid|length|likelihood|'
+  + 'likely|load_extension|lower|ltrim|max|min|nullif|octet_length|printf|'
+  + 'quote|randomblob|random|round|rtrim|sign|string_agg|strftime|substring|'
+  + 'substr|sum|timediff|time|total_changes|total|trim|typeof|unhex|unicode|'
+  + 'unixepoch|unlikely|upper|zeroblob';
+
+const SQLITE_LANG = [
+  // Comments first: SQL comments routinely contain apostrophes ("-- don't"),
+  // and `--`/`/* */` inside a string literal is rare — so claiming comment
+  // ranges before strings is the more robust order for SQL (the imperative
+  // languages above do the reverse, where the opposite tradeoff holds).
+  ['sqlite-comment',    /--[^\n]*|\/\*[\s\S]*?\*\//g],
+  // Single-quoted string literals; '' is the escaped quote (no backslash escapes).
+  // Line-bounded ([^'\n]) so a stray apostrophe in a comment can't desync pairing
+  // and swallow the rest of the file (multi-line literals are rare in hand SQL).
+  ['sqlite-string',     /'(?:''|[^'\n])*'/g],
+  // Quoted identifiers: "id", `id`, [id] — distinct from string literals.
+  ['sqlite-identifier', /"(?:""|[^"\n])*"|`(?:``|[^`\n])*`|\[[^\]\n]*\]/g],
+  ['sqlite-keyword',    new RegExp(`\\b(?:${SQLITE_KEYWORDS})\\b`, 'gi')],
+  ['sqlite-type',       new RegExp(`\\b(?:${SQLITE_TYPES})\\b`, 'gi')],
+  ['sqlite-function',   new RegExp(`\\b(?:${SQLITE_FUNCTIONS})\\b`, 'gi')],
+  // Bind parameters: ?, ?NNN, :name, @name, $name.
+  ['sqlite-parameter',  /\?\d*|[:@$]\w+/g],
+  ['sqlite-number',     /\b0[xX][\da-fA-F]+\b|\b\d+(?:\.\d*)?(?:[eE][+-]?\d+)?\b|\.\d+(?:[eE][+-]?\d+)?/g],
+  // Operators — || (concat) and ->/->> (JSON) are SQLite-distinctive.
+  ['sqlite-operator',   /->>|->|\|\||<<|>>|<=|>=|==|!=|<>|[-+*\/%&|~<>=]/g],
+  ['sqlite-punctuation', /[(),;.]/g],
+];
+
 const languages = new Map([
   ['css',        CSS_LANG],
   ['html',       HTML_LANG],
   ['python',     PYTHON_LANG],
   ['javascript', JAVASCRIPT_LANG],
   ['go',         GO_LANG],
+  ['sqlite',     SQLITE_LANG],
 ]);
 
 function allTokenNames() {

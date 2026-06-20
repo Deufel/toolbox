@@ -5,7 +5,8 @@
    ════════════════════════════════════════════════════════════════════ */
 @layer reset, styleAPI.color, styleAPI.type, theme, base,
        classAPI.page, classAPI.layout, classAPI.components,
-       classAPI.pseudo, classAPI.utility, classAPI.viewport;
+       classAPI.pseudo, classAPI.utility, classAPI.viewport, 
+       project;
 
 
 /* ════════════════════════════════════════════════════════════════════
@@ -223,7 +224,8 @@
   ::highlight(html-comment),
   ::highlight(python-comment),
   ::highlight(javascript-comment),
-  ::highlight(go-comment) {
+  ::highlight(go-comment),
+  ::highlight(sqlite-comment) {
     color: oklch(
       calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * 45%)
       calc(var(--c-tint) - 0.01)
@@ -236,7 +238,8 @@
   ::highlight(html-value),
   ::highlight(python-string),
   ::highlight(javascript-string),
-  ::highlight(go-string) {
+  ::highlight(go-string),
+  ::highlight(sqlite-string) {
     color: oklch(
       calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
       0.13
@@ -249,7 +252,8 @@
   ::highlight(css-unit),
   ::highlight(python-number),
   ::highlight(javascript-number),
-  ::highlight(go-number) {
+  ::highlight(go-number),
+  ::highlight(sqlite-number) {
     color: oklch(
       calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
       0.13
@@ -265,7 +269,9 @@
   ::highlight(javascript-operator),
   ::highlight(javascript-punctuation),
   ::highlight(go-operator),
-  ::highlight(go-punctuation) {
+  ::highlight(go-punctuation),
+  ::highlight(sqlite-operator),
+  ::highlight(sqlite-punctuation) {
     color: oklch(
       calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
       0.09
@@ -280,7 +286,9 @@
   ::highlight(html-tag),
   ::highlight(html-attribute),
   ::highlight(html-doctype),
-  ::highlight(html-entity) {
+  ::highlight(html-entity),
+  ::highlight(sqlite-identifier),
+  ::highlight(sqlite-parameter) {
     color: oklch(
       calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
       0.13
@@ -297,7 +305,9 @@
   ::highlight(javascript-builtin),
   ::highlight(go-function),
   ::highlight(go-class),
-  ::highlight(go-builtin) {
+  ::highlight(go-builtin),
+  ::highlight(sqlite-function),
+  ::highlight(sqlite-type) {
     color: oklch(
       calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
       0.14
@@ -311,7 +321,8 @@
   ::highlight(python-decorator),
   ::highlight(javascript-keyword),
   ::highlight(javascript-decorator),
-  ::highlight(go-keyword) {
+  ::highlight(go-keyword),
+  ::highlight(sqlite-keyword) {
     color: oklch(
       calc(45% * (1 - var(--cfg-dark)) + 75% * var(--cfg-dark))
       0.15
@@ -684,6 +695,82 @@
     padding: 0.3em; aspect-ratio: 1;
     & > small { --type: -2; font-weight: 600; line-height: 1; }
   }
+
+  /* ── nav (navigation list) ─────────────────────────────────────────
+    A <nav class="nav"> (or any wrapper) of <a> items: an optional leading
+    icon (<svg>), a label, an optional trailing .tag, and an optional .badge
+    (corner notification, below). The current item carries aria-current="page"
+    (Law 7 — state is the ARIA attribute, not a variant class); the engine
+    paints it max-chroma chromatic ink (--fg:1) on a faintly tinted surface
+    (--bg:0.12) — the classic "you are here". Resting items are quiet and
+    transparent over the nav surface (--bg doesn't inherit, so "unset" = no
+    paint); hover lifts them. Collapsing into a drawer is the page's job.
+      <nav class="nav">
+        <a href="/home"><svg>…</svg> Home</a>
+        <a href="/discover" aria-current="page"><svg>…</svg> Discover
+            <span class="tag">beta</span></a>
+        <a href="/inbox"><svg>…</svg> Inbox <span class="badge">3</span></a>
+      </nav>                                                              */
+  :where(.nav) {
+    display: flex; flex-direction: column; gap: 0.1lh; padding: 0.25lh;  
+
+    & > :where(a) {
+      --fg: -0.5;                                   /* quiet resting ink */
+      display: flex; align-items: center; gap: 0.6em;
+      padding: 0.3lh 0.6em;
+      border-radius: var(--cfg-radius);
+      text-decoration: none;                        /* a nav item is not an underlined link */
+
+      & > svg { inline-size: 1.15em; block-size: 1.15em; flex: 0 0 auto; }
+      & > :where(.tag) { margin-inline-start: auto; }   /* trailing tag hugs the end */
+
+      /* touch hardening — the <button> recipe verbatim: 16px font floor on ANY
+        coarse pointer (iOS zooms a focused control under 16px, phone or tablet);
+        44px-tall target on coarse + small screen so a finger lands on a full row. */
+      @media (pointer: coarse) {
+        font-size: max(16px, var(--_font-size));
+
+        @media (max-width: 768px) {
+          min-block-size: max(44px, 2lh);
+        }
+      }
+    }
+
+    /* hover and the current page both paint a surface; only --bg + ink differ. */
+    & > :where(a:hover)                { --bg: 0.06; }
+    & > :where(a[aria-current="page"]) { --fg: 1; --bg: 0.12; font-weight: 600; }
+    & > :where(a:hover, a[aria-current="page"]) {
+      background-color: var(--_bg); --surf-l: var(--_bg-l);
+    }
+  }
+
+  /* ── badge (corner notification) ───────────────────────────────────
+    A small count or dot straddling the top-right corner of its parent — an
+    icon, an .avatar, a .nav item, a button. The parent becomes the positioning
+    context automatically (the :has rule below — Law 3, detect don't configure).
+    Empty = a bare dot; with a number = a count pill. Defaults to the danger hue
+    (the universal "attention" colour); set --hue to recolour, --type to resize.
+      <a><svg>…</svg> Inbox <span class="badge">3</span></a>     on the item
+      <a><span class="icon"><svg>…</svg><span class="badge"></span></span> …</a>  on the icon */
+  :where(.badge) {
+    --hue: var(--hue-dgr); --bg: 0.5; --fg: -1; --type: -2;
+    position: absolute; inset-block-start: 0; inset-inline-end: 0;
+    translate: 35% -35%;                            /* straddle the corner */
+    display: inline-flex; align-items: center; justify-content: center;
+    min-inline-size: 1.6em; block-size: 1.6em; padding-inline: 0.35em;
+    border-radius: 999px;
+    font-weight: 600;
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
+    user-select: none; -webkit-user-select: none;
+
+    &:empty { min-inline-size: 0.7em; block-size: 0.7em; padding: 0; }   /* a bare dot */
+  }
+
+  /* any element directly holding a .badge anchors it (zero-specificity, so a
+    genuine position rule on the host still wins). Kept separate — its subject
+    is the parent, not the badge, so it can't nest into the rule above. */
+  :where(:has(> .badge)) { position: relative; }
+
 
   /* ── card ─────────────────────────────────────────────────────────
      A painted surface with a defining edge. The author sets --bg to place
@@ -1537,4 +1624,15 @@
   @container (width < 320px)           { :where(.small)  { display: revert-layer } }
   @container (320px <= width < 560px)  { :where(.medium) { display: revert-layer } }
   @container (width >= 560px)          { :where(.large)  { display: revert-layer } }
+}
+
+/* project shorthands — put these in their own @layer AFTER the system layers
+   so they always win and live in one findable place:
+   @layer project { … } and add `project` to the @layer statement at the top. 
+    NOTE: added Mid Private Beta so integration will be sparese and migrated slowly convinence only not load bearing at this point.
+ */
+@layer project {
+  .pri   { --bg: 0.55; }   /* the green primary action: Save / Add / Subscribe */
+  .quiet { --bg: 0.08; }               /* secondary / low-emphasis button */
+  .muted { --fg: -0.6; }               /* the ubiquitous muted caption ink on <small> */
 }
