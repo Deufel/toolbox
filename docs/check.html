@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en" data-ui-theme="light" data-ui-size="md">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>system.css — component check</title>
+<link rel="stylesheet" href="system.css">
+<style>
+  @layer project {
+    .eyebrow { display:block; --type:-1; --fg:-0.45; font-family:var(--font-mono);
+               text-transform:uppercase; letter-spacing:0.08em; font-weight:600; }
+    .sub { --fg:-0.55; }
+    .hr  { block-size:1px; background:var(--border); border:0; inline-size:100%; margin-block:0.3lh; }
+  }
+</style>
+</head>
+<body>
+<div class="page centered">
+
+  <header class="pg-header spread" style="--bg:0.05; padding:0.4lh 1em; align-items:center; gap:0.6em;">
+    <strong style="--type:1; font-family:var(--font-display)">system.css · check</strong>
+    <div class="row" style="gap:0.5em; align-items:center;">
+      <label class="row" style="gap:0.3em; align-items:center; --type:-1;"><span class="eyebrow" style="margin:0;">theme</span>
+        <select onchange="document.documentElement.setAttribute('data-ui-theme',this.value)">
+          <option value="light">light</option><option value="dark">dark</option></select></label>
+      <label class="row" style="gap:0.3em; align-items:center; --type:-1;"><span class="eyebrow" style="margin:0;">size</span>
+        <select onchange="document.documentElement.setAttribute('data-ui-size',this.value)">
+          <option>sm</option><option selected>md</option><option>lg</option><option>xl</option></select></label>
+    </div>
+  </header>
+
+  <main class="pg-main" style="--bg:0; padding:1lh 1em 2lh;">
+    <div class="column" style="gap:1.25lh;">
+
+      <!-- CONTROL-HEIGHT ALIGNMENT (the key check) -->
+      <section class="column" style="gap:0.4lh;">
+        <span class="eyebrow">Control-height alignment · button · input · select · avatar should share one height</span>
+        <div class="card" style="--bg:-0.4;"><div class="row" style="gap:0.6em; align-items:center; padding:0.6lh 0.7em;">
+          <button style="--hue:145; --bg:0.5; --fg:-1;">Save</button>
+          <button style="--bg:0.1;">Cancel</button>
+          <input type="text" placeholder="Search…" style="inline-size:14em;">
+          <select aria-label="Status"><option>Open</option><option>Closed</option></select>
+          <button aria-label="Add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+          <span class="avatar" style="--bg:0.4;">MK</span>
+          <span class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span>
+          <span class="tag inf">live</span>
+        </div></div>
+        <span class="sub" style="--type:-1;">All of the above derive their height from one formula — <code>--cfg-control-height</code> × 1lh, off the live type, no pointer floors — so a button and a field land on exactly the same height. Flip the size toggle: they rescale together, and on a phone they read their true (small) size until you raise the size preference.</span>
+      </section>
+
+      <!-- TYPE SCALE -->
+      <section class="column" style="gap:0.3lh;">
+        <span class="eyebrow">Type scale (h1–h6 · body · small)</span>
+        <div class="card" style="--bg:-0.3;"><div class="column" style="gap:0.15lh; padding:0.5lh 0.7em;">
+          <h1 style="margin:0;">Heading one</h1>
+          <h2 style="margin:0;">Heading two</h2>
+          <h3 style="margin:0;">Heading three</h3>
+          <h4 style="margin:0;">Heading four</h4>
+          <h5 style="margin:0;">Heading five</h5>
+          <h6 style="margin:0;">Heading six</h6>
+          <p style="margin:0;">Body copy at type 0 — the quick brown fox jumps over the lazy dog. <a href="#">A link</a>, some <strong>bold</strong>, and <em>italic</em>.</p>
+          <small>Small / caption at type −1.</small>
+        </div></div>
+      </section>
+
+      <!-- BUTTONS -->
+      <section class="column" style="gap:0.3lh;">
+        <span class="eyebrow">Buttons</span>
+        <div class="card" style="--bg:-0.3;"><div class="row" style="gap:0.5em; align-items:center; padding:0.6lh 0.7em;">
+          <button>Default</button>
+          <button style="--hue:145; --bg:0.55; --fg:-1;">Primary</button>
+          <button style="--bg:0.1;">Quiet</button>
+          <button style="--hue:25;">Danger</button>
+          <button style="--type:-1;">Small</button>
+          <button aria-pressed="true">Pressed</button>
+          <button disabled>Disabled</button>
+          <button aria-label="Icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button class="btn-touch" aria-label="Touch icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>With icon</button>
+          <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><small>Dock</small></button>
+        </div></div>
+        <span class="sub" style="--type:-1;">The two plain "+" icon buttons: the first is bare (token height — its true size), the second is <code>.btn-touch</code> (a real 44px box, the visible box <em>is</em> the tap target). On a phone the difference is the whole point.</span>
+      </section>
+
+      <!-- FORM -->
+      <section class="column" style="gap:0.3lh;">
+        <span class="eyebrow">Form fields · inputs · select · textarea · checkbox · radio · range</span>
+        <div class="split" style="gap:1em; align-items:start;">
+          <form class="column" style="gap:0.4lh;">
+            <label><span>Email address</span><small>We'll never share it.</small>
+              <input type="email" placeholder="you@example.com" required></label>
+            <label><span>Plan</span><small></small>
+              <select><option>Starter</option><option>Pro</option><option>Enterprise</option></select></label>
+            <label><span>Notes</span><small>Optional.</small>
+              <textarea rows="2" placeholder="Anything else…"></textarea></label>
+            <label><span>Invalid example</span><small>This field has an error.</small>
+              <input type="text" aria-invalid="true" value="bad value"></label>
+            <fieldset>
+              <label><input type="checkbox" checked><span>I accept the terms</span><small></small></label>
+              <label><input type="radio" name="r" checked><span>Option A</span><small></small></label>
+              <label><input type="radio" name="r"><span>Option B</span><small></small></label>
+            </fieldset>
+          </form>
+          <div class="column" style="gap:0.4lh;">
+            <span class="eyebrow">Standalone controls</span>
+            <label class="column" style="gap:0.1lh;"><span class="sub" style="--type:-1;">Range</span>
+              <input type="range" min="0" max="100" value="40"></label>
+            <span class="sub" style="--type:-1;">Progress</span><progress value="0.6"></progress>
+            <span class="sub" style="--type:-1;">Meter (.smart)</span><meter class="smart" min="0" max="100" low="30" high="70" optimum="90" value="55"></meter>
+            <span class="sub" style="--type:-1;">Multi-select (native listbox — row-driven height)</span>
+            <select multiple size="4" style="inline-size:14em;">
+              <option>Brand · Aperol</option><option selected>Brand · Campari</option>
+              <option selected>Brand · Cynar</option><option>Brand · Select</option><option>Brand · Montenegro</option></select>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABS -->
+      <section class="column" style="gap:0.3lh;">
+        <span class="eyebrow">Tabs (segmented radio)</span>
+        <div role="group" class="tabs" aria-labelledby="vw">
+          <span class="legend" id="vw">View <small>Pick one.</small></span>
+          <label><input type="radio" name="vw" checked><span>Day</span></label>
+          <label><input type="radio" name="vw"><span>Week</span></label>
+          <label><input type="radio" name="vw"><span>Month</span></label>
+        </div>
+      </section>
+
+      <!-- CARDS -->
+      <section class="column" style="gap:0.3lh;">
+        <span class="eyebrow">Cards · alerts · tags</span>
+        <div class="grid" style="--grid-min:13rem;">
+          <div class="card" style="--bg:0;"><div style="padding:0.4lh 0.5em;"><strong>.card</strong><p class="sub" style="margin:0;">Quiet border.</p></div></div>
+          <div class="Card" style="--bg:0;"><div style="padding:0.4lh 0.5em;"><strong>.Card</strong><p class="sub" style="margin:0;">Vibrant edge.</p></div></div>
+          <div class="Card" style="--bg:0; --hue:262;"><div style="padding:0.4lh 0.5em;"><strong>.Card hued</strong><p class="sub" style="margin:0;">Edge tracks hue.</p></div></div>
+        </div>
+        <div class="grid" style="--grid-min:16rem;">
+          <div class="alert suc" role="status"><span>Success — everything saved.</span></div>
+          <div class="alert inf" role="status"><span>Info — a quiet heads up.</span></div>
+          <div class="alert wrn" role="status"><span>Warning — can't be undone.</span></div>
+          <div class="alert dgr" role="alert"><span>Danger — three fields need attention.</span></div>
+        </div>
+        <div class="row" style="gap:0.5em; align-items:center;">
+          <span class="tag">default</span>
+          <span class="tag" data-ui-state="on">on</span>
+          <span class="tag" data-ui-state="off">off</span>
+          <span class="tag" aria-disabled="true">disabled</span>
+          <span class="tag suc">success</span>
+          <span class="tag dgr">danger</span>
+          <span class="tag inf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>with icon</span>
+        </div>
+      </section>
+
+      <!-- AVATARS + NAV -->
+      <section class="column" style="gap:0.3lh;">
+        <span class="eyebrow">Avatars (should match control height) · breadcrumbs · nav</span>
+        <div class="row" style="gap:0.5em; align-items:center;">
+          <span class="avatar" style="--bg:0.4;">MK</span>
+          <span class="avatar" style="--bg:0.55; --hue:145; --fg:-1;">AB</span>
+          <span class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span>
+          <span class="avatar"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' fill='%236b8caf'/><circle cx='20' cy='15' r='7' fill='%23dfe7f0'/><path d='M6 38c0-9 8-12 14-12s14 3 14 12' fill='%23dfe7f0'/></svg>" alt="avatar"></span>
+          <button style="--bg:0.1;">…aligned with a button</button>
+        </div>
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="#">Home</a><a href="#">Brands</a><span aria-current="page">Campari</span>
+        </nav>
+        <div class="row" style="gap:0.4em; align-items:center;">
+          <a class="nav-item" href="#" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Dashboard</a>
+          <a class="nav-item" href="#">Reports <span class="tag">3</span></a>
+          <button class="nav-icon" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg><small>Settings</small></button>
+        </div>
+      </section>
+
+      <!-- TABLE -->
+      <section class="column" style="gap:0.3lh;">
+        <span class="eyebrow">Table</span>
+        <table>
+          <caption>Q3 activations by region</caption>
+          <thead><tr><th>Region</th><th>Brand</th><th class="num">Events</th><th class="num">Spend</th></tr></thead>
+          <tbody>
+            <tr><td>Northeast</td><td>Campari</td><td class="num">128</td><td class="num">$42,500</td></tr>
+            <tr><td>Midwest</td><td>Aperol</td><td class="num">94</td><td class="num">$31,200</td></tr>
+            <tr><td>West</td><td>Cynar</td><td class="num">61</td><td class="num">$18,900</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- TEXT BITS -->
+      <section class="column" style="gap:0.3lh;">
+        <span class="eyebrow">Blockquote · code · kbd · disclosure</span>
+        <div class="split" style="gap:1em; align-items:start;">
+          <blockquote><p>A component does not have colors or sizes. It has a shape, and a position on scales.</p><cite>system.css</cite></blockquote>
+          <div class="column" style="gap:0.4lh;">
+            <p style="margin:0;">Inline <code>--type</code> and a key <kbd>⌘</kbd><kbd>K</kbd>.</p>
+            <pre><code>.btn { /* there is no .btn */ }</code></pre>
+            <details><summary>A disclosure</summary><div style="padding-block-start:0.3lh;" class="sub">Native open/close, card-framed, CSS chevron.</div></details>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

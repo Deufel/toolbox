@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" data-ui-theme="light" data-ui-size="md">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Type — system.css</title>
+<link rel="stylesheet" href="../system.css">
+<script>
+  window.remat = function (b,r,n){ return (parseFloat(b)*Math.pow(parseFloat(r),n)).toFixed(3); };
+  window.tycss = function (a,b,c,d,e,f,g){
+    return '--cfg-type-min: '+(+a).toFixed(4)+'rem; --cfg-type-min-ratio: '+(+b).toFixed(3)+';\n'
+         + '--cfg-type-max: '+(+c).toFixed(4)+'rem; --cfg-type-max-ratio: '+(+d).toFixed(3)+';\n'
+         + '--cfg-wght-base: '+(+e)+'; --cfg-wght-step: '+(+f)+'; --cfg-wght-max: '+(+g)+';';
+  };
+  function setSpec(s){ ['m','t','d'].forEach(function(k){ document.getElementById('spec-'+k).src='type-specimen.html?size='+s; }); }
+</script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.2/bundles/datastar.js"></script>
+<style>
+  @layer project {
+    .eyebrow { display:block; --type:-1; --fg:-0.45; font-family:var(--font-mono);
+               text-transform:uppercase; letter-spacing:0.08em; font-weight:600; }
+    .sub  { --fg:-0.55; }
+    .label { --type:-1; --fg:-0.5; font-family:var(--font-mono); }
+    .linebox { outline:1px dashed var(--border); }
+    /* scaled device render: iframe lays out at true device width, then the whole
+       frame is shrunk so we see a faithful miniature (not 1:1 pixels). */
+    .device { overflow:hidden; border:1px solid var(--border); border-radius:var(--cfg-radius);
+              inline-size: calc(var(--dw) * var(--k)); block-size: calc(var(--dh) * var(--k)); }
+    .device > iframe { inline-size: var(--dw); block-size: var(--dh); border:0; display:block;
+                       transform: scale(var(--k)); transform-origin: top left; }
+  }
+</style>
+</head>
+<body>
+<div class="page centered">
+
+  <header class="pg-header spread" style="--bg:0.05; padding:0.4lh 1em; align-items:center;">
+    <strong style="--type:1; font-family:var(--font-display)"><a href="../index.html" style="text-decoration:none; --fg:-0.9;">system.css</a></strong>
+    <nav class="row" style="gap:0.4em; align-items:center;">
+      <a class="nav-item" href="color.html">Color</a>
+      <a class="nav-item" href="type.html" aria-current="page">Type</a>
+      <a class="nav-item" href="../components/index.html">Components</a>
+      <select aria-label="Theme" onchange="document.documentElement.setAttribute('data-ui-theme',this.value)">
+        <option value="light">light</option><option value="dark">dark</option>
+      </select>
+      <select aria-label="Scale" onchange="document.documentElement.setAttribute('data-ui-size',this.value)">
+        <option>sm</option><option selected>md</option><option>lg</option><option>xl</option>
+      </select>
+    </nav>
+  </header>
+
+  <main class="pg-main" style="--bg:0; padding:0.75lh 1em 1lh;">
+    <div class="column" style="gap:0.6lh;">
+
+      <div class="flank-end" style="gap:1em; align-items:baseline;">
+        <div class="column" style="gap:0.05lh;">
+          <h1 style="--type:3; margin:0;">Type</h1>
+          <p class="sub" style="--type:-1; margin:0; max-inline-size:70ch;">One integer, <code>--type</code>, drives a fluid scale —
+             size, line-height, letter-spacing and weight together, interpolated between a tight mobile end and a roomier
+             desktop end (<a href="https://utopia.fyi/type/calculator">Utopia</a>-style, endpoints 320–1280px).</p>
+        </div>
+        <span class="label">no font-size · no font-weight in markup</span>
+      </div>
+
+      <!-- TUNER: controls + live dashed-linebox preview, side by side -->
+      <section data-signals="{ tmin:0.84, tminr:1.067, tmax:0.92, tmaxr:1.125, wbase:400, wstep:90, wmax:850 }"
+               class="split" style="gap:1em; align-items:start;">
+
+        <!-- CONTROLS -->
+        <div class="card" style="--bg:-0.3;"><div class="column" style="gap:0.4lh; padding:0.5lh 0.6em;">
+          <div class="row" style="gap:0.35em; align-items:center;">
+            <span class="label">Preset:</span>
+            <button style="--type:-1;" data-on:click="$tmin=0.78;$tminr=1.067;$tmax=0.84;$tmaxr=1.125">sm</button>
+            <button style="--type:-1;" data-on:click="$tmin=0.84;$tminr=1.067;$tmax=0.92;$tmaxr=1.125">md</button>
+            <button style="--type:-1;" data-on:click="$tmin=0.92;$tminr=1.125;$tmax=1.0;$tmaxr=1.2">lg</button>
+            <button style="--type:-1;" data-on:click="$tmin=1.125;$tminr=1.2;$tmax=1.25;$tmaxr=1.25">xl</button>
+          </div>
+
+          <div class="split" style="gap:0.8em; align-items:start;">
+            <div class="column" style="gap:0.3lh;">
+              <span class="eyebrow" style="margin:0;">Min · 320px</span>
+              <div class="column" style="gap:0.05lh;">
+                <span class="label">base <span data-text="(+$tmin).toFixed(4)+'rem'"></span></span>
+                <input class="fill" type="range" min="0.70" max="1.30" step="0.0025" data-bind:tmin>
+              </div>
+              <select data-bind:tminr aria-label="Min ratio">
+                <option value="1.067">1.067 · Minor 2nd</option><option value="1.1">1.100</option>
+                <option value="1.125">1.125 · Major 2nd</option><option value="1.15">1.150</option>
+                <option value="1.2">1.200 · Minor 3rd</option><option value="1.25">1.250 · Major 3rd</option>
+              </select>
+            </div>
+            <div class="column" style="gap:0.3lh;">
+              <span class="eyebrow" style="margin:0;">Max · 1280px</span>
+              <div class="column" style="gap:0.05lh;">
+                <span class="label">base <span data-text="(+$tmax).toFixed(4)+'rem'"></span></span>
+                <input class="fill" type="range" min="0.70" max="1.35" step="0.0025" data-bind:tmax>
+              </div>
+              <select data-bind:tmaxr aria-label="Max ratio">
+                <option value="1.067">1.067 · Minor 2nd</option><option value="1.1">1.100</option>
+                <option value="1.125">1.125 · Major 2nd</option><option value="1.15">1.150</option>
+                <option value="1.2">1.200 · Minor 3rd</option><option value="1.25">1.250 · Major 3rd</option>
+              </select>
+            </div>
+          </div>
+
+          <details>
+            <summary>Weight ramp, size table &amp; CSS</summary>
+            <div class="column" style="gap:0.35lh; padding-block-start:0.3lh;">
+              <div class="row" style="gap:0.8em; align-items:end;">
+                <div class="column" style="gap:0.05lh; flex:1;"><span class="label">w·base <span data-text="(+$wbase).toFixed(0)"></span></span>
+                  <input class="fill" type="range" min="300" max="600" step="10" data-bind:wbase></div>
+                <div class="column" style="gap:0.05lh; flex:1;"><span class="label">w·step <span data-text="(+$wstep).toFixed(0)"></span></span>
+                  <input class="fill" type="range" min="0" max="150" step="5" data-bind:wstep></div>
+                <div class="column" style="gap:0.05lh; flex:1;"><span class="label">w·max <span data-text="(+$wmax).toFixed(0)"></span></span>
+                  <input class="fill" type="range" min="500" max="900" step="10" data-bind:wmax></div>
+              </div>
+              <table>
+                <thead><tr><th>step</th><th class="num">min-vp</th><th class="num">max-vp</th></tr></thead>
+                <tbody>
+                  <tr><td>5 h1</td><td class="num" data-text="remat($tmin,$tminr,5)"></td><td class="num" data-text="remat($tmax,$tmaxr,5)"></td></tr>
+                  <tr><td>3 h3</td><td class="num" data-text="remat($tmin,$tminr,3)"></td><td class="num" data-text="remat($tmax,$tmaxr,3)"></td></tr>
+                  <tr><td>0 body</td><td class="num" data-text="remat($tmin,$tminr,0)"></td><td class="num" data-text="remat($tmax,$tmaxr,0)"></td></tr>
+                  <tr><td>−1 small</td><td class="num" data-text="remat($tmin,$tminr,-1)"></td><td class="num" data-text="remat($tmax,$tmaxr,-1)"></td></tr>
+                  <tr><td>−2 fine</td><td class="num" data-text="remat($tmin,$tminr,-2)"></td><td class="num" data-text="remat($tmax,$tmaxr,-2)"></td></tr>
+                </tbody>
+                <caption>rem at each fluid end (base × ratio<sup>step</sup>).</caption>
+              </table>
+              <pre style="margin:0;"><code data-text="tycss($tmin,$tminr,$tmax,$tmaxr,$wbase,$wstep,$wmax)"></code></pre>
+            </div>
+          </details>
+        </div></div>
+
+        <!-- LIVE PREVIEW = the dashed-linebox scale, tunable -->
+        <div class="card"
+             data-style:--cfg-type-min="(+$tmin)+'rem'"   data-style:--cfg-type-min-ratio="(+$tminr)"
+             data-style:--cfg-type-max="(+$tmax)+'rem'"   data-style:--cfg-type-max-ratio="(+$tmaxr)"
+             data-style:--cfg-wght-base="(+$wbase)" data-style:--cfg-wght-step="(+$wstep)" data-style:--cfg-wght-max="(+$wmax)"
+             style="--bg:-0.3;">
+          <div class="column" style="gap:0.25lh; padding:0.5lh 0.6em;">
+            <span class="eyebrow" style="margin:0;">Live preview · dashed = one lh line box</span>
+            <div class="linebox" style="--type:5;">Heading one</div>
+            <div class="linebox" style="--type:4;">Heading two</div>
+            <div class="linebox" style="--type:3;">Heading three</div>
+            <div class="linebox" style="--type:1;">A subheading</div>
+            <div class="linebox" style="--type:0;">Body copy — the quick brown fox.</div>
+            <div class="linebox" style="--type:-1;">Caption at type −1.</div>
+            <div class="linebox" style="--type:-2;">Fine print at type −2.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCALED DEVICE RENDERS -->
+      <section class="column" style="gap:0.4lh;">
+        <div class="flank-end" style="gap:1em; align-items:baseline;">
+          <span class="eyebrow">Scaled renders · committed preset at device widths</span>
+          <div class="row" style="gap:0.35em; align-items:center;">
+            <span class="label">preset:</span>
+            <button style="--type:-1;" onclick="setSpec('sm')">sm</button>
+            <button style="--type:-1;" onclick="setSpec('md')">md</button>
+            <button style="--type:-1;" onclick="setSpec('lg')">lg</button>
+          </div>
+        </div>
+        <div class="row" style="gap:1em; align-items:flex-start;">
+          <div class="column" style="gap:0.15lh;">
+            <span class="label">iPhone · 390</span>
+            <div class="device" style="--dw:390px; --dh:760px; --k:0.36;"><iframe id="spec-m" src="type-specimen.html?size=md" title="iPhone render"></iframe></div>
+          </div>
+          <div class="column" style="gap:0.15lh;">
+            <span class="label">iPad · 820</span>
+            <div class="device" style="--dw:820px; --dh:800px; --k:0.20;"><iframe id="spec-t" src="type-specimen.html?size=md" title="Tablet render"></iframe></div>
+          </div>
+          <div class="column" style="gap:0.15lh;">
+            <span class="label">Desktop · 1440</span>
+            <div class="device" style="--dw:1440px; --dh:760px; --k:0.19;"><iframe id="spec-d" src="type-specimen.html?size=md" title="Desktop render"></iframe></div>
+          </div>
+        </div>
+      </section>
+
+      <p class="sub" style="--type:-1; margin:0;"><code>--scale</code> is a separate, rarely-used regional multiplier (a compact
+         density region) — not how you set global size (the preset) or hierarchy (<code>--type</code>).</p>
+
+    </div>
+  </main>
+
+  <footer class="pg-footer spread" style="--bg:0.05; padding:0.4lh 1em; align-items:center;">
+    <a class="nav-item" href="color.html">← Color</a>
+    <a class="nav-item" href="../components/index.html">Components →</a>
+  </footer>
+
+</div>
+</body>
+</html>

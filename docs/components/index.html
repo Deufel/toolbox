@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" data-ui-theme="light" data-ui-size="md">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Components — system.css</title>
+<link rel="stylesheet" href="../system.css">
+<style>
+  @layer project {
+    .eyebrow { display: block; --type: -1; --fg: -0.45; font-family: var(--font-mono);
+               text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+    .sub  { --fg: -0.55; }
+    /* a catalog entry: card whose title is the link, description below */
+    .entry .ttl { --type: 1; text-decoration: none; }
+    .entry .ttl:hover { text-decoration: underline; }
+  }
+</style>
+</head>
+<body>
+<div class="page centered">
+
+  <header class="pg-header spread" style="--bg:0.05; padding:0.5lh 1em; align-items:center;">
+    <strong style="--type:1; font-family:var(--font-display)"><a href="../index.html" style="text-decoration:none; --fg:-0.9;">system.css</a></strong>
+    <nav class="row" style="gap:0.4em; align-items:center;">
+      <a class="nav-item" href="../foundations/color.html">Color</a>
+      <a class="nav-item" href="../foundations/type.html">Type</a>
+      <a class="nav-item" href="index.html" aria-current="page">Components</a>
+      <select aria-label="Theme" onchange="document.documentElement.setAttribute('data-ui-theme',this.value)">
+        <option value="light">light</option><option value="dark">dark</option>
+      </select>
+      <select aria-label="Scale" onchange="document.documentElement.setAttribute('data-ui-size',this.value)">
+        <option>sm</option><option selected>md</option><option>lg</option><option>xl</option>
+      </select>
+    </nav>
+  </header>
+
+  <main class="pg-main" style="--bg:0; padding:1.5lh 1em 2lh;">
+    <div class="column" style="gap:1.5lh;">
+
+      <section class="column" style="gap:0.4lh;">
+        <h1 style="--type:4; margin:0;">Components</h1>
+        <p class="sub" style="margin:0; max-inline-size:64ch;">Every entry is a live, zero-author-CSS demo with
+           a theme and scale switcher. The bare semantic elements need no class; the rest are the few things HTML
+           has no element for.</p>
+      </section>
+
+      <!-- ELEMENTS -->
+      <section class="column" style="gap:0.6lh;">
+        <span class="eyebrow">Elements · style the bare semantic tag</span>
+        <div class="grid" style="--grid-min:16rem;">
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="button.html">Button</a>
+            <span class="tag" style="--type:-2;">&lt;button&gt;</span>
+            <p class="sub" style="margin:0; --type:-1;">Self-shapes by content via <code>:has()</code> — icon, dock, labeled. <code>--lift</code> off its surface.</p>
+          </div></div>
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="table.html">Table</a>
+            <span class="tag" style="--type:-2;">&lt;table&gt;</span>
+            <p class="sub" style="margin:0; --type:-1;">Booktabs styling — one rule under the head, no row lines. <code>.num</code> for tabular figures.</p>
+          </div></div>
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="blockquote.html">Blockquote</a>
+            <span class="tag" style="--type:-2;">&lt;blockquote&gt;</span>
+            <p class="sub" style="margin:0; --type:-1;">Tinted surface, chromatic quote ink, generated marks; trailing <code>&lt;cite&gt;</code> attribution.</p>
+          </div></div>
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="disclosure.html">Disclosure</a>
+            <span class="tag" style="--type:-2;">&lt;details&gt;</span>
+            <p class="sub" style="margin:0; --type:-1;">Native open/close, CSS chevron, card-framed; height animates when motion is on.</p>
+          </div></div>
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="code.html">Code &amp; Kbd</a>
+            <span class="tag" style="--type:-2;">&lt;code&gt; &lt;kbd&gt; &lt;pre&gt;</span>
+            <p class="sub" style="margin:0; --type:-1;">Monospace family — recessed chip, keycap, code panel.</p>
+          </div></div>
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="progress.html">Progress &amp; Meter</a>
+            <span class="tag" style="--type:-2;">&lt;progress&gt; &lt;meter&gt; range</span>
+            <p class="sub" style="margin:0; --type:-1;">One pill-track+fill language; fill follows <code>--hue</code>. <code>.smart</code> meters self-color.</p>
+          </div></div>
+
+        </div>
+      </section>
+
+      <!-- FORMS -->
+      <section class="column" style="gap:0.6lh;">
+        <span class="eyebrow">Forms · a label inside a form is a field</span>
+        <div class="grid" style="--grid-min:16rem;">
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="form.html">Form fields</a>
+            <span class="tag" style="--type:-2;">&lt;form&gt; &lt;label&gt;</span>
+            <p class="sub" style="margin:0; --type:-1;">Form becomes a recessed panel; controls go raised and borderless. Validation rides real ARIA.</p>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- CLASSES -->
+      <section class="column" style="gap:0.6lh;">
+        <span class="eyebrow">Components · a class for what HTML lacks an element for</span>
+        <div class="grid" style="--grid-min:16rem;">
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="card.html">Card</a>
+            <span class="tag" style="--type:-2;">.card / .Card</span>
+            <p class="sub" style="margin:0; --type:-1;">A painted surface — set <code>--bg</code> to place it in the depth stack. Quiet or vibrant edge.</p>
+          </div></div>
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="alert.html">Alert</a>
+            <span class="tag" style="--type:-2;">.alert</span>
+            <p class="sub" style="margin:0; --type:-1;">A standing message with a semantic hue. Add a helper and your own ARIA role.</p>
+          </div></div>
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="tag.html">Tag</a>
+            <span class="tag" style="--type:-2;">.tag</span>
+            <p class="sub" style="margin:0; --type:-1;">Small dense label. State via <code>data-ui-state</code> or <code>aria-disabled</code>.</p>
+          </div></div>
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="avatar.html">Avatar</a>
+            <span class="tag" style="--type:-2;">.avatar</span>
+            <p class="sub" style="margin:0; --type:-1;">Square monogram, image, or icon chip, sized in <code>lh</code>. Color inline.</p>
+          </div></div>
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="crumbs.html">Breadcrumbs</a>
+            <span class="tag" style="--type:-2;">.crumbs</span>
+            <p class="sub" style="margin:0; --type:-1;">Links ending in <code>aria-current="page"</code>. Separators are generated, never in markup.</p>
+          </div></div>
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="tabs.html">Tabs</a>
+            <span class="tag" style="--type:-2;">.tabs</span>
+            <p class="sub" style="margin:0; --type:-1;">Segmented radio control on a <code>role="group"</code>. <code>--type</code> rescales the whole control.</p>
+          </div></div>
+
+        </div>
+      </section>
+
+      <!-- PATTERNS -->
+      <section class="column" style="gap:0.6lh;">
+        <span class="eyebrow">Patterns · whole-page compositions</span>
+        <div class="grid" style="--grid-min:16rem;">
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="highlight.html">Syntax highlighting</a>
+            <span class="tag" style="--type:-2;">Custom Highlight API</span>
+            <p class="sub" style="margin:0; --type:-1;">Tokens named <code>&lt;lang&gt;-&lt;kind&gt;</code> via the CSS Custom Highlight API — no wrapper spans.</p>
+          </div></div>
+
+          <div class="card entry" style="--bg:-0.4;"><div class="column" style="gap:0.2lh; padding:0.5lh 0.6em;">
+            <a class="ttl" href="dashboard.html">App shell</a>
+            <span class="tag" style="--type:-2;">.page · 10 slots</span>
+            <p class="sub" style="margin:0; --type:-1;">The full <code>.page</code> grid — header, rails, main, aside, footer. Only regions scroll.</p>
+          </div></div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="pg-footer spread" style="--bg:0.05; padding:0.5lh 1em; align-items:center;">
+    <a class="nav-item" href="../index.html">← Home</a>
+    <span class="sub" style="--type:-1;">15 live demos · zero author color literals.</span>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -84,6 +84,7 @@
 @property --cfg-wght-max     { syntax: "<number>"; inherits: true;  initial-value: 850 }
 /* motion */
 @property --cfg-motion { syntax: "<number>"; inherits: true; initial-value: 1 }
+@property --cfg-control-height { syntax: "<number>"; inherits: true; initial-value: 1.7 }   /* control vertical size, in lh-multiples → button/input/select/textarea/avatar */
 
 
 /* ════════════════════════════════════════════════════════════════════
@@ -361,9 +362,12 @@
     --l-base: 98%; --l-floor: 85%; --l-color: 50%; --c-peak: 0.08; --surf-curve: 1; --st-neut: 1;
     --dk-l-base: 24%; --dk-l-floor: 6%; --dk-l-color: 69%; --dk-c-peak: 0.07; --dk-surf-curve: 3; --dk-st-neut: 3;
 
-    /* type foundations — rem-valued, so plain (not registrable) */
-    --cfg-type-min: 0.75rem;  --cfg-type-min-ratio: 1.2;
-    --cfg-type-max: 0.875rem; --cfg-type-max-ratio: 1.26;
+    /* type foundations — rem-valued, so plain (not registrable). Default = the
+       "md" Med step: type 0 (body/UI/controls) ≈ 14.5px phone / 15.5px desktop —
+       a comfortable mid default. Just under 16px, so editable fields lean on the
+       input-only font floor to dodge iOS focus-zoom (buttons don't need it). */
+    --cfg-type-min: 0.90625rem; --cfg-type-min-ratio: 1.17;
+    --cfg-type-max: 0.96875rem; --cfg-type-max-ratio: 1.21;
     /* optical weight — climbs above type 0 (registered, so listed for tuning) */
     --cfg-wght-base: 400; --cfg-wght-step: 90; --cfg-wght-max: 850;
 
@@ -399,9 +403,13 @@
   [data-ui-theme="light"] { color-scheme: light; --cfg-dark: 0; }
 
   /* ── size switch — reconfigures the scale shape (base + ratio) ── */
-  [data-ui-size="sm"] { --cfg-type-min: 0.72rem; --cfg-type-min-ratio: 1.14; --cfg-type-max: 0.8rem;   --cfg-type-max-ratio: 1.18; }
-  [data-ui-size="md"] { --cfg-type-min: 0.75rem; --cfg-type-min-ratio: 1.2;  --cfg-type-max: 0.875rem; --cfg-type-max-ratio: 1.26; }
-  [data-ui-size="lg"] { --cfg-type-min: 0.85rem; --cfg-type-min-ratio: 1.25; --cfg-type-max: 1.0rem;   --cfg-type-max-ratio: 1.33; }
+  /* sm/md/lg: dense SaaS sizes. Each is a real fluid range on NAMED intervals, so
+     both type contrast AND the spacing derived from it shift across the viewport.
+     xl is NOT a uniform scale-up — it's Utopia's marketing scale (much larger base). */
+  [data-ui-size="sm"] { --cfg-type-min: 0.780rem; --cfg-type-min-ratio: 1.067; --cfg-type-max: 0.840rem; --cfg-type-max-ratio: 1.125; }  /* dense · Minor2nd→Major2nd */
+  [data-ui-size="md"] { --cfg-type-min: 0.840rem; --cfg-type-min-ratio: 1.067; --cfg-type-max: 0.920rem; --cfg-type-max-ratio: 1.125; }  /* default · Minor2nd→Major2nd (denser) */
+  [data-ui-size="lg"] { --cfg-type-min: 0.920rem; --cfg-type-min-ratio: 1.125; --cfg-type-max: 1.000rem; --cfg-type-max-ratio: 1.200; }  /* roomy · Major2nd→Minor3rd (denser) */
+  [data-ui-size="xl"] { --cfg-type-min: 1.125rem; --cfg-type-min-ratio: 1.200; --cfg-type-max: 1.250rem; --cfg-type-max-ratio: 1.250; }  /* marketing · Utopia 18→20px, Minor3rd→Major3rd */
 
   /* ── motion switch — scales every transition duration ── */
   [data-ui-motion="off"]   { --cfg-motion: 0  }
@@ -503,22 +511,21 @@
   :where(a:not([class])):hover { --fg: 1; --hue-shift: 30; }
   :where(b, strong) { font-weight: 700; }
 
-  /* native form controls get a surface + border so unstyled forms are usable.
-     Height matches <button> by intent (2lh + 0.35em vertical) so an input and
-     a button sit equal side by side and both scale with --type. box-sizing is
-     border-box, so the 1px border sits inside the 2lh box (button has none) —
-     outer heights stay equal. NOT yet tokenized: still iterating; promote to a
-     shared --cfg-control-height only once the system settles. */
+  /* native form controls get a surface + border so unstyled forms are usable, and
+     share the button's --cfg-control-height with the SAME font + leading, so a field
+     and a button resolve to exactly one height at every size. box-sizing is border-box,
+     so the 1px border sits inside the token box (button has none) — outer heights match.
+     No 16px font floor: it inflated the field's lh (desyncing it from buttons) and hid
+     sizing. iOS focus-zoom on small text is now opt-in per form scope — see notes. */
   :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select) {
     --bg: 0; background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
     border: 1px solid var(--border); border-radius: var(--cfg-radius);
-    padding: 0.35em 0.8em; min-block-size: 2lh;
+    padding: 0.28em 0.8em; min-block-size: calc(var(--cfg-control-height) * 1lh);
   }
-  /* 16px floor on touch defeats iOS focus-zoom (same pattern as buttons).
-     checkbox/radio/range excluded — they handle their own touch sizing. */
-  @media (pointer: coarse) {
-    :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select) { font-size: max(16px, var(--_font-size)); }
-  }
+  /* native <select multiple> is a listbox (row-driven height): it shares the family
+     surface/border above and is floored to one control-height. A true single-height
+     multi-select needs a custom token-trigger widget (not native). */
+  :where(select[multiple]) { padding: 0.2em 0.4em; min-block-size: calc(var(--cfg-control-height) * 1lh); }
 }
 
 
@@ -590,6 +597,37 @@
     @starting-style { &[open]::backdrop { background: oklch(0% 0 0 / 0); } }
   }
 
+  /* .modal — centered overlay card. Open a <dialog> with showModal() and the
+     browser gives you the focus trap, Esc-to-close, an inert background, and
+     top-layer stacking for free — no z-index. The box scales + fades in
+     (composite-only, motion-gated); dialog.modal also dims the backdrop. Width
+     defaults to ~32rem; override inline-size at the call site. Add the
+     `closedby="any"` attribute for click-outside dismissal.
+
+       <dialog class="modal"> … <button onclick="this.closest('dialog').close()">Close</button> </dialog>
+       <button onclick="document.querySelector('.modal').showModal()">Open</button>  */
+  :where(.modal) {
+    --_dur: calc(var(--cfg-motion) * 0.2s);
+    position: fixed; inset: 0; margin: auto;            /* centre in the viewport */
+    inline-size: min(92vw, 32rem); max-block-size: min(85svh, 44rem);
+    overflow: auto; overscroll-behavior: contain;
+    padding: 0.75lh 1em; border: 0; border-radius: var(--cfg-radius);
+    --bg: 0.1; background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    transition: opacity var(--_dur) ease-out, scale var(--_dur) ease-out,
+                display var(--_dur) allow-discrete, overlay var(--_dur) allow-discrete;
+    opacity: 1; scale: 1;
+
+    &:not(:is([open], :popover-open)) { opacity: 0; scale: 0.96; }
+    @starting-style { &:is([open], :popover-open) { opacity: 0; scale: 0.96; } }
+  }
+  :where(dialog.modal) {
+    --_dur: calc(var(--cfg-motion) * 0.2s);
+    &::backdrop { background: oklch(0% 0 0 / 0.5);
+      transition: background-color var(--_dur) ease-out, display var(--_dur) allow-discrete, overlay var(--_dur) allow-discrete; }
+    &:not([open])::backdrop { background: oklch(0% 0 0 / 0); }
+    @starting-style { &[open]::backdrop { background: oklch(0% 0 0 / 0); } }
+  }
+
   /* .hud — full-viewport overlay; click-through container, interactive
      children. Slot classes: t/c/b row × l/c/r column. */
   :where(.hud) {
@@ -642,6 +680,7 @@
   :where(.grid)  { display: grid; gap: calc(0.25 * 1lh); grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min, 16rem)), 1fr)); }
   :where(.ngrid) { display: grid; gap: calc(0.25 * 1lh); grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr); grid-auto-rows: auto; }
   :where(.stack) { display: grid; grid-template-areas: "stack"; & > * { grid-area: stack } }
+  :where(.track) { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(var(--track-min, 6rem), max-content); gap: calc(0.25 * 1lh); overflow-x: auto; }
 
   :where(.hero) {
     display: grid;
@@ -671,16 +710,15 @@
        <svg> + text      → inline icon + label (the normal labeled button)
        text only         → default text button
 
-     Touch: on a coarse pointer the font floors at 16px (iOS zooms any focused
-     control whose font is < 16px, phone or tablet — why the type engine captures
-     --_font-size) and the glyph steps to 1.25em to match the nav dock; coarse +
-     small floors the box at a 44px touch target.                          */
+     Height is one decision: --cfg-control-height × 1lh, off the live type — no
+     pointer floors, so a button reads its true size at every preference. Finger
+     targets for icon buttons are opt-in via .btn-touch.                       */
   :where(button) {
     --lift: 0.2;   
     display: inline-flex; align-items: center; justify-content: center;
     gap: 0.45em;
-    min-block-size: 2lh; min-inline-size: 2lh;   /* touch floor */
-    padding: 0.35em 0.8em;
+    min-block-size: calc(var(--cfg-control-height) * 1lh); min-inline-size: calc(var(--cfg-control-height) * 1lh);   /* the one height decision — no pointer floor */
+    padding: 0.28em 0.8em;
     border-radius: var(--cfg-radius);
     font-weight: 600;
     user-select: none; -webkit-user-select: none;   /* label not selectable */
@@ -690,14 +728,20 @@
   }
 
   @media (pointer: coarse) {
-    :where(button) {
-      font-size: max(16px, var(--_font-size));               /* iOS zoom floor */
-      & > svg { inline-size: 1.25em; block-size: 1.25em; }   /* larger touch glyph — matches the nav dock */
-    }
+    /* Buttons never trigger iOS focus-zoom — you don't type in them — so they
+       take NO 16px font floor. Flooring an lh-sized box is exactly what bloated
+       them; without it they size from the base type scale (now ~16px at md, so
+       already touch-comfortable). The glyph just steps up to match the nav dock. */
+    :where(button) > svg { inline-size: 1.25em; block-size: 1.25em; }
   }
-  @media (pointer: coarse) and (max-width: 768px) {
-    :where(button) { min-block-size: max(44px, 2lh); min-inline-size: max(44px, 2lh); }   /* 44px touch target */
-  }
+
+
+  /* toggle state — aria-pressed="true" paints the button "on" (Law 7: state
+     rides real ARIA). Mirrors the nav-item/nav-icon live paint. Covers filter
+     toggles, mute/bold/pin buttons, etc. The "live in a set" accent (no ARIA
+     home) is data-ui-state="on" — defined once in classAPI.utility. */
+  :where(button[aria-pressed="true"]) { --lift: 0.55; --fg: 1; }
+
 
   /* icon-only: an accessible label + svg, no caption → square.
      keyed on [aria-label] because :only-child can't see the text node
@@ -713,6 +757,17 @@
     padding: 0.3em; aspect-ratio: 1;
     & > small { --type: -2; font-weight: 600; line-height: 1; }
   }
+
+  /* .btn-touch — opt-in finger-sized icon button: a REAL 44px box (the box you see
+     IS the tap target; no invisible hit-slop to silently overlap a neighbour). Reach
+     for it in toolbars / nav / app chrome where an icon gets tapped. 44px is the lone
+     literal here (WCAG 2.5.5 target); promote to a token if a context needs another. */
+  :where(button).btn-touch {
+    min-block-size:  max(44px, calc(var(--cfg-control-height) * 1lh));
+    min-inline-size: max(44px, calc(var(--cfg-control-height) * 1lh));
+    aspect-ratio: 1; padding: 0;
+  }
+
 
 /* ════════════════════════════════════════════════════════════════════
    nav items — REPLACES the old .nav / .nav-toolbar block in
@@ -759,7 +814,7 @@
   :where(.nav-icon) {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 0.15em; aspect-ratio: 1;
-    min-block-size: 2lh; min-inline-size: 2lh;
+    min-block-size: calc(var(--cfg-control-height) * 1lh); min-inline-size: calc(var(--cfg-control-height) * 1lh);
     padding: 0.3em;
     & > svg   { inline-size: 1.25em; block-size: 1.25em; }
     & > small { --type: -2; font-weight: 600; line-height: 1; }
@@ -768,16 +823,6 @@
   /* live = current destination OR pressed toggle — one paint for both shapes */
   :where(.nav-item, .nav-icon):where([aria-current="page"], [aria-pressed="true"]) {
     --lift: 0.4; --fg: 1; font-weight: 600;
-  }
-
-  /* coarse pointer → floor the hit target at the 44px minimum (and the 16px
-     font floor that defeats iOS focus-zoom). One rule covers both shapes. */
-  @media (pointer: coarse) {
-    :where(.nav-item, .nav-icon) {
-      font-size: max(16px, var(--_font-size));
-      min-block-size: max(44px, 2lh);
-    }
-    :where(.nav-icon) { min-inline-size: max(44px, 2lh); }   /* keep it square */
   }
 }
 
@@ -957,11 +1002,17 @@
       vertical-align: baseline;
     }
 
-    /* header — quiet ink, the label row; its bottom edge is the \midrule */
+    /* header — quiet ink, the label row; its bottom edge is the \midrule.
+       Sticky so that when the table lives in a scroll viewport (a height-capped
+       overflow ancestor, e.g. .table-scroll) the header pins to the top and the
+       body scrolls under it. The cell paints its own surface (--_bg) so rows
+       don't show through; harmless when there's nothing to scroll. */
     & :where(thead th) {
       --fg: -0.75;
       font-weight: 600;
       border-block-end: 1px solid var(--focus);  /* the vibrant under-header rule */
+      position: sticky; inset-block-start: 0; z-index: 1;
+      background-color: var(--_bg);
     }
 
     /* the \bottomrule — vibrant line closing the table body */
@@ -985,13 +1036,34 @@
     }
   }
 
+  /* .table-scroll — a height-capped scroll viewport for a <table>, so the body
+     scrolls under the pinned header (see the sticky thead, above). It owns the
+     card frame; the inner table drops its own so there's no double border, and
+     the frame's radius clips the scroll. Cap the height with max-block-size
+     (default 24lh) and it scrolls vertically; wide tables scroll horizontally
+     too. A <caption> stays out of the scroll if you keep it outside, so put any
+     title above the wrapper.
+
+       <div class="table-scroll" style="max-block-size:18lh">
+         <table>…</table>
+       </div>                                                                */
+  :where(.table-scroll) {
+    --bg: 0;
+    overflow: auto; overscroll-behavior: contain;
+    max-block-size: 24lh;
+    border: 1px solid var(--border); border-radius: var(--cfg-radius);
+    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+
+    & > :where(table) { border: 0; border-radius: 0; }
+  }
+
   /* ── tag ──────────────────────────────────────────────────────────
      A small dense label on a <span>. Optional leading and/or trailing
      <svg> (icons size to the text). Quiet 0.1 surface, vibrant --focus
      edge, max chromatic ink. State is server-rendered, not interactive.
        <span class="tag">Label</span>                       default
        <span class="tag" data-ui-state="off">Offline</span>  greyed, neutral
-       <span class="tag" data-ui-state="on">Live</span>      focus outline
+       <span class="tag" data-ui-state="on">Live</span>      max ink + focus ring
        <span class="tag" aria-disabled="true">…</span>       inert            */
   :where(.tag) {
     --bg: 0.4;
@@ -1011,7 +1083,6 @@
     --bg: 0.1; --fg: -0.4; --surface-chroma: 0;
     border: 1px solid var(--border);
   }
-  :where(.tag[data-ui-state="on"])     { outline: 1px solid var(--focus); }
   :where(.tag[aria-disabled="true"])   { --bg: 0.05; --fg: -0.6; border-color: var(--border); }
 
   /* ── avatar ────────────────────────────────────────────────────────
@@ -1027,7 +1098,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    block-size: 2.4lh;
+    block-size: calc(var(--cfg-control-height) * 1lh);
     aspect-ratio: 1;
     border: 1px solid var(--border);
     border-radius: var(--cfg-radius);
@@ -1358,7 +1429,7 @@
     --bg: 0.1; background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
     border-radius: var(--cfg-radius);
     padding: calc(0.15 * 1lh);
-    min-block-size: 2lh;                        /* the ONE height decision; tiles inherit it */
+    min-block-size: calc(var(--cfg-control-height) * 1lh);   /* the ONE height decision; tiles inherit it */
     position: relative;                         /* anchor for the label breakout */
 
     /* reserve breakout space ONLY when there's a legend to lift above the track */
@@ -1372,7 +1443,7 @@
       inline-size: 100%;
       display: flex; align-items: baseline; gap: 0.5em;
       padding: 0; background: none;
-      --type: 0; --fg: -0.75;
+      --type: inherit; --fg: -0.75;            /* scale with the group; its <small> stays one fixed step down */
       & > :where(small) {
         --type: -1; --fg: -0.8;
         block-size: 1lh; display: flex; align-items: center; line-height: 1;
@@ -1381,20 +1452,19 @@
 
     /* a tile — decisionless: content-width, fills the track height, centers */
     & > :where(label) {
+      --type: inherit;                          /* take the .tabs step so a --type on the group rescales every tile (text + radio + height) */
       flex: 0 0 auto;                           /* content-width segments (pack, don't stretch wide) */
       align-self: stretch;                      /* fill the track height on a single row */
-      min-block-size: 2lh;                      /* keep comfortable height when wrapped to rows too */
+      min-block-size: calc(var(--cfg-control-height) * 1lh);   /* keep comfortable height when wrapped to rows too */
       display: flex; align-items: center; justify-content: center; gap: 0.4em;
       padding-inline: 0.8em;
       border-radius: calc(var(--cfg-radius) - 0.15lh);
       user-select: none; -webkit-user-select: none;
       transition: background-color calc(var(--cfg-motion) * 0.12s) ease;
 
-      @media (pointer: coarse) { font-size: max(16px, var(--_font-size)); }
-
       & > :where(span) {
+        --type: inherit;                        /* scale with the tile (and thus the group's --type) */
         --fg: -0.6;                             /* quiet label until selected */
-        @media (pointer: coarse) { font-size: max(16px, var(--_font-size)); }
       }
       & > :where(input[type="radio"]) {
         margin: 0; flex: 0 0 auto;              /* visible, left of the text */
@@ -1411,10 +1481,95 @@
         outline: 2px solid var(--focus); outline-offset: -2px;
       }
     }
+  }
 
-    /* touch: track resolves to the same 44px target as buttons/inputs */
-    @media (pointer: coarse) and (max-width: 768px) {
-      min-block-size: max(44px, 2lh);
+  /* ── carousel ──────────────────────────────────────────────────────
+     Native CSS carousel (CSS Overflow 5). A scroll-snap flex track whose
+     prev/next arrows and pagination dots are BROWSER-generated and engine-
+     themed — zero JS; scroll position stays native browser state (no client
+     store). Baseline everywhere: a swipeable scroll-snap track. Enhanced
+     (Chromium now; Firefox/Safari in progress, gated by @supports): generated
+     ::scroll-button arrows + a ::scroll-marker dot group, keyboard- and AT-
+     accessible for free (tablist semantics; :disabled at the ends;
+     :target-current on the live dot).
+
+       <ul class="carousel">              <!-- <ul>/<li> reads best to AT -->
+         <li class="card">…</li> <li class="card">…</li> …
+       </ul>
+
+     Item width = --peek (default 100% → one per view; set e.g. 80% to reveal
+     neighbours). Snap edge = --snap (default center). Arrows/dots paint from
+     the inherited engine ink (currentColor), so they track --hue + theme. */
+  :where(.carousel) {
+    display: flex; gap: calc(0.25 * 1lh);
+    overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    list-style: none; margin: 0; padding: 0;
+
+    & > :where(*) {
+      flex: 0 0 var(--peek, 100%);
+      min-inline-size: 0;
+      scroll-snap-align: var(--snap, center);
+    }
+  }
+
+  /* Enhancements — only where the native carousel pseudos exist; without them
+     the markup above is still a usable swipe / scroll-snap track. */
+  @supports (scroll-marker-group: after) {
+    :where(.carousel) {
+      scroll-marker-group: after;            /* dot group trails the track in tab order */
+      anchor-name: --carousel;               /* arrows/dots anchor to this box ... */
+      anchor-scope: --carousel;              /* ... scoped, so multiple carousels don't collide */
+      margin-block-end: 1.4lh;               /* reserve room for the dot row below */
+      scrollbar-width: none;                 /* arrows + dots replace the bar */
+      &::-webkit-scrollbar { display: none; }
+    }
+
+    /* prev / next — generated buttons; a translucent ink chip that reads on
+       any surface, overlaid just inside each edge and vertically centred. The
+       second content value is the accessible label. */
+    :where(.carousel)::scroll-button(*) {
+      position: absolute; position-anchor: --carousel; z-index: 1;
+      top: anchor(center); translate: 0 -50%;
+      inline-size: 1.9lh; block-size: 1.9lh; padding: 0;
+      border: 0; border-radius: 50%; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.2em; line-height: 1; color: currentColor;
+      background: color-mix(in oklch, currentColor 12%, transparent);
+      transition: background-color calc(var(--cfg-motion) * 0.12s) ease;
+    }
+    :where(.carousel)::scroll-button(*):hover         { background: color-mix(in oklch, currentColor 20%, transparent); }
+    :where(.carousel)::scroll-button(*):disabled      { opacity: 0.3; cursor: default; }
+    :where(.carousel)::scroll-button(*):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    :where(.carousel)::scroll-button(left)  { content: "\2039" / "Previous"; left:  calc(anchor(left)  + 0.4lh); }
+    :where(.carousel)::scroll-button(right) { content: "\203A" / "Next";     right: calc(anchor(right) + 0.4lh); }
+
+    /* dot group — centred just below the track */
+    :where(.carousel)::scroll-marker-group {
+      position: absolute; position-anchor: --carousel;
+      top: calc(anchor(bottom) + 0.4lh); justify-self: anchor-center;
+      display: flex; gap: 0.45em; align-items: center;
+    }
+    :where(.carousel) > :where(*)::scroll-marker {
+      content: ""; inline-size: 0.5lh; block-size: 0.5lh; border-radius: 50%;
+      background: color-mix(in oklch, currentColor 28%, transparent); cursor: pointer;
+      transition: background-color calc(var(--cfg-motion) * 0.12s) ease;
+    }
+    :where(.carousel) > :where(*)::scroll-marker:hover          { background: color-mix(in oklch, currentColor 45%, transparent); }
+    :where(.carousel) > :where(*)::scroll-marker:target-current { background: currentColor; }
+    :where(.carousel) > :where(*)::scroll-marker:focus-visible  { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+    /* mouse gets arrows; touch swipes (arrows hidden, dots remain). On a fine
+       pointer, inset the track by --rail so the overlaid arrows sit in a gutter
+       rather than on top of content; touch stays full-bleed. */
+    @media (pointer: fine) {
+      :where(.carousel) {
+        padding-inline: var(--rail, 2.8lh);
+        scroll-padding-inline: var(--rail, 2.8lh);   /* keep snap centred within the gutter */
+      }
+    }
+    @media (pointer: coarse) {
+      :where(.carousel)::scroll-button(*) { display: none; }
     }
   }
 
@@ -1654,6 +1809,35 @@
   :where(.fill)     { inline-size: 100%; }
   :where(.vh) { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
+  /* data-ui-state="on" — the "live in a set" accent (no ARIA home; for a real
+     on/off TOGGLE prefer aria-pressed). Max-contrast ink via --fg:1 — a CONTRAST
+     lever, not a hue, so it reads in either bank and doesn't depend on the focus
+     hue being vivid (which fails on small tags). Plus a focus-coloured border and
+     a no-shift focus OUTLINE ring (outline, not border, so toggling shifts no
+     layout). Reads on bordered (tag, input) and borderless (button) elements alike.
+     Lives here, after the components, so it overrides their borders/ink. */
+  :where([data-ui-state="on"]) {
+    --fg: 1;
+    border-color: var(--focus);
+    outline: 2px solid var(--focus); outline-offset: 1px;
+  }
+
+  /* frosted surface — re-tint the engine's resolved surface translucent and
+     blur what sits behind it. Built from the engine's OWN --_bg-l / --_bg-c /
+     --_h, so it stays on the colour model (no literal colour); only the alpha
+     and blur radius are knobs (--glass-alpha / --glass-blur). Set --bg to pick
+     the tint depth as on any surface. Publishes --surf-l / --surf-bg like .bg,
+     so descendant ink and lift resolve against the (opaque-equivalent)
+     lightness. Needs content BEHIND it to read as glass — over an opaque
+     sibling it's just a tint. Best on an overlay: a .drawer, a .hud child, a
+     sticky header. */
+  :where(.glass) {
+    background-color: oklch(var(--_bg-l) var(--_bg-c) var(--_h) / var(--glass-alpha, 0.65));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 0.5lh));
+    backdrop-filter: blur(var(--glass-blur, 0.5lh));
+    --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+  }
+
   /* semantic hue helpers — lock an element to a semantic hue (tokens in theme).
      Four-letter names align in markup. */
   :where(.suc) { --hue-lock: var(--hue-suc) }
@@ -1704,6 +1888,12 @@
   .pg-main-footer { --bg: -0.3; padding: 0.25lh; } 
   .pg-aside       { --bg: -0.3; padding: 0.25lh; } 
   .pg-footer      { --bg:  0.03; padding: 0.25lh; }
-
+  :where(.pg-main, .pg-navigation, .pg-aside, .pg-toolbar) { overscroll-behavior: none; }
+  :where(html, body) { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  [data-ui-skin="material"]{ --c-peak:0.14; --c-tint:0.05; --cfg-radius:16px;
+    --font-ui:"Roboto",system-ui,sans-serif; --font-display:"Roboto",sans-serif; --font-mono:"Roboto Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-skin="carbon"]{ --c-peak:0.16; --c-tint:0.006; --cfg-radius:0px;
+    --font-ui:"IBM Plex Sans",system-ui,sans-serif; --font-display:"IBM Plex Sans",sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-skin="tw"]{ --c-peak:0.15; --c-tint:0.012; --cfg-radius:8px;
+    --font-ui:"Inter",system-ui,sans-serif; --font-display:"Inter",sans-serif; --font-mono:"JetBrains Mono",ui-monospace,monospace; font-family:var(--font-ui); }
 }
-

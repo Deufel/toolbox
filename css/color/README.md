@@ -1,237 +1,205 @@
-# color.css
+# Colour — set intent, not colour
 
-A small color system. **Color is a function of a few inherited numbers.**
-You set the numbers; one formula computes every surface, every piece of
-contrasting text, hue reflow, and hover/active/disabled states — all in
-OKLCH, all theme-correct, because they re-run the same math.
+The point of this system's colour model is that you **never track colours**. No hex
+values, no shade names, no palette to keep in sync across a large project. You
+declare *intent* — how loud, neutral or chromatic, which hue — and one declarative
+engine derives the actual OKLCH colour, with correct contrast, in light and dark,
+automatically. Add a hundred screens and there is still nothing to maintain: every
+surface and every bit of ink re-derives itself from the numbers it inherits.
 
-There is no palette to maintain. There are no `--blue-500` tokens. There
-is one scale per axis and a position on it.
+Two knobs carry almost everything: **`--bg`** paints surfaces; **`--fg`** inks the
+content sitting on them.
+
+---
+
+## The signed scale
+
+`--bg` and `--fg` both run **`-1 … 0 … +1`**, and the sign is the whole trick:
+
+- **Sign picks the palette.** Negative = the **neutral** scale (greys / the theme's
+  surface tones). Positive = the **colour** scale (the current hue).
+- **Magnitude is loudness.** `0` is *quiet* — it blends into whatever is behind it.
+  Toward `±1` is *loud* — maximum depth (for a surface) or contrast (for ink).
+
+So the only decision you make: loud-and-neutral → toward **`-1`**; loud-and-colourful
+→ toward **`+1`**; quiet → toward **`0`**.
+
+---
+
+## `--bg` — surfaces
+
+The **neutral** half (`-1 … 0`) is a depth stack: `-1` is the **floor** (the recessed
+base), `0` is the **top** — the most-raised neutral surface. (An unset element
+defaults to `0`, which is why a popover or drawer reads as "on top" for free.)
+Content surfaces climb from the floor up toward `0`.
+
+The **colour** half (`0 … +1`) makes a surface *be* colour — a banner, an accent
+rail — by pulling in the current hue.
+
+You only ever say "more recessed", "more raised", or "more colourful"; the engine
+flips the real lightness between light and dark themes for you.
+
+### Standard page surfaces (baked in, overridable)
+
+`.page` regions ship with defaults, so an app has depth out of the box:
+
+| region | `--bg` | intent |
+|---|---|---|
+| `body` | `-1` | the floor |
+| `.pg-footer`, `.pg-aside` | `-0.8` | just above the floor |
+| `.pg-main` (+ `pg-main-header`/`-footer`) | `-0.6` | neutral content, headroom to climb toward `0` |
+| `.pg-header`, `.pg-subheader` | `-1` | blend into the body |
+| `.pg-navigation` | `0.1` | a touch of colour |
+| `.pg-banner` | `0.2` | colourful — attention |
+
+Cards, popovers, and nested panels set their own `--bg` higher (toward `0`) to lift
+off the region they sit in. Override any default at the call site.
+
+---
+
+## `--fg` — ink
+
+Intensity is `abs(--fg)`. `0` paints the ink the *same* as its surface (invisible —
+handy for "reveal on hover"); `±1` is maximum contrast. Negative = neutral ink (the
+default body ink is `-0.85`); positive = chromatic ink in the current hue. You never
+choose light-vs-dark text — the engine compares the surface lightness to a flip
+point and picks the legible side automatically.
 
 ```html
-<link rel="stylesheet" href="color.css">
+<p style="--fg:-0.6">quiet, neutral caption</p>
+<strong style="--fg:0.9">loud, chromatic emphasis</strong>
 ```
+
+**Practical ranges.** Body text sits near the default `-0.85`. For *muted / secondary*
+text reach for about **`-0.5` to `-0.7`** — still clearly legible. `-0.2`/`-0.3` is
+**not** "slightly muted," it's nearly invisible: magnitude *is* contrast, so a small
+absolute value means almost no contrast with the surface. For chromatic emphasis,
+`+0.6` to `+0.9`.
 
 ---
 
-## The whole API
+## The surface contract
 
-Six numbers you set. Everything else is derived.
-
-| Variable           | Range        | Meaning |
-|--------------------|--------------|---------|
-| `--bg`             | `-1 … 0 … 1` | Surface. `<0` neutral (pages/cards/wells), `>0` color (chips/heat), `0` = base/top. |
-| `--fg`             | `-1 … 0 … 1` | Ink **on** the surface. `0` = the surface itself, `<0` neutral ink, `>0` chromatic ink, `\|fg\|` = strength. |
-| `--hue`            | `0 … 360`    | Base hue. Inherits — set it on a container to recolor the whole subtree. |
-| `--hue-shift`      | `0 … 360`    | Per-element offset from the base hue. |
-| `--hue-lock`       | `0 … 360`    | Absolute hue; overrides hue + shift. Unset = follows context. |
-| `--surface-chroma` | `0 … 1`      | Neutral tint (`0` = pure grey, up = a hint of the hue). |
-
-Two classes do the painting:
-
-| Class       | Effect |
-|-------------|--------|
-| `.bg`       | Paints the computed surface and hands it down to children as the contrast target. |
-| `.hoverable` / `.clickable` | Marks a non-interactive surface as a unit that lifts on hover / presses on active. |
-
-`button`, `a`, and `[role=button]` are interactive automatically.
-
----
-
-## The two roads
-
-`--bg` is a single signed axis with `0` in the middle:
-
-```
-   neutral road            color road
-  -1 ........... 0 ........... 1
- floor        base/top      full color
- (darkest    (brightest    (saturated,
-  surface)    surface)      marches to color end)
-```
-
-- **Negative** = a neutral surface. `0` sits on top (brightest in light
-  mode); `-1` is the floor. Use it for pages, cards, panels, wells.
-- **Positive** = the color road. Chroma and lightness climb toward the
-  color end. Use it for chips, badges, and data-viz heat.
-
-```html
-<div class="bg" style="--bg:-0.3">a card</div>
-<div class="bg" style="--bg:-0.6">  a well inside it</div>
-<span class="bg" style="--bg:0.65">a chip</span>
-```
-
----
-
-## Ink
-
-`--fg` is the same idea, pointed at the text. `0` is the surface itself
-(so text disappears); walk negative for neutral contrast, positive for
-chromatic. Ink always contrasts the **surface it sits on** (it reads the
-inherited surface lightness), and the black/white flip is biased to favor
-light ink — tune with `--fg-flip`.
-
-```html
-<div class="bg" style="--bg:-0.3">
-  <h3 style="--fg:-0.95">Heading</h3>      <!-- strong neutral -->
-  <p  style="--fg:-0.55">Body copy</p>     <!-- softer neutral -->
-  <a  style="--fg:0.85">A chromatic link</a>
-</div>
-```
-
-Default text is `--fg: -0.85` — readable neutral ink — so you usually only
-set `--fg` where you want something other than that.
-
----
-
-## Hue: reflow, shift, lock
-
-One resolved hue per element:
-
-```
---_h = var(--hue-lock, calc(--hue + --hue-shift))
-```
-
-- **`--hue`** inherits. Set it on a container and the whole subtree
-  reflows — surfaces, chips, ink, all of it — from one variable.
-- **`--hue-shift`** offsets relative to that base, so chart series or a
-  relative palette rotate *together* when you rebrand.
-- **`--hue-lock`** ignores both — for semantics that must stay put.
-  `--hue-lock: initial` re-unlocks a subtree.
-
-```html
-<section style="--hue:25">…everything in here is warm…</section>
-
-<div style="--hue-shift:0">series A</div>
-<div style="--hue-shift:45">series B</div>   <!-- relative to base hue -->
-
-<span class="bg is-danger" style="--bg:0.65">always red</span>
-```
-
-Semantic locks ship as helpers: `.is-success` `.is-info` `.is-warning`
-`.is-danger`.
-
-> `--hue-shift` is a single-level offset, not an accumulator: a child's
-> shift replaces a parent's rather than adding to it.
-
----
-
-## States
-
-Interaction is just a nudge on the inputs, driven by one inheriting
-`--state`:
-
-- **Hover** moves `--bg` *toward 0* — everything lightens, as if it rises
-  off the page — and nudges contrast up.
-- **Active** moves *away from 0* (deeper), twice as far as hover came
-  forward, and relaxes contrast.
-- **Disabled** drains ink toward the surface and washes chroma to grey
-  (set `[disabled]` or `[aria-disabled="true"]`).
-
-Because `--state` inherits, a `.hoverable` card lifts *with* its
-non-interactive children as one unit. Anything interactive resets
-`--state`, so a button inside a hovered card stays its own island.
-
-```html
-<div class="bg hoverable" style="--bg:-0.25">…lifts as a unit on hover…</div>
-<button class="bg" style="--bg:0.65">deepens on press</button>
-<button class="bg" style="--bg:0.65" disabled>drained</button>
-```
-
----
-
-## Border & focus
-
-Two colors the engine always computes from the current surface. They're
-not applied to anything by default — components opt in:
-
-- **`--border`** — a neutral-ish line, one step off the surface lightness
-  (inky-darker in light, lifted-lighter in dark) with a sliver of the
-  surface hue. Use it for outlines, dividers, input edges.
-- **`--focus`** — the surface pushed up the color road: same hue, turned
-  loud. The one deliberately attention-grabbing color. Use it for rings.
+Components are **borderless**; separation comes from **surface difference**. Two
+touching surfaces must differ in `--bg`, or the edge vanishes. A surface element
+paints itself and exports both its lightness *and* its position so its ink and
+descendants resolve against it — the canonical three-line painter:
 
 ```css
-.card  { border: 1px solid var(--border); }
-.divider { height: 1px; background: var(--border); }
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+background-color: var(--_bg);
+--surf-l:  var(--_bg-l);   /* lightness — the ink-contrast target */
+--surf-bg: var(--bg);      /* position — the anchor for relative --lift */
 ```
 
-Because both read the inherited surface, a border on a chip, a card, and a
-dark well each resolve correctly against their own surface — no variants.
+For an ad-hoc surface in markup, the class **`.bg`** is exactly those lines.
+Real surface components inline them, so you rarely type `.bg`.
 
----
+> Two touching surfaces at the same `--bg` are invisible to each other. Differentiate
+> them, or — only when two same-level surfaces genuinely must touch — opt into a
+> `--border`.
 
-## Theming
+## Relative lift — `--lift`
 
-A theme is a flat block of constants — no per-element overrides. Light
-values are the working defaults; dark values live once in a `--dk-*` bank;
-two value-free blocks switch the bank in.
+`--bg` places a surface at an *absolute* position. `--lift` places a control at a
+position *relative to whatever surface it sits on*: its surface resolves to
+`--surf-bg + --lift`. That keeps a control a consistent step of contrast on any
+host — a button at `--bg:0.6` vanishes on a `0.6` panel and inverts past it; a
+button at `--lift:0.5` always sits a step above its host. The engine resolves an
+effective position from the two: `--lift` set → `--surf-bg + --lift`; unset →
+absolute `--bg`.
 
-```
-System  → follows prefers-color-scheme (default)
-Light   → <html data-theme="light">
-Dark    → <html data-theme="dark">
-```
+The contract is a strict split, and it's what keeps it cycle-free:
 
-To tune a theme, edit only its value block:
+- **Surfaces publish.** Every painter exports `--surf-bg: var(--bg)` (the third
+  painter line above) — the inheriting twin of `--surf-l`. A plain layout wrapper
+  (`.column`/`.row`) doesn't paint, so it passes the nearest real surface straight
+  through.
+- **Controls read.** `<button>`, `.nav-item`, `.nav-icon` set `--lift` and **omit**
+  the `--surf-bg` line. A control that both read `--surf-bg` and re-published it
+  would form a `--bg ↔ --surf-bg` cycle and compute to invalid — so lift is a
+  *control* concept; surfaces place themselves absolutely with `--bg`.
 
 ```css
-:root {
-  --l-base: 98%; --l-floor: 85%; --l-color: 50%; --c-peak: 0.08; --surf-curve: 1; --st-neut: 1;
-  --dk-l-base: 24%; --dk-l-floor: 6%; /* … */ --dk-st-neut: 3;
-}
+:where(button) { --lift: 0.5; }                 /* a step above its host, set at the call site with --lift */
+:where(.nav-item, .nav-icon) { --lift: 0.06; }  /* quiet at rest; --lift:0.4 when live */
 ```
 
-`color-scheme` follows the theme, so native controls and scrollbars match.
+Caveat: a constant `--lift` is **not** a constant *perceived* step. The surface
+curve is non-linear — the negative side compresses toward the floor, far more in
+the dark bank (`--surf-curve` is higher) — so the same `--lift` reads stronger near
+`0` than down near `-1`. For truly uniform visual lift you'd step in `--surf-l`
+(lightness) space, but that severs lift from the ink/border/chroma derivation, so
+the system keeps it in `--bg`/position space.
 
 ---
 
-## The constants (rarely touched)
+## Hue — `--hue`, `--hue-shift`, `--hue-lock`
 
-These shape *how* the scales feel. The defaults are tuned for a premium,
-understated, low-chroma look; reach for them only to re-tune a theme.
+The hue resolves as `--hue-lock` if set, otherwise `--hue + --hue-shift`.
 
-**Surface** — `--l-base` `--l-floor` `--l-color` (the three lightness
-anchors), `--c-peak` (chroma at the color end), `--c-tint` (neutral tint),
-`--surf-curve` (eases the neutral ramp; dark compresses the band so it
-runs steeper).
+- **`--hue`** (0–360, default 255) re-themes a whole subtree. Set it on a section
+  and everything under it — surfaces, ink, borders, focus — recolours. A fall
+  calendar goes autumnal with a single `--hue`.
+- **`--hue-shift`** rotates *relative* to the inherited hue — the right basis for
+  project roles: define `.pri`/`.sec`/`.ter` as hue-shifts, then changing the page
+  `--hue` rolls the whole palette while keeping the relationships intact. (Use
+  absolute hues instead if you'd rather pin fixed roles — it's flexible either way,
+  with no setup.)
+- **`--hue-lock`** is a hard override: invalid by default (so resolution falls
+  through to hue + shift), but when set it **pins the entire subtree** to that hue
+  regardless of ambient values. This is what makes global helper classes possible.
+  Reach for it on small branches and leaves (a tag, an alert) where the colour must
+  never drift.
 
-**Ink** — `--fg-flip` (black/white flip point; higher favors light),
-`--fg-ink-d/-l` (neutral ink poles), `--fg-chr-d/-l` (chromatic ink
-lightness poles), `--fg-chroma` (chromatic ink saturation).
+### Semantic hues — `.suc` / `.inf` / `.wrn` / `.dgr`
 
-**State** — `--st-hover` (the one feel driver; active and the `bg=0` kick
-derive from it), `--st-fg-gain` (contrast coupling), `--st-neut`
-(per-theme neutral-road boost — dark's compressed band needs more push).
+Four helpers lock to a meaning's hue — success (145), info (255), warning (75),
+danger (25) — defined once as `--hue-suc`/`--hue-inf`/`--hue-wrn`/`--hue-dgr`. They
+set `--hue-lock`, so the element *and its subtree* hold that hue no matter the
+ambient `--hue`. Alerts, tags, and form validation all consume the same four.
 
-**Tokens** — `--border-step` (border's lightness step off the surface),
-`--border-chroma` (how much surface hue the border keeps), `--focus-bg`
-(where `--focus` sits on the color road), `--focus-chroma` (its chroma as
-a multiple of `--c-peak`). `--cfg-dark` is `1` in dark themes / `0` in
-light — infrastructure that flips the border direction.
+```html
+<div class="alert dgr" role="alert">Couldn't save.</div>
+<span class="tag suc">Active</span>
+```
 
----
-
-## Notes & edges
-
-- Surfaces are explicit: add `.bg` to anything that should paint a fill.
-  An element without `.bg` is transparent but still contributes its `--fg`
-  ink against whatever surface it inherits.
-- `--surf-l` is the inherited surface lightness that ink contrasts. `.bg`
-  exports it; that is what lets a heading and body on one card each choose
-  their own `--fg` while both contrasting the card.
-- The `.is-*` hue angles are sRGB-ish defaults; eyeball them against your
-  own `--c-peak` if you lower the chroma a lot.
-- A large `--st-hover` can push a pressed chip into the top of the color
-  road (clamped), and a strong dark `--st-neut` can lift a neutral surface
-  a hair past `0` into faint color. Both are usually fine; clamp the
-  neutral result at `0` if it ever shows.
+A "primary" colour is **not** a helper — it's a hue at the call site
+(`<button style="--hue:262">`), or a one-line project alias (`.pri { --hue:262 }`).
+Never a system class.
 
 ---
 
-## One line to remember
+## SVG
 
-> Pick a surface with `--bg`, pick ink with `--fg`, pick a hue with
-> `--hue`. Everything else — contrast, states, dark mode — is the formula
-> doing its job.
+Icons have no surface of their own. They ride the `color: currentColor` bridge and
+are inked by `--fg` (plus the hue trio) exactly like text — so
+`stroke="currentColor"` / `fill="currentColor"` always lands the right contrast.
+
+---
+
+## Typed tokens — for *building* components
+
+When you author a component you may read two tokens the engine always computes:
+
+- **`--border`** — a quiet neutral line, offset from the surface by theme (lighter
+  in dark, darker in light).
+- **`--focus`** — the chromatic accent: focus rings, the `.Card` edge, the `.tabs`
+  selection.
+
+These are component-author tools, not end-user colour knobs.
+
+---
+
+## Don'ts
+
+- ❌ a literal colour (hex/rgb/named) anywhere — declare intent with `--bg`/`--fg`/`--hue`
+- ❌ reaching for `--surface-chroma` to colour a surface — it is a **configuration**
+  knob (the neutral-tint baseline; the engine also zeroes it to wash disabled
+  controls). To make a surface colourful, raise `--bg` into the positive range with
+  a `--hue`. Don't set it in application code.
+- ❌ choosing light-vs-dark text — the engine flips ink for you
+- ❌ two touching surfaces at the same `--bg`
+- ❌ a `.primary`/`.danger` *variant* class — colour is a hue; meaning is a semantic
+  hue-lock helper
+- ❌ publishing `--surf-bg` on a control that sets `--lift` (or reading `--lift` on a
+  surface that publishes) — one element doing both cycles; surfaces publish, controls read

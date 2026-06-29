@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en" data-ui-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code · Kbd · Pre</title>
+<link rel="stylesheet" href="../system.css">
+</head>
+<body>
+<div class="page centered">
+  <header class="pg-header">
+    <div class="row spread">
+      <h2>Code · Kbd · Pre</h2>
+      <button type="button" class="clickable" onclick="document.documentElement.dataset.uiTheme = document.documentElement.dataset.uiTheme === 'dark' ? 'light' : 'dark'">Toggle theme</button>
+    </div>
+  </header>
+
+  <main class="pg-main">
+    <div class="column">
+
+      <h3>Inline <code>code</code></h3>
+      <p>Set a value with <code>--bg: 0.5</code> and the engine computes the rest.
+      The token <code>--cfg-radius</code> drives corner rounding, and
+      <code>oklch()</code> is the colour space throughout.</p>
+
+      <h3>Keyboard keys <kbd>kbd</kbd></h3>
+      <p>Press <kbd>Cmd</kbd> + <kbd>K</kbd> to open search, or <kbd>Esc</kbd> to
+      close. Save with <kbd>Ctrl</kbd> + <kbd>S</kbd>.</p>
+
+      <h3>Code block <code>pre</code></h3>
+      <pre><code>:where(.crumbs)            { --type: -1; }
+:where(.crumbs) > :where(a) { --type: inherit; }
+
+/* one --type on the wrapper scales the whole trail */</code></pre>
+
+      <h3>Long line (scrolls horizontally)</h3>
+      <pre><code>const veryLongLine = someFunction(withLots, ofArguments, thatExceed, theAvailableWidth, andShouldScroll, horizontally, ratherThanWrapping);</code></pre>
+
+      <h3>Scaling — <code>--type</code> on the block</h3>
+      <pre style="--type: 0.5"><code>// this block is bumped up with --type: 0.5
+const scaled = true;</code></pre>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en" data-ui-theme="light" data-ui-size="md">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>component · card</title>
+<link rel="stylesheet" href="../system.css">
+<style>
+  body { padding: 2lh 1.5em; --bg: -0.6; background-color: var(--_bg); --surf-l: var(--_bg-l); }
+  .wrap { max-inline-size: 60rem; margin-inline: auto; }
+  section { margin-block: 1.5lh; }
+  .lab { --type: -1; --fg: -0.5; display: block; margin-block-end: 0.4lh; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; }
+  .pri { --hue: 262 } .danger { --hue: 25 }
+  h1 { --type: 4; margin: 0 0 0.5lh; }
+  .ttl { --fg: -0.95; font-weight: 700; }
+  .sub { --fg: -0.55; --type: -1; }
+
+  /* docs shell retrofit (Law 0): scroll inside the locked viewport */
+  body { padding:0; }
+  .pg-main { --bg:-0.6; background-color:var(--_bg); --surf-l:var(--_bg-l); padding:2lh 1.5em; }
+</style>
+</head>
+<body>
+<div class="page">
+<main class="pg-main">
+<div class="wrap">
+
+  <div class="row" style="justify-content:space-between;align-items:center;margin-block-end:1lh;display:flex">
+    <h1 style="margin:0">Card</h1>
+    <div class="row" style="display:flex;gap:0.6em">
+      <select onchange="document.documentElement.setAttribute('data-ui-theme',this.value)"><option value="light">light</option><option value="dark">dark</option></select>
+      <select onchange="document.documentElement.setAttribute('data-ui-size',this.value)"><option>sm</option><option selected>md</option><option>lg</option></select>
+    </div>
+  </div>
+  <p class="sub" style="max-inline-size:62ch;margin-block-end:1lh">A card is just a painted surface — padding, radius, the painter. The author sets <code>--bg</code> to place it in the depth stack; the component never guesses hierarchy. Separation is surface difference, not borders.</p>
+
+  <section>
+    <span class="lab">.card (quiet --border) vs .Card (vibrant --focus)</span>
+    <div class="grid" style="--grid-min:13rem">
+      <div class="card" style="--bg:0">
+        <div style="padding:0.4lh 0.4em">
+          <span class="ttl">.card</span>
+          <p class="sub" style="margin-block-start:0.2lh">Quiet border off the surface. The default — recedes, defines without shouting.</p>
+        </div>
+      </div>
+      <div class="Card" style="--bg:0">
+        <div style="padding:0.4lh 0.4em">
+          <span class="ttl">.Card</span>
+          <p class="sub" style="margin-block-start:0.2lh">Vibrant --focus edge. For a surface that should pull the eye — selected, featured, active.</p>
+        </div>
+      </div>
+      <div class="Card pri" style="--bg:0">
+        <div style="padding:0.4lh 0.4em">
+          <span class="ttl">.Card --hue:262</span>
+          <p class="sub" style="margin-block-start:0.2lh">The vibrant edge tracks the hue — same component, recolored at the call site.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="lab">the same component across the surface ladder</span>
+    <div class="grid" style="--grid-min:9rem">
+      <div class="card" style="--bg:-0.5"><span class="ttl">−0.5</span></div>
+      <div class="card" style="--bg:-0.25"><span class="ttl">−0.25</span></div>
+      <div class="card" style="--bg:0"><span class="ttl">0 (default)</span></div>
+      <div class="card" style="--bg:0.4;--fg:-1"><span class="ttl">0.4</span></div>
+      <div class="card" style="--bg:0.7;--fg:-1"><span class="ttl">0.7</span></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="lab">author-controlled depth · outer recedes, focal card on top</span>
+    <div class="card" style="--bg:-0.5">
+      <div class="column" style="display:flex;flex-direction:column;gap:0.5lh;padding:0.25lh">
+        <span class="lab" style="margin:0">outer · --bg:-0.5</span>
+        <div class="card" style="--bg:-0.2">
+          <div class="column" style="display:flex;flex-direction:column;gap:0.5lh;padding:0.25lh">
+            <span class="lab" style="margin:0">middle · --bg:-0.2</span>
+            <div class="card" style="--bg:0">
+              <div style="padding:0.25lh">
+                <span class="ttl">Focal card · --bg:0</span>
+                <p class="sub" style="margin-block-start:0.2lh">The author chose to make the innermost card brightest. The component imposed no ramp — each level's surface is a deliberate call-site decision.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="lab">a real card · content + ink levels + buttons inside</span>
+    <div class="grid" style="--grid-min:15rem">
+      <div class="card" style="--bg:0">
+        <div class="column" style="display:flex;flex-direction:column;gap:0.4lh;padding:0.4lh 0.4em">
+          <div class="row" style="display:flex;justify-content:space-between;align-items:baseline">
+            <span class="ttl" style="--type:1">Starter</span>
+            <span class="ttl" style="--type:2">$0</span>
+          </div>
+          <p class="sub" style="margin:0">For trying things out. The basics, nothing fancy.</p>
+          <div class="card" style="--bg:-0.4">
+            <div style="padding:0.3lh 0.4em" class="sub">3 projects · 1 GB · community support</div>
+          </div>
+          <button style="--bg:0.6;width:100%">Choose Starter</button>
+        </div>
+      </div>
+      <div class="Card pri" style="--bg:0.5;--fg:-1">
+        <div class="column" style="display:flex;flex-direction:column;gap:0.4lh;padding:0.4lh 0.4em">
+          <div class="row" style="display:flex;justify-content:space-between;align-items:baseline">
+            <span class="ttl" style="--type:1">Pro</span>
+            <span class="ttl" style="--type:2">$24</span>
+          </div>
+          <p style="--fg:-0.8;margin:0">Everything in Starter, plus the things teams actually need.</p>
+          <div class="card" style="--bg:0.65">
+            <div style="padding:0.3lh 0.4em;--fg:-0.85">Unlimited projects · 100 GB · priority support</div>
+          </div>
+          <button style="--bg:0;width:100%">Choose Pro</button>
+        </div>
+      </div>
+      <div class="card" style="--bg:0">
+        <div class="column" style="display:flex;flex-direction:column;gap:0.4lh;padding:0.4lh 0.4em">
+          <div class="row" style="display:flex;justify-content:space-between;align-items:baseline">
+            <span class="ttl" style="--type:1">Enterprise</span>
+            <span class="ttl" style="--type:1">Custom</span>
+          </div>
+          <p class="sub" style="margin:0">SSO, audit logs, a dedicated contact, and an SLA.</p>
+          <div class="card" style="--bg:-0.4">
+            <div style="padding:0.3lh 0.4em" class="sub">Everything in Pro · SSO · audit logs · SLA</div>
+          </div>
+          <button style="--bg:0.6;width:100%">Contact sales</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</main>
+</div>
+</body>
+</html>
