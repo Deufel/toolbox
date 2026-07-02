@@ -2234,3 +2234,43 @@
      unless set (non-vivid falls back to 0.08/0.07 peak, 60% flip). */
   [data-ui-skin="vivid"] { --lt-c-peak: 0.14; --dk-c-peak: 0.16; --lt-fg-flip: 66%; --dk-fg-flip: 92%; }
 }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   view transitions — motion helpers on top of the View Transitions API.
+   These pseudos only take effect DURING a transition, which you start with
+   document.startViewTransition(update) (same-document) — nothing here runs
+   otherwise, so it's inert until you opt in. Direction is chosen by setting
+   data-vt on <html> right before starting: "fade" (default) · "slide-left" ·
+   "slide-right" · "scale". Duration rides --cfg-motion, so data-ui-motion
+   (off/on/debug) and prefers-reduced-motion already govern it — at motion 0
+   the animation is 0s (an instant swap). @keyframes live outside @layer (they
+   are global by name); the pseudos are on the document root.
+
+   Cross-DOCUMENT transitions (between same-origin page loads, zero JS) are one
+   line away — add `@view-transition { navigation: auto; }` — left off by
+   default so multi-page sites opt in deliberately.
+   ════════════════════════════════════════════════════════════════════ */
+@keyframes vt-fade-in    { from { opacity: 0 } }
+@keyframes vt-fade-out   { to   { opacity: 0 } }
+@keyframes vt-in-right   { from { opacity: 0; transform: translateX(2.5%) } }
+@keyframes vt-out-left   { to   { opacity: 0; transform: translateX(-2.5%) } }
+@keyframes vt-in-left    { from { opacity: 0; transform: translateX(-2.5%) } }
+@keyframes vt-out-right  { to   { opacity: 0; transform: translateX(2.5%) } }
+@keyframes vt-in-scale   { from { opacity: 0; transform: scale(0.99) } }
+@keyframes vt-out-scale  { to   { opacity: 0; transform: scale(1.01) } }
+
+::view-transition-group(*) {
+  animation-duration: calc(var(--cfg-motion) * 0.28s);
+  animation-timing-function: ease;
+}
+/* default = crossfade */
+::view-transition-old(root) { animation-name: vt-fade-out; }
+::view-transition-new(root) { animation-name: vt-fade-in; }
+/* directional helpers — set data-vt on <html> before startViewTransition */
+:root[data-vt="slide-left"]::view-transition-old(root)  { animation-name: vt-out-left; }
+:root[data-vt="slide-left"]::view-transition-new(root)  { animation-name: vt-in-right; }
+:root[data-vt="slide-right"]::view-transition-old(root) { animation-name: vt-out-right; }
+:root[data-vt="slide-right"]::view-transition-new(root) { animation-name: vt-in-left; }
+:root[data-vt="scale"]::view-transition-old(root)       { animation-name: vt-out-scale; }
+:root[data-vt="scale"]::view-transition-new(root)       { animation-name: vt-in-scale; }

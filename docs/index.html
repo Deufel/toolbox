@@ -17,7 +17,9 @@
   body { margin: 0; }
   .brand { display: flex; align-items: center; gap: 0.5em; font-weight: 650; }
   .brand-dot { inline-size: 1.1em; block-size: 1.1em; border-radius: 4px; background: oklch(var(--l-color) var(--c-peak) var(--hue)); }
-  .pg-header { flex-wrap: wrap; gap: 0.4lh 0.7em; }
+  .pg-header { flex-wrap: wrap; gap: 0.4lh 0.7em; view-transition-name: vt-header; }
+  .pg-navigation { view-transition-name: vt-nav; }
+  .pg-footer { view-transition-name: vt-footer; }
 </style>
 </helmet>
 
@@ -109,7 +111,31 @@ class Component extends DCLogic {
     layers: "The layer spine", layout: "Page & helpers", components: "Components", demos: "Full pages",
   };
 
-  go(key) { return () => this.setState({ section: key }); }
+  // The VT pseudo-elements live on :root (<html>), but the header writes
+  // data-ui-motion on the inner .page div — and --cfg-motion can't inherit
+  // upward. Mirror motion onto <html> so the transition duration actually
+  // tracks Off / On / Debug (and prefers-reduced-motion).
+  syncMotion() { document.documentElement.dataset.uiMotion = this.state.pageMotion; }
+  componentDidMount() { this.syncMotion(); }
+
+  vt(update, dir) {
+    const root = document.documentElement;
+    if (!document.startViewTransition) { update(); return; }
+    if (dir) root.dataset.vt = dir; else root.removeAttribute("data-vt");
+    document.startViewTransition(() => new Promise((res) => {
+      update();
+      requestAnimationFrame(() => requestAnimationFrame(res));
+    }));
+  }
+
+  order = ["type", "controls", "color", "layers", "layout", "components", "demos"];
+
+  go(key) {
+    return () => {
+      const dir = this.order.indexOf(key) < this.order.indexOf(this.state.section) ? "slide-right" : "slide-left";
+      this.vt(() => this.setState({ section: key }), dir);
+    };
+  }
 
   renderVals() {
     const s = this.state.section;
@@ -130,8 +156,8 @@ class Component extends DCLogic {
       sectionLabel: this.labels[s] || "",
       isLight: this.state.pageTheme === "light",
       isDark: this.state.pageTheme === "dark",
-      goLight: () => this.setState({ pageTheme: "light" }),
-      goDark: () => this.setState({ pageTheme: "dark" }),
+      goLight: () => this.vt(() => this.setState({ pageTheme: "light" }), "fade"),
+      goDark: () => this.vt(() => this.setState({ pageTheme: "dark" }), "fade"),
       isSm: this.state.pageSize === "sm",
       isMd: this.state.pageSize === "md",
       isLg: this.state.pageSize === "lg",
@@ -141,10 +167,10 @@ class Component extends DCLogic {
       isMotionOff: this.state.pageMotion === "off",
       isMotionOn: this.state.pageMotion === "on",
       isMotionDebug: this.state.pageMotion === "debug",
-      goMotionOff: () => this.setState({ pageMotion: "off" }),
-      goMotionOn: () => this.setState({ pageMotion: "on" }),
-      goMotionDebug: () => this.setState({ pageMotion: "debug" }),
-      setSkin: (e) => this.setState({ pageSkin: e.target.value }),
+      goMotionOff: () => this.setState({ pageMotion: "off" }, () => this.syncMotion()),
+      goMotionOn: () => this.setState({ pageMotion: "on" }, () => this.syncMotion()),
+      goMotionDebug: () => this.setState({ pageMotion: "debug" }, () => this.syncMotion()),
+      setSkin: (e) => { const v = e.target.value; this.vt(() => this.setState({ pageSkin: v }), "fade"); },
       setPageHue: (e) => this.setState({ pageHue: parseFloat(e.target.value) }),
     };
   }
