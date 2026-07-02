@@ -1,140 +1,154 @@
-<!doctype html>
-<html lang="en" data-ui-theme="light" data-ui-size="md">
+<!DOCTYPE html>
+<html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>system.css — a declarative design system</title>
-<link rel="stylesheet" href="system.css">
-<style>
-  /* project-layer helpers only — everything else is engine knobs at the call site */
-  @layer project {
-    .eyebrow { display: block; --type: -1; --fg: -0.45; font-family: var(--font-mono);
-               text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
-    .sub  { --fg: -0.55; }
-    .accent { --hue: 262; }
-    .lead { --type: 1; --fg: -0.7; max-inline-size: 60ch; }
-    .measure { max-inline-size: 64ch; }
-  }
-</style>
+<script src="./support.js"></script>
 </head>
 <body>
-<div class="page centered">
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="system.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<script src="highlight.js"></script>
+<style>
+  body { margin: 0; }
+  .brand { display: flex; align-items: center; gap: 0.5em; font-weight: 650; }
+  .brand-dot { inline-size: 1.1em; block-size: 1.1em; border-radius: 4px; background: oklch(var(--l-color) var(--c-peak) var(--hue)); }
+  .pg-header { flex-wrap: wrap; gap: 0.4lh 0.7em; }
+</style>
+</helmet>
 
-  <header class="pg-header spread" style="--bg:0.05; padding:0.5lh 1em; align-items:center;">
-    <strong style="--type:1; font-family:var(--font-display)"><a href="index.html" style="text-decoration:none; --fg:-0.9;">system.css</a></strong>
-    <nav class="row" style="gap:0.4em; align-items:center;">
-      <a class="nav-item" href="foundations/color.html">Color</a>
-      <a class="nav-item" href="foundations/type.html">Type</a>
-      <a class="nav-item" href="components/index.html">Components</a>
-      <select aria-label="Theme" onchange="document.documentElement.setAttribute('data-ui-theme',this.value)">
-        <option value="light">light</option><option value="dark">dark</option>
-      </select>
-      <select aria-label="Scale" onchange="document.documentElement.setAttribute('data-ui-size',this.value)">
-        <option>sm</option><option selected>md</option><option>lg</option><option>xl</option>
-      </select>
-    </nav>
+<div class="page centered" style="--hue: {{ pageHue }}" data-ui-theme="{{ pageTheme }}" data-ui-size="{{ pageSize }}" data-ui-skin="{{ pageSkin }}" data-ui-motion="{{ pageMotion }}">
+
+  <header class="pg-header spread">
+    <div class="brand"><span class="brand-dot"></span> system.css <span class="tag" style="--type:-2">docs</span></div>
+    <div class="row" style="gap: 0.7em">
+      <div class="row" style="gap: 0.35em">
+        <small style="--fg:-0.6">hue</small>
+        <input type="range" min="0" max="360" step="1" value="{{ pageHue }}" onInput="{{ setPageHue }}" style="inline-size: 6em">
+        <code style="--type:-1; display:inline-block; min-inline-size:2.6em; text-align:end; white-space:nowrap">{{ pageHue }}</code>
+      </div>
+      <label class="row" style="gap:0.35em"><small style="--fg:-0.6">skin</small>
+        <select value="{{ pageSkin }}" onChange="{{ setSkin }}">
+          <option value="">base</option>
+          <option value="vivid">vivid</option>
+          <option value="material">material</option>
+          <option value="carbon">carbon</option>
+          <option value="tw">tw</option>
+        </select>
+      </label>
+      <div class="button-group" role="group" aria-label="Density">
+        <button aria-pressed="{{ isSm }}" onClick="{{ goSm }}">S</button>
+        <button aria-pressed="{{ isMd }}" onClick="{{ goMd }}">M</button>
+        <button aria-pressed="{{ isLg }}" onClick="{{ goLg }}">L</button>
+      </div>
+      <div class="button-group" role="group" aria-label="Motion">
+        <button aria-pressed="{{ isMotionOff }}" onClick="{{ goMotionOff }}">Off</button>
+        <button aria-pressed="{{ isMotionOn }}" onClick="{{ goMotionOn }}">On</button>
+        <button aria-pressed="{{ isMotionDebug }}" onClick="{{ goMotionDebug }}">Debug</button>
+      </div>
+      <div class="button-group" role="group" aria-label="Theme">
+        <button aria-pressed="{{ isLight }}" onClick="{{ goLight }}">Light</button>
+        <button aria-pressed="{{ isDark }}" onClick="{{ goDark }}">Dark</button>
+      </div>
+    </div>
   </header>
 
-  <main class="pg-main" style="--bg:0; padding:1.5lh 1em 2lh;">
-    <div class="column" style="gap:1.5lh;">
+  <nav class="pg-navigation column" style="gap: 0.1lh; padding: 0.4lh 0.35em">
+    <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block-end:0.2lh">TYPE</small>
+    <a class="nav-item clickable" onClick="{{ go.type }}" aria-current="{{ ac.type }}"><span>How type works</span></a>
+    <a class="nav-item clickable" onClick="{{ go.controls }}" aria-current="{{ ac.controls }}"><span>Control heights</span></a>
+    <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block: 0.4lh 0.2lh">COLOR</small>
+    <a class="nav-item clickable" onClick="{{ go.color }}" aria-current="{{ ac.color }}"><span>The engine</span></a>
+    <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block: 0.4lh 0.2lh">SYSTEM</small>
+    <a class="nav-item clickable" onClick="{{ go.layers }}" aria-current="{{ ac.layers }}"><span>The layer spine</span></a>
+    <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block: 0.4lh 0.2lh">LAYOUT</small>
+    <a class="nav-item clickable" onClick="{{ go.layout }}" aria-current="{{ ac.layout }}"><span>Page &amp; helpers</span></a>
+    <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block: 0.4lh 0.2lh">COMPONENTS</small>
+    <a class="nav-item clickable" onClick="{{ go.components }}" aria-current="{{ ac.components }}"><span>Overview</span></a>
+    <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block: 0.4lh 0.2lh">DEMOS</small>
+    <a class="nav-item clickable" onClick="{{ go.demos }}" aria-current="{{ ac.demos }}"><span>Full pages</span></a>
+  </nav>
 
-      <!-- HERO -->
-      <section class="column" style="gap:0.6lh;">
-        <span class="eyebrow">A declarative design system</span>
-        <h1 style="--type:5; margin:0; max-inline-size:18ch;">You declare the intent. The engine resolves it.</h1>
-        <p class="lead">Most CSS is imperative: you spell out the exact pixels, weights, and hex values for every state.
-           system.css is <strong>declarative</strong> — you state <em>where</em> something sits on a few scales, and engines
-           for color, type, and space compute the rest. A component carries a shape; you set its position.</p>
-        <div class="row" style="gap:0.6em; margin-block-start:0.4lh;">
-          <a class="nav-item accent" href="foundations/color.html" style="--bg:0.5; --fg:-1;">Start with color →</a>
-          <a class="nav-item" href="components/index.html" style="--bg:0.12;">Browse the components</a>
-        </div>
-      </section>
-
-      <!-- DECLARATIVE BY NATURE -->
-      <section class="column" style="gap:0.5lh;">
-        <span class="eyebrow">Declarative by nature</span>
-        <blockquote class="measure">
-          <p>A component does not <em>have</em> colors or sizes. It has a <strong>shape</strong>, and it
-             sits at a <strong>position</strong> on scales the author controls at the call site.</p>
-        </blockquote>
-        <p class="sub measure" style="margin:0;">The payoff is the cascade: declare one intent and the dependent decisions follow.
-           Set <code>--type</code> once and font-size, line-height, letter-spacing, and weight all move together. Set
-           <code>--bg</code> and the ink contrast resolves itself. You stop maintaining four properties that must agree.</p>
-        <div class="split" style="gap:1em; margin-block-start:0.3lh;">
-          <div class="card" style="--bg:-0.4;">
-            <div class="column" style="gap:0.3lh; padding:0.5lh 0.6em;">
-              <span class="eyebrow" style="--hue:25;">Imperative · spell out every value</span>
-              <code>color:#1a7f37; font-size:14px;<br>line-height:20px; font-weight:600;</code>
-              <p class="sub" style="margin:0; --type:-1;">Four values you must keep in agreement, in every theme, forever.</p>
-            </div>
-          </div>
-          <div class="card accent" style="--bg:-0.4;">
-            <div class="column" style="gap:0.3lh; padding:0.5lh 0.6em;">
-              <span class="eyebrow" style="--hue:145;">Declarative · state the position</span>
-              <code>--hue:145; --type:-1;</code>
-              <p class="sub" style="margin:0; --type:-1;">Two intents. The engine derives the size, leading, weight, and legible ink.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- LIVE THESIS: one element, no variant classes -->
-      <section class="column" style="gap:0.5lh;">
-        <span class="eyebrow">One element, declared four ways</span>
-        <p class="sub measure" style="margin:0;">Every button below is a bare <code>&lt;button&gt;</code>. Nothing
-           differs but the intent declared at the call site — no variant classes exist.</p>
-        <div class="row" style="gap:0.6em; align-items:center; margin-block-start:0.4lh;">
-          <button>Default</button>
-          <button style="--hue:145; --bg:0.55; --fg:-1">Primary</button>
-          <button style="--hue:25">Danger-hued</button>
-          <button style="--bg:0.1">Quiet</button>
-          <button style="--type:-1">Small</button>
-          <button aria-pressed="true">Pressed</button>
-        </div>
-      </section>
-
-      <!-- FOUNDATIONS -->
-      <section class="column" style="gap:0.5lh;">
-        <span class="eyebrow">Two foundations hold it up</span>
-        <p class="sub measure" style="margin:0;">Everything above rests on two engines. Each gets a page of its own.</p>
-        <div class="split" style="gap:1em; margin-block-start:0.3lh;">
-
-          <a class="card" href="foundations/color.html" style="--bg:-0.3; text-decoration:none;">
-            <div class="column" style="gap:0.3lh; padding:0.6lh 0.7em;">
-              <span style="--type:2;">Color →</span>
-              <p class="sub" style="margin:0;">Surface, ink, and hue as numbers. OKLCH lightness and legible contrast, computed and theme-flipped.</p>
-              <div class="row" style="gap:0; margin-block-start:0.2lh;">
-                <div class="bg" style="--bg:-0.6; min-block-size:1.4lh; flex:1;"></div>
-                <div class="bg" style="--bg:-0.3; min-block-size:1.4lh; flex:1;"></div>
-                <div class="bg" style="--bg:0; min-block-size:1.4lh; flex:1;"></div>
-                <div class="bg accent" style="--bg:0.4; min-block-size:1.4lh; flex:1;"></div>
-                <div class="bg accent" style="--bg:0.7; min-block-size:1.4lh; flex:1;"></div>
-              </div>
-            </div>
-          </a>
-
-          <a class="card" href="foundations/type.html" style="--bg:-0.3; text-decoration:none;">
-            <div class="column" style="gap:0.3lh; padding:0.6lh 0.7em;">
-              <span style="--type:2;">Type →</span>
-              <p class="sub" style="margin:0;">One integer sets size, line-height, letter-spacing, and weight together — a coherent scale, not four dials.</p>
-              <div class="column" style="gap:0; margin-block-start:0.2lh;">
-                <span style="--type:2;">Aa</span><span style="--type:1;">Aa</span><span style="--type:0;">Aa</span><span style="--type:-1;">Aa</span>
-              </div>
-            </div>
-          </a>
-
-        </div>
-      </section>
-
-    </div>
+  <main class="pg-main">
+    <sc-if value="{{ isType }}" hint-placeholder-val="{{ false }}"><dc-import name="section-type" hint-size="100%,100%"></dc-import></sc-if>
+    <sc-if value="{{ isControls }}" hint-placeholder-val="{{ false }}"><dc-import name="section-controls" hint-size="100%,100%"></dc-import></sc-if>
+    <sc-if value="{{ isColor }}" hint-placeholder-val="{{ false }}"><dc-import name="section-color" hint-size="100%,100%"></dc-import></sc-if>
+    <sc-if value="{{ isLayers }}" hint-placeholder-val="{{ false }}"><dc-import name="section-layers" hint-size="100%,100%"></dc-import></sc-if>
+    <sc-if value="{{ isLayout }}" hint-placeholder-val="{{ false }}"><dc-import name="section-layout" hint-size="100%,100%"></dc-import></sc-if>
+    <sc-if value="{{ isComponents }}" hint-placeholder-val="{{ false }}"><dc-import name="section-components" hint-size="100%,100%"></dc-import></sc-if>
+    <sc-if value="{{ isDemos }}" hint-placeholder-val="{{ false }}"><dc-import name="section-demos" hint-size="100%,100%"></dc-import></sc-if>
   </main>
 
-  <footer class="pg-footer spread" style="--bg:0.05; padding:0.5lh 1em; align-items:center;">
-    <span class="sub" style="--type:-1;">Built with system.css — zero author color literals.</span>
-    <a class="nav-item" href="components/index.html">Components →</a>
+  <footer class="pg-footer spread">
+    <small style="--fg:-0.6">system.css · living documentation</small>
+    <small style="--fg:-0.6">one shell · {{ sectionLabel }}</small>
   </footer>
 
 </div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { pageHue: 255, pageTheme: "light", pageSize: "md", pageSkin: "", pageMotion: "on", section: "color" };
+
+  files = {
+    type: "section-type",
+    controls: "section-controls",
+    color: "section-color",
+    layers: "section-layers",
+    layout: "section-layout",
+    components: "section-components",
+    demos: "section-demos",
+  };
+  labels = {
+    type: "How type works", controls: "Control heights", color: "The engine",
+    layers: "The layer spine", layout: "Page & helpers", components: "Components", demos: "Full pages",
+  };
+
+  go(key) { return () => this.setState({ section: key }); }
+
+  renderVals() {
+    const s = this.state.section;
+    const keys = ["type", "controls", "color", "layers", "layout", "components", "demos"];
+    const go = {}, ac = {};
+    keys.forEach((k) => { go[k] = this.go(k); ac[k] = (s === k ? "page" : "false"); });
+    return {
+      ...this.state,
+      go, ac,
+      isType: s === "type",
+      isControls: s === "controls",
+      isColor: s === "color",
+      isLayers: s === "layers",
+      isLayout: s === "layout",
+      isComponents: s === "components",
+      isDemos: s === "demos",
+      sectionFile: this.files[s] || "section-color",
+      sectionLabel: this.labels[s] || "",
+      isLight: this.state.pageTheme === "light",
+      isDark: this.state.pageTheme === "dark",
+      goLight: () => this.setState({ pageTheme: "light" }),
+      goDark: () => this.setState({ pageTheme: "dark" }),
+      isSm: this.state.pageSize === "sm",
+      isMd: this.state.pageSize === "md",
+      isLg: this.state.pageSize === "lg",
+      goSm: () => this.setState({ pageSize: "sm" }),
+      goMd: () => this.setState({ pageSize: "md" }),
+      goLg: () => this.setState({ pageSize: "lg" }),
+      isMotionOff: this.state.pageMotion === "off",
+      isMotionOn: this.state.pageMotion === "on",
+      isMotionDebug: this.state.pageMotion === "debug",
+      goMotionOff: () => this.setState({ pageMotion: "off" }),
+      goMotionOn: () => this.setState({ pageMotion: "on" }),
+      goMotionDebug: () => this.setState({ pageMotion: "debug" }),
+      setSkin: (e) => this.setState({ pageSkin: e.target.value }),
+      setPageHue: (e) => this.setState({ pageHue: parseFloat(e.target.value) }),
+    };
+  }
+}
+</script>
 </body>
 </html>

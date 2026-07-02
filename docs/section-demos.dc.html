@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="system.css">
+<style>
+  .demogrid { display: flex; flex-wrap: wrap; gap: 1lh; }
+  .democard { inline-size: 20rem; flex: 1 1 18rem; max-inline-size: 24rem; }
+  .prev { position: relative; inline-size: 100%; aspect-ratio: 16 / 10; overflow: hidden; border-radius: var(--cfg-radius); border: 1px solid var(--border); background: var(--_bg); }
+  .prev > iframe { position: absolute; inset: 0; inline-size: 400%; block-size: 400%; transform: scale(0.25); transform-origin: top left; border: 0; pointer-events: none; }
+  .openbtn { justify-content: center; border: 1px solid var(--border); --lift: 0.15; }
+</style>
+</helmet>
+
+<div class="doc" style="max-inline-size: 64rem; margin-inline: auto; padding: 1.2lh 1.1em 4lh; display:flex; flex-direction:column; gap: 1lh">
+
+  <header class="column" style="gap: 0.4lh">
+    <span class="tag inf" style="align-self:start">demos</span>
+    <h1 style="--type: 6">The system, in anger</h1>
+    <p style="--type:1; --fg:-0.7; max-inline-size: 52ch">Three full pages built with nothing but <code>system.css</code> — no bespoke CSS. Each is a standalone document (its own theme, hue, and size), previewed live below. Open any one full-screen.</p>
+  </header>
+
+  <div class="demogrid">
+    <div class="card column democard" style="--bg:0.02; gap:0.4lh; padding:0.5lh 0.6em">
+      <div class="prev"><iframe src="demo-dashboard.dc.html" title="SaaS dashboard" loading="lazy"></iframe></div>
+      <div class="spread" style="align-items:baseline"><strong style="--type:1">SaaS dashboard</strong><span class="tag">.page</span></div>
+      <small style="--fg:-0.65">Metric cards, a live table, storage meter, and an activity rail on the ten-slot app shell.</small>
+      <a class="nav-item openbtn" href="demo-dashboard.dc.html" target="_blank" rel="noopener"><span>Open full page ↗</span></a>
+    </div>
+
+    <div class="card column democard" style="--bg:0.02; gap:0.4lh; padding:0.5lh 0.6em">
+      <div class="prev"><iframe src="demo-calendar.dc.html" title="Calendar app" loading="lazy"></iframe></div>
+      <div class="spread" style="align-items:baseline"><strong style="--type:1">Calendar app</strong><span class="tag">.page</span></div>
+      <small style="--fg:-0.65">A month grid with hue-coded events, a mini-calendar, filters, and a day detail pane.</small>
+      <a class="nav-item openbtn" href="demo-calendar.dc.html" target="_blank" rel="noopener"><span>Open full page ↗</span></a>
+    </div>
+
+    <div class="card column democard" style="--bg:0.02; gap:0.4lh; padding:0.5lh 0.6em">
+      <div class="prev"><iframe src="demo-marketing.dc.html" title="Marketing page" loading="lazy"></iframe></div>
+      <div class="spread" style="align-items:baseline"><strong style="--type:1">Marketing page</strong><span class="tag">xl · tw</span></div>
+      <small style="--fg:-0.65">A landing page on the marketing scale — hero, features, pricing tiers, and a quote.</small>
+      <a class="nav-item openbtn" href="demo-marketing.dc.html" target="_blank" rel="noopener"><span>Open full page ↗</span></a>
+    </div>
+  </div>
+
+  <div class="alert inf" role="note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+    <small style="--fg:-0.8">Each demo sets its own <code>--hue</code>, <code>data-ui-skin</code>, and <code>data-ui-size</code> at its root — proof the same primitives dress up as completely different products.</small>
+  </div>
+
+</div>
+
+</x-dc>
+</body>
+</html>

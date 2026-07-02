@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="system.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; }
+  .brand { display: flex; align-items: center; gap: 0.5em; font-weight: 650; }
+  .brand-dot { inline-size: 1.1em; block-size: 1.1em; border-radius: 4px; background: oklch(var(--l-color) var(--c-peak) var(--hue)); }
+  .doc-main { max-inline-size: 62rem; margin-inline: auto; padding: 1lh 1em 3lh; display: flex; flex-direction: column; gap: 1.2lh; }
+  .ramp { display: flex; gap: 0; border-radius: var(--cfg-radius); overflow: hidden; border: 1px solid var(--border); }
+  .ramp > * { flex: 1 1 0; min-inline-size: 0; padding: 0.7lh 0.4em; display: flex; flex-direction: column; align-items: center; gap: 0.15lh; text-align: center; }
+  .sw-code { font-family: var(--font-mono); font-size: 0.8em; }
+  .res-sw { inline-size: 1.2em; block-size: 1.2em; border-radius: 4px; border: 1px solid var(--border); flex: 0 0 auto; }
+  .axis { display: flex; justify-content: space-between; font-family: var(--font-mono); }
+</style>
+</helmet>
+
+<div class="doc-main">
+
+      <!-- intro -->
+      <header class="column" style="gap: 0.4lh">
+        <span class="tag inf" style="align-self:start">color engine</span>
+        <h1 style="--type: 6">Color is a position, not a palette</h1>
+        <p style="--type:1; --fg:-0.7; max-inline-size: 48ch">There are no named colors in this system. An element declares <em>where it sits</em> on two signed axes — <code>--bg</code> for its surface, <code>--fg</code> for its ink — and the engine resolves the actual OKLCH lightness, chroma and contrast against whatever surface it lands on, in whatever theme and hue are live. Drag the header hue and flip the theme: everything below re-resolves.</p>
+      </header>
+
+      <!-- the two axes -->
+      <section class="split" style="gap: 0.7lh; align-items:start">
+        <div class="card column" style="--bg:0.03; gap:0.35lh">
+          <div class="row spread"><strong>--bg · surface</strong><code class="sw-code" style="--fg:0.7">−1 … 0 … +1</code></div>
+          <small style="--fg:-0.7"><strong>0</strong> is the base surface. <strong>Negative</strong> recedes it (toward the floor — quieter, darker in light / deeper in dark). <strong>Positive</strong> advances it toward the chromatic peak (louder, saturated in the live hue). It's a depth position, not a swatch.</small>
+        </div>
+        <div class="card column" style="--bg:0.03; gap:0.35lh">
+          <div class="row spread"><strong>--fg · ink</strong><code class="sw-code" style="--fg:0.7">−1 … 0 … +1</code></div>
+          <small style="--fg:-0.7"><strong>Negative</strong> pushes ink to the <em>neutral</em> contrast pole (max legibility, either theme). <strong>Positive</strong> pushes it to the <em>chromatic</em> pole (colored ink in the hue). The engine always solves contrast against the host surface's lightness, so ink stays readable as the surface moves.</small>
+        </div>
+      </section>
+
+      <!-- interactive playground -->
+      <section class="Card column" style="--bg:0.05; gap:0.6lh; padding:0.7lh 0.8em">
+        <div class="spread"><h2 style="--type:3">Engine playground</h2><span class="tag inf">live · reads the DOM</span></div>
+        <div class="grid" style="--grid-min:13rem; gap:0.4lh 1em">
+          <div class="column" style="gap:0.1lh"><div class="spread"><small style="--fg:-0.7">--bg surface</small><code style="display:inline-block;min-inline-size:3.6em;text-align:end;white-space:nowrap;font-variant-numeric:tabular-nums">{{ bg }}</code></div><input type="range" min="-1" max="1" step="0.01" value="{{ bg }}" onInput="{{ setBg }}"></div>
+          <div class="column" style="gap:0.1lh"><div class="spread"><small style="--fg:-0.7">--fg ink</small><code style="display:inline-block;min-inline-size:3.6em;text-align:end;white-space:nowrap;font-variant-numeric:tabular-nums">{{ fg }}</code></div><input type="range" min="-1" max="1" step="0.01" value="{{ fg }}" onInput="{{ setFg }}"></div>
+          <div class="column" style="gap:0.1lh"><div class="spread"><small style="--fg:-0.7">--hue</small><code style="display:inline-block;min-inline-size:3.6em;text-align:end;white-space:nowrap;font-variant-numeric:tabular-nums">{{ hue }}</code></div><input type="range" min="0" max="360" step="1" value="{{ hue }}" onInput="{{ setHue }}"></div>
+        </div>
+
+        <div class="split" style="gap:0.7lh; align-items:stretch">
+          <div class="bg" ref="{{ setSwatch }}" style="--bg:{{ bg }}; --fg:{{ fg }}; --hue:{{ hue }}; border-radius:var(--cfg-radius); border:1px solid var(--border); padding:0.7lh 0.8em; min-block-size:11lh; display:flex; flex-direction:column; gap:0.3lh; justify-content:center">
+            <div style="font-size:2.4em; line-height:1; font-weight:650">Aa</div>
+            <div>Ink resolves its contrast against this surface automatically — no color picked by hand.</div>
+            <div class="row" style="gap:0.5em">
+              <span style="--fg:-1; font-weight:600">max contrast</span>
+              <span style="--fg:0.9">chromatic</span>
+            </div>
+            <div class="row" style="gap:0.5em">
+              <button class="pri">Primary</button>
+              <button class="sec">Secondary</button>
+            </div>
+            <span ref="{{ setBorderProbe }}" style="display:none; background:var(--border)"></span>
+            <span ref="{{ setFocusProbe }}" style="display:none; background:var(--focus)"></span>
+          </div>
+
+          <div class="surface column" style="--bg:0; gap:0.3lh; justify-content:center">
+            <small style="--fg:-0.6; --type:-1">computed values (read from the live element)</small>
+            <div style="display:flex; align-items:center; gap:0.5em; white-space:nowrap"><span style="--fg:-0.7; flex:0 0 4em">surface</span><span class="res-sw" style="background:{{ res.bg }}"></span><code class="sw-code truncate" style="flex:1 1 0">{{ res.bg }}</code></div>
+            <div style="display:flex; align-items:center; gap:0.5em; white-space:nowrap"><span style="--fg:-0.7; flex:0 0 4em">ink</span><span class="res-sw" style="background:{{ res.fg }}"></span><code class="sw-code truncate" style="flex:1 1 0">{{ res.fg }}</code></div>
+            <div style="display:flex; align-items:center; gap:0.5em; white-space:nowrap"><span style="--fg:-0.7; flex:0 0 4em">--border</span><span class="res-sw" style="background:{{ res.border }}"></span><code class="sw-code truncate" style="flex:1 1 0">{{ res.border }}</code></div>
+            <div style="display:flex; align-items:center; gap:0.5em; white-space:nowrap"><span style="--fg:-0.7; flex:0 0 4em">--focus</span><span class="res-sw" style="background:{{ res.focus }}"></span><code class="sw-code truncate" style="flex:1 1 0">{{ res.focus }}</code></div>
+            <small style="--fg:-0.65; --type:-1">Both <code>--border</code> and <code>--focus</code> are <em>derived</em> from the surface — you never set them.</small>
+          </div>
+        </div>
+      </section>
+
+      <!-- surface ramp -->
+      <section class="column" style="gap:0.5lh">
+        <h2 style="--type:3">The surface axis</h2>
+        <p style="--fg:-0.6">Same declaration, seven positions. Each cell is a real <code>.bg</code> element; the number is its <code>--bg</code>. Ink is auto.</p>
+        <div class="ramp">
+          <sc-for list="{{ surfaceSteps }}" as="s" hint-placeholder-count="7">
+            <div class="bg" style="--bg:{{ s }}"><span class="sw-code" style="font-weight:600">{{ s }}</span></div>
+          </sc-for>
+        </div>
+        <div class="axis" style="--fg:-0.6; --type:-1"><span>recede ·  quiet</span><span>base</span><span>advance · loud chroma</span></div>
+      </section>
+
+      <!-- ink ramp -->
+      <section class="column" style="gap:0.5lh">
+        <h2 style="--type:3">The ink axis</h2>
+        <p style="--fg:-0.6">One surface (<code>--bg:0</code>), ink stepped from neutral-contrast to full chroma.</p>
+        <div class="card row" style="--bg:0; gap:1em; padding:0.7lh 0.8em; flex-wrap:wrap">
+          <sc-for list="{{ inkSteps }}" as="s" hint-placeholder-count="7">
+            <div class="column" style="gap:0.1lh; align-items:center">
+              <span style="--fg:{{ s }}; font-size:1.5em; font-weight:600">Aa</span>
+              <code class="sw-code" style="--fg:-0.6">{{ s }}</code>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- hue -->
+      <section class="column" style="gap:0.5lh">
+        <h2 style="--type:3">Hue rotates everything</h2>
+        <p style="--fg:-0.6">One loud surface (<code>--bg:0.7</code>), four hues. The named semantic hues live in <code>theme</code> as <code>--hue-suc/-inf/-wrn/-dgr</code>.</p>
+        <div class="row" style="gap:0.5lh">
+          <sc-for list="{{ hues }}" as="h" hint-placeholder-count="4">
+            <div class="bg column" style="--bg:0.7; --hue:{{ h.h }}; border-radius:var(--cfg-radius); padding:0.6lh 0.7em; gap:0.1lh; min-inline-size:8em; flex:1 1 8em">
+              <strong>{{ h.name }}</strong>
+              <code class="sw-code" style="--fg:0.85">hue {{ h.h }}</code>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- hue shift & semantic locks -->
+      <section class="column" style="gap:0.5lh">
+        <h2 style="--type:3">Shift a subtree's hue — semantics don't budge</h2>
+        <p style="--fg:-0.6; max-inline-size:62ch"><code>--hue-shift</code> adds into <code>--_h</code>, so it rotates every <em>non-locked</em> descendant at once — a whole panel can re-hue with one declaration. Semantic elements pin <code>--hue-lock</code>, which wins the fallback, so <code>.suc/.inf/.wrn/.dgr</code> are immune. Drag it: the generic surfaces sweep, the meaning-carrying chips hold.</p>
+        <div class="row" style="gap:0.6em; max-inline-size:28em">
+          <small style="--fg:-0.7; flex:0 0 auto">--hue-shift</small>
+          <input type="range" min="-180" max="180" step="1" value="{{ hueShift }}" onInput="{{ setHueShift }}" style="flex:1 1 auto">
+          <code style="display:inline-block; min-inline-size:3.8em; text-align:end; white-space:nowrap; font-variant-numeric:tabular-nums; flex:0 0 auto">{{ hueShift }}</code>
+        </div>
+        <div class="card column" style="--bg:0.02; --hue-shift:{{ hueShift }}; padding:0.7lh 0.8em; gap:0.5lh">
+          <div class="column" style="gap:0.2lh">
+            <small style="--fg:-0.6; --type:-1">generic surfaces — rotate with the shift</small>
+            <div class="row" style="gap:0.5em">
+              <sc-for list="{{ surfaceSteps }}" as="s" hint-placeholder-count="7">
+                <div class="bg" style="--bg:{{ s }}; inline-size:2.6em; block-size:2.6em; border-radius:var(--cfg-radius); border:1px solid var(--border)"></div>
+              </sc-for>
+            </div>
+          </div>
+          <div class="column" style="gap:0.2lh">
+            <small style="--fg:-0.6; --type:-1">semantic locks — hue pinned, immune to the shift</small>
+            <div class="row" style="gap:0.5em">
+              <sc-for list="{{ semantics }}" as="m" hint-placeholder-count="4">
+                <span class="tag {{ m.cls }}" data-ui-state="on">{{ m.label }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- relative lift -->
+      <section class="column" style="gap:0.5lh">
+        <h2 style="--type:3">Relative lift keeps controls legible anywhere</h2>
+        <p style="--fg:-0.6; max-inline-size:60ch">A default <code>&lt;button&gt;</code> doesn't pin a surface — it sets <code>--lift</code>, sitting a step <em>above whatever hosts it</em>. So the same button reads correctly on every surface below, no variants.</p>
+        <div class="row" style="gap:0.5lh">
+          <sc-for list="{{ surfaceSteps }}" as="s" hint-placeholder-count="7">
+            <div class="bg" style="--bg:{{ s }}; padding:0.6lh 0.6em; border-radius:var(--cfg-radius); flex:1 1 7em; display:flex; justify-content:center">
+              <button style="inline-size:100%">Action</button>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- semantic locks -->
+      <section class="column" style="gap:0.5lh">
+        <h2 style="--type:3">Semantic locks</h2>
+        <p style="--fg:-0.6"><code>.suc / .inf / .wrn / .dgr</code> lock the hue <em>and</em> commit ink to the chroma pole (via <code>--_sem-ink</code>) — layer-independently, so a tag, an alert and a button all speak the same meaning.</p>
+        <div class="grid" style="--grid-min:12rem">
+          <sc-for list="{{ semantics }}" as="m" hint-placeholder-count="4">
+            <div class="alert {{ m.cls }}" role="note">
+              <div class="column" style="gap:0.2lh">
+                <div class="row" style="gap:0.5em"><span class="tag {{ m.cls }}" data-ui-state="on">{{ m.label }}</span></div>
+                <small style="--fg:-0.8">{{ m.note }}</small>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <footer class="column" style="gap:0.3lh; --fg:-0.6">
+        <hr>
+        <p style="--type:-0.5">This page is the color layer of the growing docs — nav on the left will fill in as we document semantics, then components. Want me to keep this <code>.page</code> shell as the canonical docs home and fold the type pages into its nav next?</p>
+      </footer>
+
+    </div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    pageHue: 255, pageTheme: "light", pageSize: "md", pageSkin: "",
+    bg: 0.6, fg: 0.9, hue: 255, hueShift: 0,
+    res: { bg: "…", fg: "…", border: "…", focus: "…" },
+  };
+
+  num = (key) => (e) => this.apply({ [key]: parseFloat(e.target.value) });
+
+  apply(patch) {
+    this.setState(patch, () => requestAnimationFrame(() => this.readback()));
+  }
+
+  readback() {
+    const el = this._swatch;
+    if (!el) return;
+    const cs = getComputedStyle(el);
+    // --border / --focus are unregistered calc props, so read them as RESOLVED colors off
+    // hidden probes inside the swatch (background-color is a real color even from a calc).
+    const probe = (p) => (p ? getComputedStyle(p).backgroundColor : "—");
+    const res = {
+      bg: cs.backgroundColor,
+      fg: cs.color,
+      border: probe(this._borderProbe),
+      focus: probe(this._focusProbe),
+    };
+    if (JSON.stringify(res) !== JSON.stringify(this.state.res)) this.setState({ res });
+  }
+
+  componentDidMount() {
+    const go = () => this.readback();
+    [80, 300].forEach((d) => setTimeout(go, d));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(go);
+  }
+
+  renderVals() {
+    return {
+      ...this.state,
+      isLight: this.state.pageTheme === "light",
+      isDark: this.state.pageTheme === "dark",
+      goLight: () => this.apply({ pageTheme: "light" }),
+      goDark: () => this.apply({ pageTheme: "dark" }),
+      isSm: this.state.pageSize === "sm",
+      isMd: this.state.pageSize === "md",
+      isLg: this.state.pageSize === "lg",
+      goSm: () => this.apply({ pageSize: "sm" }),
+      goMd: () => this.apply({ pageSize: "md" }),
+      goLg: () => this.apply({ pageSize: "lg" }),
+      setSkin: (e) => this.apply({ pageSkin: e.target.value }),
+      setPageHue: this.num("pageHue"),
+      setBg: this.num("bg"),
+      setFg: this.num("fg"),
+      setHue: this.num("hue"),
+      setHueShift: this.num("hueShift"),
+      setSwatch: (el) => { this._swatch = el; },
+      setBorderProbe: (el) => { this._borderProbe = el; },
+      setFocusProbe: (el) => { this._focusProbe = el; },
+      surfaceSteps: [-1, -0.6, -0.3, 0, 0.3, 0.6, 1],
+      inkSteps: [-1, -0.85, -0.5, 0, 0.5, 0.85, 1],
+      hues: [
+        { h: 255, name: "info · brand" },
+        { h: 145, name: "success" },
+        { h: 75,  name: "warning" },
+        { h: 25,  name: "danger" },
+      ],
+      semantics: [
+        { cls: "suc", label: "Success", note: "Saved. Everything is in sync." },
+        { cls: "inf", label: "Info",    note: "A new version is available." },
+        { cls: "wrn", label: "Warning", note: "Check your input before continuing." },
+        { cls: "dgr", label: "Danger",  note: "Couldn't save — connection lost." },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="system.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<script src="highlight.js"></script>
+<style>
+  .doc { max-inline-size: 62rem; margin-inline: auto; padding: 1.2lh 1.1em 4lh; display: flex; flex-direction: column; gap: 1.1lh; }
+  .spec-row { display: grid; grid-template-columns: 4.5em 1fr auto; align-items: baseline; gap: 0.8em; padding-block: 0.25lh; border-block-end: 1px solid var(--border); }
+  .spec-row:last-child { border-block-end: 0; }
+  .spec-samp { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .spec-out { font-family: var(--font-mono); --type: -1; --fg: -0.6; white-space: nowrap; text-align: end; }
+  .four { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6lh; }
+  @media (max-width: 640px) { .four { grid-template-columns: 1fr; } }
+</style>
+</helmet>
+
+<div class="doc">
+
+  <header class="column" style="gap: 0.4lh">
+    <span class="tag inf" style="align-self:start">type</span>
+    <h1 style="--type: 6">Type is the system</h1>
+    <p style="--type:1; --fg:-0.7; max-inline-size: 52ch">One number per element — <code>--type</code> — sets its size, and from that same number the engine derives its leading, tracking, and weight. Spacing is a fraction of the line, so <em>everything</em> scales together. There are no pixel values to keep in sync.</p>
+  </header>
+
+  <!-- the one number, four outputs -->
+  <section class="column" style="gap:0.5lh">
+    <h2 style="--type:3">One step, four outputs</h2>
+    <div class="four">
+      <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag suc">size</span><strong>fluid</strong></div><small style="--fg:-0.7">A modular ratio to the power of the step, fluidly interpolated between a phone and a desktop base. One <code>--cfg-ratio</code> for the whole scale.</small></div>
+      <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag">leading</span><strong>line-height</strong></div><small style="--fg:-0.7">Tightens as type grows, so display sizes don't sit on loose lines.</small></div>
+      <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag">tracking</span><strong>letter-spacing</strong></div><small style="--fg:-0.7">Negative at display sizes, a touch positive for small caps of text.</small></div>
+      <div class="card column" style="--bg:0.02; gap:0.2lh"><div class="row" style="gap:0.5em"><span class="tag">weight</span><strong>optical</strong></div><small style="--fg:-0.7">Climbs above step 0, so headings carry more weight without a second knob.</small></div>
+    </div>
+  </section>
+
+  <!-- live specimen -->
+  <section class="Card column" style="--bg:0.05; gap:0.5lh; padding:0.7lh 0.8em">
+    <div class="spread"><h2 style="--type:3">The live scale</h2><span class="tag inf">measured from the DOM · try S/M/L above</span></div>
+    <p style="--fg:-0.6; --type:-0.5">Each row is a real element at that <code>--type</code>. The readout is its <em>computed</em> size / line-height / weight — so it reflects the shipped engine and the current <code>data-ui-size</code>, not a formula copy.</p>
+    <div class="column" style="gap:0">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+        <div class="spec-row">
+          <code style="--type:-1; --fg:-0.6">{{ r.tag }}</code>
+          <div class="spec-samp" style="--type:{{ r.step }}">Grumpy wizards</div>
+          <span class="spec-out">{{ r.out }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- spacing derives from type -->
+  <section class="split" style="gap:0.7lh; align-items:start">
+    <div class="column" style="gap:0.4lh">
+      <h2 style="--type:3">Spacing is a fraction of the line</h2>
+      <p style="--fg:-0.6">Layout gaps are <code>calc(0.25 · 1lh)</code> and control padding is in <code>em</code> — both relative to the type around them. Bump a region's <code>--type</code> (or the header's S/M/L) and its rhythm grows with it. No spacing scale to maintain.</p>
+      <pre><code class="css">:where(.row, .column) { gap: calc(0.25 * 1lh); }
+:where(button)        { padding: 0 0.8em; }   /* em → scales with --type */</code></pre>
+    </div>
+    <div class="column" style="gap:0.4lh">
+      <h2 style="--type:3">Set a step, or zoom a region</h2>
+      <p style="--fg:-0.6"><code>--type</code> is per-element (non-inheriting) — set it on one thing. <code>--scale</code> inherits, so it zooms a whole region (handy for a mini preview). <code>data-ui-size</code> reconfigures the base + ratio for the whole app.</p>
+      <pre><code class="html">&lt;h2 style="--type:4"&gt;Heading&lt;/h2&gt;
+&lt;small style="--type:-2"&gt;Micro caption&lt;/small&gt;
+&lt;div style="--scale:0.6"&gt;…mini version…&lt;/div&gt;</code></pre>
+    </div>
+  </section>
+
+  <!-- QC + demos pointers -->
+  <section class="alert suc" role="note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    <div class="column" style="gap:0.15lh">
+      <strong>Because controls read the same scale, they stay one height.</strong>
+      <small style="--fg:-0.75">A field, button, select, and avatar all resolve to a single height at each <code>--type</code> — see <strong>Control heights</strong> for the live proof, and the <strong>Demos</strong> for the scale dressed up as three different products.</small>
+    </div>
+  </section>
+
+  <footer class="column" style="gap:0.3lh; --fg:-0.6">
+    <hr>
+    <p style="--type:-0.5">Steps in use: <code>h1..h6</code> → <code>--type 5..0</code>, <code>small</code> → <code>-1</code>, plus <code>-2</code> for micro text (tags, icon-button captions).</p>
+  </footer>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { rows: [] };
+
+  seed() {
+    const defs = [
+      { step: 5, tag: "h1" }, { step: 4, tag: "h2" }, { step: 3, tag: "h3" },
+      { step: 2, tag: "h4" }, { step: 1, tag: "h5" }, { step: 0, tag: "body" },
+      { step: -1, tag: "small" }, { step: -2, tag: "micro" },
+    ];
+    return defs.map((d) => ({ ...d, out: "…" }));
+  }
+
+  measure() {
+    const samples = [...document.querySelectorAll(".spec-samp")];
+    if (!samples.length) return;
+    const rows = this.state.rows.map((r, i) => {
+      const el = samples[i];
+      if (!el) return r;
+      const cs = getComputedStyle(el);
+      const px = parseFloat(cs.fontSize).toFixed(1);
+      const lh = (parseFloat(cs.lineHeight) / parseFloat(cs.fontSize)).toFixed(2);
+      const w = cs.fontWeight;
+      return { ...r, out: `${px}px · lh ${lh} · ${w}` };
+    });
+    this.setState({ rows });
+  }
+
+  componentDidMount() {
+    this.setState({ rows: this.seed() });
+    const go = () => { this.measure(); window.highlightAll && window.highlightAll(document); };
+    [120, 400].forEach((d) => setTimeout(go, d));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(go);
+    const shell = document.querySelector(".page") || document.body;
+    if (window.ResizeObserver) { this._ro = new ResizeObserver(() => this.measure()); this._ro.observe(shell); }
+  }
+  componentWillUnmount() { if (this._ro) this._ro.disconnect(); }
+
+  renderVals() { return { rows: this.state.rows }; }
+}
+</script>
+</body>
+</html>
