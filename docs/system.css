@@ -139,9 +139,9 @@
     --_ne: pow(var(--_n), var(--surf-curve));
     --_p: clamp(0, var(--_bgs), 1);
     --_tint: calc(var(--surface-chroma) * var(--c-tint));
-    --_bg-l: calc(var(--l-base) + var(--_p)*(var(--l-color) - var(--l-base)) + var(--_ne)*(min(var(--l-floor), var(--l-base)) - var(--l-base)));
+    --_bg-l: calc(var(--l-base) + var(--_p)*(var(--l-color) - var(--l-base)) + var(--_ne)*(var(--l-floor) - var(--l-base)));
     --_bg-c: calc(var(--_tint) + var(--_p)*(var(--c-peak) - var(--_tint)) + var(--_n)*var(--neg-chroma, 0));
-    --_bg: oklch(var(--_bg-l) var(--_bg-c) var(--_h));
+    --_bg: oklch(var(--_bg-l) calc(var(--_bg-c) * var(--cfg-chroma)) var(--_h));
 
     --_fg-up: clamp(0, calc((var(--fg-flip) - var(--surf-l)) / 1% * 10), 1);
     --_fg-neg: clamp(0, calc(-1 * var(--_fgs)), 1);
@@ -150,12 +150,12 @@
     --_chr-l: calc(var(--fg-chr-d) + var(--_fg-up)*(var(--fg-chr-l) - var(--fg-chr-d)));
     --_fg-l: calc(var(--surf-l) + var(--_fg-neg)*(var(--_ink-l) - var(--surf-l)) + var(--_fg-pos)*(var(--_chr-l) - var(--surf-l)));
     --_fg-c: calc(var(--_bg-c) + var(--_fg-neg)*(0 - var(--_bg-c)) + var(--_fg-pos)*(var(--fg-chroma) - var(--_bg-c)));
-    color: oklch(var(--_fg-l) var(--_fg-c) var(--_h));
+    color: oklch(var(--_fg-l) calc(var(--_fg-c) * var(--cfg-chroma)) var(--_h));
 
     /* derived tokens — always computed, components opt in */
     --_brd-l: calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * var(--border-step));
-    --border: oklch(var(--_brd-l) calc(var(--_bg-c) + var(--c-peak) * var(--border-chroma) * 0.25) var(--_h));
-    --_focus-c: calc(var(--c-peak) * var(--focus-chroma));
+    --border: oklch(var(--_brd-l) calc((var(--_bg-c) + var(--c-peak) * var(--border-chroma) * 0.25) * var(--cfg-chroma)) var(--_h));
+    --_focus-c: calc(var(--c-peak) * var(--focus-chroma) * var(--cfg-chroma));
     --focus: oklch(calc(var(--l-base) + var(--focus-bg)*(var(--l-color) - var(--l-base))) var(--_focus-c) var(--_h));
   }
 
@@ -398,6 +398,7 @@
 
     /* geometry & fonts */
     --cfg-radius: 9px;                                  /* 0 sharp … ~16px soft; 4–10 typical */
+    --cfg-chroma: 1;                                    /* master colourfulness · data-ui-color drives it (0 = black & white) */
 
     /* semantic hues — one home; .suc/.inf/.wrn/.dgr helpers + state rules consume these */
     --hue-suc: 145;   /* success */
@@ -405,9 +406,9 @@
     --hue-wrn: 75;    /* warning */
     --hue-dgr: 25;    /* danger  */
 
-    --font-ui:      "Hanken Grotesk", system-ui, sans-serif;
-    --font-mono:    "Spline Sans Mono", ui-monospace, monospace;
-    --font-display: "Hanken Grotesk", system-ui, sans-serif;
+    --font-ui:      "Roboto", system-ui, sans-serif;
+    --font-mono:    "Roboto Mono", ui-monospace, monospace;
+    --font-display: "Roboto", system-ui, sans-serif;
 
     color-scheme: light-dark;
   }
@@ -443,6 +444,21 @@
   [data-ui-size="md"] { --cfg-type-min: 0.840rem; --cfg-type-max: 0.920rem; --cfg-ratio: 1.125; }  /* default (denser) · Major2nd */
   [data-ui-size="lg"] { --cfg-type-min: 0.920rem; --cfg-type-max: 1.000rem; --cfg-ratio: 1.200; }  /* roomy · Minor3rd */
   [data-ui-size="xl"] { --cfg-type-min: 1.125rem; --cfg-type-max: 1.250rem; --cfg-ratio: 1.250; }  /* marketing · Major3rd (Utopia 18→20px) */
+
+  /* ── colour switch — master chroma multiplier, orthogonal to hue & theme.
+     0 = pure black & white (mono / print preview; also zeroes the chroma SOURCES
+     so hardcoded accents go grey too), 1 quiet · 2 default · 3 boldest. ── */
+  [data-ui-color="0"] { --cfg-chroma: 0; --c-peak: 0; --lt-c-peak: 0; --dk-c-peak: 0; --c-tint: 0; --neg-chroma: 0; --fg-chroma: 0; }   /* black & white */
+  [data-ui-color="1"] { --cfg-chroma: 0.4; --neg-chroma: 0; }   /* neutral — pure-neutral surfaces, muted accents (carbon-like) */
+  [data-ui-color="2"] { --cfg-chroma: 1; }                       /* default */
+  [data-ui-color="3"] { --cfg-chroma: 1.7; }                     /* material — richer chroma + tint, both modes */
+  [data-ui-color="4"] { --cfg-chroma: 2.3; }                     /* neon — boldest */
+
+  /* ── radius switch — corner roundness, orthogonal to everything else. ── */
+  [data-ui-radius="0"] { --cfg-radius: 0px; }
+  [data-ui-radius="1"] { --cfg-radius: 6px; }
+  [data-ui-radius="2"] { --cfg-radius: 12px; }
+  [data-ui-radius="3"] { --cfg-radius: 22px; }
 
   /* iOS focus-zoom is handled the honest way — an input-only 16px floor (see the input
      rule). No whole-scale coarse lift: body/UI text stays as dense as the config asks. */
@@ -500,24 +516,25 @@
   /* inline <code> — a quiet recessed chip. Tinted surface, small em padding so
      it scales with the surrounding text, slightly down in size. */
   :where(code) {
-    --bg: 0.08;
+    --lift: -0.09;
     --type: -0.5;
     padding: 0.1em 0.35em;
     border-radius: max(2px, calc(var(--cfg-radius) - 3px));
-    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    border: 1px solid var(--border);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
   }
 
   /* <kbd> — a keycap. Like inline code but with a defining border (the key
      edge) and a touch of weight, so it reads as a physical key. */
   :where(kbd) {
-    --bg: 0.04;
+    --lift: -0.06;
     --type: -0.5;
     padding: 0.1em 0.4em;
     border-radius: max(2px, calc(var(--cfg-radius) - 3px));
     border: 1px solid var(--border);
     border-block-end-width: 2px;                 /* a hint of keycap depth */
     font-weight: 600;
-    background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
+    background-color: var(--_bg); --surf-l: var(--_bg-l);
   }
 
   /* <pre> — a code block panel. A larger recessed surface that scrolls
@@ -1237,7 +1254,7 @@
     align-items: center;
     justify-content: center;
     block-size: var(--_control-h);
-    aspect-ratio: 1;
+    aspect-ratio: 1; flex: 0 0 auto; min-inline-size: var(--_control-h);   /* stay square even inside a flex row (e.g. a table cell) */
     border: 1px solid var(--border);
     border-radius: var(--cfg-radius);
     background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
@@ -1692,12 +1709,12 @@
     display: inline-flex;
 
     & > :where(button) {
-      --lift: 0.08;                                   /* flatter at rest, so the pressed one stands out */
+      --lift: 0.2; --fg: -0.4;                         /* normal-button lift; muted resting ink so the pressed one pops */
       border-radius: 0;
       margin-inline-start: -1px;                       /* collapse the shared border with the previous button */
 
-      &[aria-pressed="true"] {                         /* on: lifted surface + ink commits to the hue */
-        --bg: 0.3; --fg: var(--_sem-ink, 0.95);
+      &[aria-pressed="true"] {                         /* on: MAX-chroma surface + readable ink */
+        --bg: 1; --fg: var(--_sem-ink, -1);
         background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg);
         position: relative; z-index: 1;                /* keep its full border above the neighbours */
       }
@@ -2078,7 +2095,8 @@
     background-color: oklch(var(--_bg-l) var(--_bg-c) var(--_h) / clamp(0.24, calc(0.32 + var(--state) * 0.5), 0.62));
     border: 1px solid oklch(calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * 16%) 0.12 var(--_h) / clamp(0.4, calc(0.5 + var(--state) * 0.4), 0.9));
     box-shadow: 0 0.3lh 1lh oklch(0 0 0 / calc(0.26 * (1 - var(--cfg-dark)))),
-                0 0.3lh 1.1lh oklch(var(--l-color) 0 0 / calc(0.10 * var(--cfg-dark)));
+                0 0.3lh 1.2lh oklch(var(--l-color) 0 0 / calc(0.22 * var(--cfg-dark))),
+                inset 0 1px 0 oklch(var(--l-color) 0 0 / calc(0.16 * var(--cfg-dark)));
     -webkit-backdrop-filter: blur(0.7lh) saturate(1.5);
     backdrop-filter: blur(0.7lh) saturate(1.5);
   }
@@ -2130,7 +2148,6 @@
      read as a focus outline). Works on bordered (tag, input) and borderless
      (button) elements alike. Lives here, after the components, so it overrides. */
   :where([data-ui-state="on"]) {
-    --fg: -1;
     border-color: var(--focus);
     box-shadow: inset 0 0 0 1px var(--focus);
   }
@@ -2237,18 +2254,12 @@
   .pg-aside       { --bg: -0.3; padding: 0.25lh; } 
   .pg-footer      { --bg:  0.03; padding: 0.25lh; }
   :where(.pg-main, .pg-navigation, .pg-aside, .pg-toolbar) { overscroll-behavior: none; }
-  [data-ui-skin="material"]{ --lt-c-peak:0.15; --dk-c-peak:0.15; --hue:288;
-    --dk-l-base:21%; --dk-l-floor:5%; --dk-surf-curve:0.9; --dk-neg-chroma:0.050; --lt-l-base:99%; --lt-l-floor:87%; --lt-surf-curve:1.05; --lt-neg-chroma:0.018;   /* Elevated — the colourful one: violet tint in BOTH neutral ramps */
-    --cfg-wght-base:380; --cfg-wght-step:78; --cfg-wght-max:760;
-    --c-tint:0.05; --cfg-radius:16px; --cfg-btn-weight:500;
-    --font-ui:"Roboto",system-ui,sans-serif; --font-display:"Roboto",sans-serif; --font-mono:"Roboto Mono",ui-monospace,monospace; font-family:var(--font-ui); }
-  [data-ui-skin="carbon"]{ --lt-c-peak:0.16; --dk-c-peak:0.12;
-    --dk-l-base:25%; --dk-l-floor:3%; --dk-surf-curve:0.95; --dk-neg-chroma:0; --lt-l-base:98%; --lt-l-floor:81%; --lt-surf-curve:1; --lt-neg-chroma:0;   /* Carbon — purely neutral: lift dark base HIGH (25%) for legible L steps, calmer dark accents */
-    --cfg-wght-base:400; --cfg-wght-step:84; --cfg-wght-max:680;
-    --c-tint:0.006; --cfg-radius:0px; --cfg-btn-weight:500;
-    --font-ui:"IBM Plex Sans",system-ui,sans-serif; --font-display:"IBM Plex Sans",sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,monospace; font-family:var(--font-ui); }
-  [data-ui-skin="tw"]{ --lt-c-peak:0.15; --dk-c-peak:0.15; --c-tint:0.012; --cfg-radius:8px; --cfg-btn-weight:600;
-    --font-ui:"Inter",system-ui,sans-serif; --font-display:"Inter",sans-serif; --font-mono:"JetBrains Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-skin="material"]{ --lt-c-peak:0.13; --dk-c-peak:0.16;
+    --dk-l-base:21%; --dk-l-floor:5%; --dk-surf-curve:0.9; --dk-neg-chroma:0.07; --lt-l-base:99%; --lt-l-floor:88%; --lt-surf-curve:1.05; --lt-neg-chroma:0.03;   /* Material — tonal (visible surface tint), elevated, rounded */
+    --c-tint:0.08; --cfg-radius:16px; }
+  [data-ui-skin="carbon"]{ --lt-c-peak:0.08; --dk-c-peak:0.10;
+    --dk-l-base:24%; --dk-l-floor:3%; --dk-surf-curve:1; --dk-neg-chroma:0; --lt-l-base:98%; --lt-l-floor:80%; --lt-surf-curve:1; --lt-neg-chroma:0;   /* Carbon — near-neutral cool grays, muted accents, sharp corners */
+    --c-tint:0.003; --cfg-radius:0px; }
 
   /* vivid — pure colour tuning, no fonts: a louder colour peak + a biased
      contrast flip, so loud surfaces saturate harder and their ink commits to the
@@ -2256,12 +2267,23 @@
      survives a nested data-ui-theme and stays correct per bank at any depth.
      Opt in with data-ui-skin="vivid" on <html> or any subtree; nothing changes
      unless set (non-vivid falls back to 0.08/0.07 peak, 60% flip). */
-  [data-ui-skin="vivid"] { --cfg-wght-base:440; --cfg-wght-step:105; --cfg-wght-max:880; --cfg-btn-weight:650;   /* Deep — shares the (Vivid) default colour scheme, adds the techy Space Grotesk face */
-    --font-ui:"Space Grotesk",system-ui,sans-serif; --font-display:"Space Grotesk",sans-serif; --font-mono:"Space Mono",ui-monospace,monospace; font-family:var(--font-ui); }
-  [data-ui-skin="luxe"] { --lt-c-peak:0.07; --dk-c-peak:0.10; --hue:45; --c-tint:0.02;
-    --dk-l-base:18%; --dk-l-floor:3%; --dk-surf-curve:0.9; --dk-neg-chroma:0.028; --lt-l-base:98%; --lt-l-floor:84%; --lt-surf-curve:1.15; --lt-neg-chroma:0.005;   /* Luxe — subtle luxury, brighter wider darks, warm tint */
-    --cfg-wght-base:340; --cfg-wght-step:112; --cfg-wght-max:800; --cfg-btn-weight:500; --cfg-radius:10px;
-    --font-ui:"Newsreader",Georgia,serif; --font-display:"Newsreader",Georgia,serif; --font-mono:"JetBrains Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-skin="vivid"] { --lt-c-peak:0.15; --dk-c-peak:0.19; --lt-fg-flip:66%; --dk-fg-flip:92%;
+    --dk-l-base:6%; --dk-l-floor:34%; --dk-surf-curve:0.85; --dk-neg-chroma:0.06; --lt-l-base:99%; --lt-l-floor:80%; --lt-surf-curve:1.05; --lt-neg-chroma:0.012;   /* Vivid — neon on near-black (inverted dark elevation) */
+    --cfg-radius:5px; }
+
+  /* ── font switch — swap UI + display + mono faces, orthogonal to skin.
+     Opt-in: unset keeps the skin/default faces. Consumers load the webfonts. ── */
+  [data-ui-font="grotesk"]  { --font-ui:"Hanken Grotesk",system-ui,sans-serif; --font-display:"Hanken Grotesk",sans-serif; --font-mono:"Spline Sans Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-font="neo"]      { --font-ui:"Inter",system-ui,sans-serif; --font-display:"Inter",sans-serif; --font-mono:"JetBrains Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-font="serif"]    { --font-ui:"Newsreader",Georgia,serif; --font-display:"Newsreader",Georgia,serif; --font-mono:"Spline Sans Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-font="techno"]   { --font-ui:"Space Grotesk",system-ui,sans-serif; --font-display:"Space Grotesk",sans-serif; --font-mono:"Space Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-font="humanist"] { --font-ui:"IBM Plex Sans",system-ui,sans-serif; --font-display:"IBM Plex Sans",sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+
+  /* ── dark-elevation invert (experimental) — flips the dark neutral ramp so
+     bg 0 sits at near-black and receding surfaces get LIGHTER. Dark-only (it
+     only overrides the dark bank base/floor, which light mode never reads).
+     Pairs well with a colourful data-ui-color for a neon-on-black look. ── */
+  [data-ui-invert="1"] { --dk-l-base: 6%; --dk-l-floor: 34%; }
 }
 
 

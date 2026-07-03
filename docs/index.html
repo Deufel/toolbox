@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="en"
-  data-signals="{hue: 255, theme: 'light', size: 'md', skin: '', motion: 'on', width: 'centered', section: 'type'}"
+  data-signals="{hue: 255, theme: 'light', size: 'md', skin: '', motion: 'on', width: 'centered', color: '2', radius: '', font: '', invert: '', section: 'type'}"
   data-attr:data-ui-theme="$theme"
   data-attr:data-ui-size="$size"
   data-attr:data-ui-skin="$skin"
   data-attr:data-ui-motion="$motion"
+  data-attr:data-ui-color="$color"
+  data-attr:data-ui-radius="$radius"
+  data-attr:data-ui-font="$font"
+  data-attr:data-ui-invert="$invert"
   data-style="{'--hue': $hue}">
 <head>
 <meta charset="utf-8">
@@ -28,16 +32,15 @@
     <div class="row" style="gap: 0.7em">
       <div class="row" style="gap: 0.35em">
         <small style="--fg:-0.6">hue</small>
-        <input type="range" min="0" max="360" step="1" data-bind:hue style="inline-size: 6em">
+        <input type="range" min="0" max="360" step="15" data-bind:hue style="inline-size: 6em">
         <code style="--type:-1; display:inline-block; min-inline-size:2.6em; text-align:end; white-space:nowrap" data-text="$hue"></code>
       </div>
       <label class="row" style="gap:0.35em"><small style="--fg:-0.6">skin</small>
         <select data-bind:skin>
-          <option value="">base</option>
-          <option value="vivid">vivid</option>
+          <option value="">default</option>
           <option value="material">material</option>
           <option value="carbon">carbon</option>
-          <option value="tw">tw</option>
+          <option value="vivid">vivid</option>
         </select>
       </label>
       <div class="button-group" role="group" aria-label="Density">

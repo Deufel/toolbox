@@ -3,6 +3,8 @@ body { margin: 0; }
 .brand { display: flex; align-items: center; gap: 0.5em; font-weight: 650; }
 .brand-dot { inline-size: 1.1em; block-size: 1.1em; border-radius: 4px; background: oklch(var(--l-color) var(--c-peak) var(--hue)); }
 .pg-header { flex-wrap: wrap; gap: 0.4lh 0.7em; }
+.page { margin-inline: auto; transition: max-inline-size calc(var(--cfg-motion) * 0.35s) cubic-bezier(0.2, 0.7, 0.2, 1); }
+.page:not(.centered) { max-inline-size: 100%; }
 
 /* ============ shared doc column ============ */
 .doc { max-inline-size: 62rem; margin-inline: auto; padding: 1.2lh 1.1em 4lh; display: flex; flex-direction: column; gap: 1.1lh; }
