@@ -1,0 +1,86 @@
+// Tiny helpers for the static docs site. All navigation + toggles are Datastar;
+// this file only holds the DOM-measurement demos that genuinely need to read the
+// live computed CSS (type scale, control heights, resolved OKLCH colors).
+
+function measureType() {
+  const samples = [...document.querySelectorAll('.spec-samp')];
+  const outs = [...document.querySelectorAll('.spec-out')];
+  samples.forEach((el, i) => {
+    const cs = getComputedStyle(el);
+    const px = parseFloat(cs.fontSize).toFixed(1);
+    const lh = (parseFloat(cs.lineHeight) / parseFloat(cs.fontSize)).toFixed(2);
+    if (outs[i]) outs[i].textContent = `${px}px · lh ${lh} · ${cs.fontWeight}`;
+  });
+}
+
+function measureControls() {
+  const byStep = {};
+  document.querySelectorAll('[data-step]').forEach((el) => {
+    const t = el.getAttribute('data-step');
+    (byStep[t] = byStep[t] || []).push(el.getBoundingClientRect().height);
+  });
+  Object.keys(byStep).forEach((t) => {
+    const hs = byStep[t];
+    const min = Math.min(...hs), max = Math.max(...hs);
+    const matched = (max - min) < 0.6;
+    const tag = document.querySelector(`[data-step-readout="${t}"]`);
+    if (tag) {
+      tag.textContent = matched ? `all ${max.toFixed(1)}px ✓` : `${min.toFixed(1)}–${max.toFixed(1)}px ✗`;
+      tag.className = 'tag ' + (matched ? 'suc' : 'dgr');
+    }
+  });
+  const rowHs = [...document.querySelectorAll('[data-fam="default"] [data-ctl]')]
+    .map((el) => el.getBoundingClientRect().height);
+  const rt = document.getElementById('row-readout');
+  if (rt && rowHs.length) {
+    const min = Math.min(...rowHs), max = Math.max(...rowHs);
+    const matched = (max - min) < 0.6;
+    rt.textContent = matched ? `all ${max.toFixed(1)}px ✓` : `off by ${(max - min).toFixed(1)}px`;
+    rt.className = 'tag ' + (matched ? 'suc' : 'dgr');
+  }
+}
+
+// Resolved-color readout for the engine playground. Reads the live swatch's
+// computed background/ink, plus two hidden probes painted with --border / --focus
+// (which are calc() props that only become real colors as a background).
+function readColor() {
+  requestAnimationFrame(() => {
+    const sw = document.getElementById('color-swatch');
+    if (!sw) return;
+    const cs = getComputedStyle(sw);
+    const bp = document.getElementById('probe-border');
+    const fp = document.getElementById('probe-focus');
+    const set = (id, val) => {
+      const e = document.getElementById(id);
+      if (e) e.textContent = val;
+      const s = document.getElementById(id + '-sw');
+      if (s) s.style.background = val;
+    };
+    set('res-bg', cs.backgroundColor);
+    set('res-fg', cs.color);
+    set('res-border', bp ? getComputedStyle(bp).backgroundColor : '—');
+    set('res-focus', fp ? getComputedStyle(fp).backgroundColor : '—');
+  });
+}
+
+// Called from each section's data-init after Datastar morphs it in.
+function afterNav(section) {
+  const run = () => {
+    if (window.highlightAll) window.highlightAll(document);
+    if (section === 'type') measureType();
+    if (section === 'controls') measureControls();
+    if (section === 'color') readColor();
+  };
+  requestAnimationFrame(run);
+  [120, 400].forEach((d) => setTimeout(run, d));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+}
+
+// Re-measure when the density switch (S/M/L) changes the live scale.
+function remeasure() { measureType(); measureControls(); }
+
+window.measureType = measureType;
+window.measureControls = measureControls;
+window.readColor = readColor;
+window.afterNav = afterNav;
+window.remeasure = remeasure;

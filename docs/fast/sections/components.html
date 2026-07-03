@@ -1,31 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-<link rel="stylesheet" href="system.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&family=JetBrains+Mono&display=swap" rel="stylesheet">
-<script src="highlight.js"></script>
-<style>
-  body { margin: 0; }
-  .brand { display: flex; align-items: center; gap: 0.5em; font-weight: 650; }
-  .brand-dot { inline-size: 1.1em; block-size: 1.1em; border-radius: 4px; background: oklch(var(--l-color) var(--c-peak) var(--hue)); }
-  .doc { max-inline-size: 64rem; margin-inline: auto; padding: 1.2lh 1.1em 4lh; display: flex; flex-direction: column; gap: 0.5lh; }
-  .comp { display: flex; flex-direction: column; gap: 0.45lh; padding-block: 0.8lh 1.1lh; border-block-end: 1px solid var(--border); scroll-margin-top: 0.5lh; }
-  .comp-demo { display: flex; flex-wrap: wrap; gap: 0.7em; align-items: center; padding: 0.8lh 0.9em; border: 1px dashed var(--border); border-radius: var(--cfg-radius); }
-  .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7lh; align-items: start; }
-  .comp-grid pre { margin: 0; }
-  @media (max-width: 760px) { .comp-grid { grid-template-columns: 1fr; } }
-</style>
-</helmet>
-
+<main class="pg-main" id="main" data-init="afterNav('components')">
 <div class="doc">
 
       <header class="column" style="gap: 0.4lh; padding-block-end: 0.4lh">
@@ -186,7 +159,7 @@
           <form style="flex:1 1 100%; display:grid; grid-template-columns:1fr 1fr; gap:0.5lh">
             <label><span>Name</span><small>&nbsp;</small><input placeholder="Ada Lovelace"></label>
             <label><span>Email</span><small class="dgr">Invalid address</small><input aria-invalid="true" value="ada@"></label>
-            <label style="grid-column:1/-1"><span>Password</span><small>Required</small><input type="password" required="{{ true }}"></label>
+            <label style="grid-column:1/-1"><span>Password</span><small>Required</small><input type="password" required></label>
           </form>
         </div>
         <div class="comp-grid">
@@ -253,7 +226,7 @@
         <div class="comp-demo">
           <div role="group" class="tabs" aria-labelledby="tb1" style="flex:1 1 100%; max-inline-size:24em">
             <span class="legend" id="tb1">Plan</span>
-            <label><input type="radio" name="plan" defaultChecked="{{ true }}"><span>Free</span></label>
+            <label><input type="radio" name="plan" checked><span>Free</span></label>
             <label><input type="radio" name="plan"><span>Pro</span></label>
             <label><input type="radio" name="plan"><span>Team</span></label>
           </div>
@@ -308,7 +281,7 @@
         <p style="--fg:-0.6">Bare <code>&lt;details&gt;</code> — native open/close, no JS. Card-framed, chevron rotates, height animates when motion is on.</p>
         <div class="comp-demo" style="flex-direction:column; align-items:stretch">
           <details><summary>What is a surface position?</summary><p style="padding-block:0.3lh">A <code>--bg</code> value on the signed depth axis — not a named colour.</p></details>
-          <details open="{{ true }}"><summary>Starts expanded</summary><p style="padding-block:0.3lh">Add the <code>open</code> attribute.</p></details>
+          <details open><summary>Starts expanded</summary><p style="padding-block:0.3lh">Add the <code>open</code> attribute.</p></details>
         </div>
         <div class="comp-grid">
           <table>
@@ -538,36 +511,4 @@
       </footer>
 
     </div>
-
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
-  state = { pageHue: 255, pageTheme: "light", pageSize: "md", pageSkin: "" };
-
-  componentDidMount() {
-    const hl = () => window.highlightAll && window.highlightAll(document);
-    [60, 300, 700].forEach((d) => setTimeout(hl, d));
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(hl);
-  }
-
-  renderVals() {
-    return {
-      ...this.state,
-      isLight: this.state.pageTheme === "light",
-      isDark: this.state.pageTheme === "dark",
-      goLight: () => this.setState({ pageTheme: "light" }),
-      goDark: () => this.setState({ pageTheme: "dark" }),
-      isSm: this.state.pageSize === "sm",
-      isMd: this.state.pageSize === "md",
-      isLg: this.state.pageSize === "lg",
-      goSm: () => this.setState({ pageSize: "sm" }),
-      goMd: () => this.setState({ pageSize: "md" }),
-      goLg: () => this.setState({ pageSize: "lg" }),
-      setSkin: (e) => this.setState({ pageSkin: e.target.value }),
-      setPageHue: (e) => this.setState({ pageHue: parseFloat(e.target.value) }),
-    };
-  }
-}
-</script>
-</body>
-</html>
+</main>

@@ -1,13 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
+<title>calendar — system.css demo</title>
 <link rel="stylesheet" href="system.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,8 +23,8 @@
   .mini > .t { background: oklch(var(--l-color) var(--c-peak) var(--hue)); color: oklch(var(--l-base) 0 0); font-weight: 600; }
   .mini > .h { --fg: -0.5; font-weight: 600; }
 </style>
-</helmet>
-
+</head>
+<body>
 <div class="page" style="--hue: 190">
 
   <header class="pg-header lcr" style="padding-inline:0.6em; gap:0.7em">
@@ -113,7 +109,5 @@
   </aside>
 
 </div>
-
-</x-dc>
 </body>
 </html>

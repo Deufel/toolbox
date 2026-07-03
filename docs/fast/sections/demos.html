@@ -1,23 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-<link rel="stylesheet" href="system.css">
-<style>
-  .demogrid { display: flex; flex-wrap: wrap; gap: 1lh; }
-  .democard { inline-size: 20rem; flex: 1 1 18rem; max-inline-size: 24rem; }
-  .prev { position: relative; inline-size: 100%; aspect-ratio: 16 / 10; overflow: hidden; border-radius: var(--cfg-radius); border: 1px solid var(--border); background: var(--_bg); }
-  .prev > iframe { position: absolute; inset: 0; inline-size: 400%; block-size: 400%; transform: scale(0.25); transform-origin: top left; border: 0; pointer-events: none; }
-  .openbtn { justify-content: center; border: 1px solid var(--border); --lift: 0.15; }
-</style>
-</helmet>
-
+<main class="pg-main" id="main" data-init="afterNav('demos')">
 <div class="doc" style="max-inline-size: 64rem; margin-inline: auto; padding: 1.2lh 1.1em 4lh; display:flex; flex-direction:column; gap: 1lh">
 
   <header class="column" style="gap: 0.4lh">
@@ -28,24 +9,24 @@
 
   <div class="demogrid">
     <div class="card column democard" style="--bg:0.02; gap:0.4lh; padding:0.5lh 0.6em">
-      <div class="prev"><iframe src="demo-dashboard.dc.html" title="SaaS dashboard" loading="lazy"></iframe></div>
+      <div class="prev"><iframe src="demo-dashboard.html" title="SaaS dashboard" loading="lazy"></iframe></div>
       <div class="spread" style="align-items:baseline"><strong style="--type:1">SaaS dashboard</strong><span class="tag">.page</span></div>
       <small style="--fg:-0.65">Metric cards, a live table, storage meter, and an activity rail on the ten-slot app shell.</small>
-      <a class="nav-item openbtn" href="demo-dashboard.dc.html" target="_blank" rel="noopener"><span>Open full page ↗</span></a>
+      <a class="nav-item openbtn" href="demo-dashboard.html" target="_blank" rel="noopener"><span>Open full page ↗</span></a>
     </div>
 
     <div class="card column democard" style="--bg:0.02; gap:0.4lh; padding:0.5lh 0.6em">
-      <div class="prev"><iframe src="demo-calendar.dc.html" title="Calendar app" loading="lazy"></iframe></div>
+      <div class="prev"><iframe src="demo-calendar.html" title="Calendar app" loading="lazy"></iframe></div>
       <div class="spread" style="align-items:baseline"><strong style="--type:1">Calendar app</strong><span class="tag">.page</span></div>
       <small style="--fg:-0.65">A month grid with hue-coded events, a mini-calendar, filters, and a day detail pane.</small>
-      <a class="nav-item openbtn" href="demo-calendar.dc.html" target="_blank" rel="noopener"><span>Open full page ↗</span></a>
+      <a class="nav-item openbtn" href="demo-calendar.html" target="_blank" rel="noopener"><span>Open full page ↗</span></a>
     </div>
 
     <div class="card column democard" style="--bg:0.02; gap:0.4lh; padding:0.5lh 0.6em">
-      <div class="prev"><iframe src="demo-marketing.dc.html" title="Marketing page" loading="lazy"></iframe></div>
+      <div class="prev"><iframe src="demo-marketing.html" title="Marketing page" loading="lazy"></iframe></div>
       <div class="spread" style="align-items:baseline"><strong style="--type:1">Marketing page</strong><span class="tag">xl · tw</span></div>
       <small style="--fg:-0.65">A landing page on the marketing scale — hero, features, pricing tiers, and a quote.</small>
-      <a class="nav-item openbtn" href="demo-marketing.dc.html" target="_blank" rel="noopener"><span>Open full page ↗</span></a>
+      <a class="nav-item openbtn" href="demo-marketing.html" target="_blank" rel="noopener"><span>Open full page ↗</span></a>
     </div>
   </div>
 
@@ -55,7 +36,4 @@
   </div>
 
 </div>
-
-</x-dc>
-</body>
-</html>
+</main>

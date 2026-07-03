@@ -1,13 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
+<title>dashboard — system.css demo</title>
 <link rel="stylesheet" href="system.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,8 +16,8 @@
   .spark > i { flex: 1; background: oklch(var(--l-color) var(--c-peak) var(--hue)); border-radius: 2px 2px 0 0; opacity: 0.85; }
   .row-hover:hover { --bg: 0.05; background-color: var(--_bg); }
 </style>
-</helmet>
-
+</head>
+<body>
 <div class="page" data-ui-skin="tw" style="--hue: 262">
 
   <header class="pg-header flank" style="gap: 0.7em; padding-inline: 0.6em">
@@ -96,7 +92,5 @@
   </aside>
 
 </div>
-
-</x-dc>
 </body>
 </html>
