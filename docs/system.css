@@ -523,6 +523,7 @@
     border: 1px solid var(--border);
     background-color: var(--_bg); --surf-l: var(--_bg-l);
   }
+  :where(pre) :where(code) { border: 0; }   /* a block listing frames itself; the inline chip's border would double up */
 
   /* <kbd> — a keycap. Like inline code but with a defining border (the key
      edge) and a touch of weight, so it reads as a physical key. */
@@ -2131,6 +2132,8 @@
   :where(.center)   { text-align: center; }
   :where(.read)     { max-inline-size: 65ch; margin-inline: auto; }
   :where(.fill)     { inline-size: 100%; }
+  :where(.bw)       { --cfg-chroma: 0; --c-peak: 0; --lt-c-peak: 0; --dk-c-peak: 0; --c-tint: 0; --neg-chroma: 0; --fg-chroma: 0; }   /* black & white — zero every chroma source (same as data-ui-color="0", as a class) */
+  @media print { :where(.np) { display: none !important; } }   /* .np — no-print: omit from the printed page */
   :where(.vh) { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   /* scroll viewports — the axis scrolls; pair with a constrained size (a flex/grid track,
      a max-block-size, etc.) since something must bound the box for it to scroll. min-*-size:0
@@ -2138,6 +2141,7 @@
      overscroll-behavior:contain stops scroll-chaining to the page. */
   :where(.scroll-x) { overflow-x: auto; overscroll-behavior: contain; min-inline-size: 0; }
   :where(.scroll-y) { overflow-y: auto; overscroll-behavior: contain; min-block-size: 0; scrollbar-gutter: stable; }
+  :where(.scroll-x) { overflow-x: auto; overscroll-behavior: contain; min-inline-size: 0; }
 
   /* data-ui-state="on" — the "live in a set" accent (no ARIA home; for a real
      on/off TOGGLE prefer aria-pressed). Max-contrast ink via --fg:-1 — pushes ink
@@ -2293,7 +2297,7 @@
    document.startViewTransition(update) (same-document) — nothing here runs
    otherwise, so it's inert until you opt in. Direction is chosen by setting
    data-vt on <html> right before starting: "fade" (default) · "slide-left" ·
-   "slide-right" · "scale". Duration rides --cfg-motion, so data-ui-motion
+   "slide-right" · "scale" (subtle) · "zoom" (pronounced). Duration rides --cfg-motion, so data-ui-motion
    (off/on/debug) and prefers-reduced-motion already govern it — at motion 0
    the animation is 0s (an instant swap). @keyframes live outside @layer (they
    are global by name); the pseudos are on the document root.
@@ -2310,6 +2314,8 @@
 @keyframes vt-out-right  { to   { opacity: 0; transform: translateX(2.5%) } }
 @keyframes vt-in-scale   { from { opacity: 0; transform: scale(0.99) } }
 @keyframes vt-out-scale  { to   { opacity: 0; transform: scale(1.01) } }
+@keyframes vt-in-zoom    { from { opacity: 0; transform: scale(0.9) } }
+@keyframes vt-out-zoom   { to   { opacity: 0; transform: scale(1.06) } }
 
 ::view-transition-group(*) {
   animation-duration: calc(var(--cfg-motion) * 0.28s);
@@ -2325,3 +2331,5 @@
 :root[data-vt="slide-right"]::view-transition-new(root) { animation-name: vt-in-left; }
 :root[data-vt="scale"]::view-transition-old(root)       { animation-name: vt-out-scale; }
 :root[data-vt="scale"]::view-transition-new(root)       { animation-name: vt-in-scale; }
+:root[data-vt="zoom"]::view-transition-old(root)        { animation-name: vt-out-zoom; }
+:root[data-vt="zoom"]::view-transition-new(root)        { animation-name: vt-in-zoom; }
