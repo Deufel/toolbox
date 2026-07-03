@@ -76,6 +76,13 @@ body { margin: 0; }
 .tsub { --fg: -0.55; --type: -2; font-family: var(--font-mono); }
 @media (max-width: 760px) { .pcard { grid-template-columns: 1fr; } }
 
+/* ============ tag matrix (components doc) ============ */
+.tagmatrix { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7lh; align-items: start; }
+.tagmatrix-panel { padding: 0.7lh 0.8em; border-radius: var(--cfg-radius); display: flex; flex-direction: column; gap: 0.4lh; }
+.matrix { display: grid; grid-template-columns: 4.5rem repeat(4, 1fr); gap: 0.35lh 0.6em; align-items: center; }
+.matrix .mh { font-family: var(--font-mono); --type: -2; --fg: -0.55; }
+@media (max-width: 640px) { .tagmatrix { grid-template-columns: 1fr; } }
+
 /* ============ demos gallery ============ */
 .demogrid { display: flex; flex-wrap: wrap; gap: 1lh; }
 .democard { inline-size: 20rem; flex: 1 1 18rem; max-inline-size: 24rem; }

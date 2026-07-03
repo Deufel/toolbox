@@ -1205,8 +1205,8 @@
        <span class="tag" data-ui-state="on">Live</span>      max ink + focus ring
        <span class="tag" aria-disabled="true">…</span>       inert            */
   :where(.tag) {
-    --bg: 0.4;
-    --fg: -0.9;
+    --bg: 0.16;
+    --fg: var(--_sem-ink, -0.85);
     --type: -2;
     display: inline-flex; align-items: center; gap: 0.3em;
     padding: 0.1em 0.4em;
@@ -1218,11 +1218,10 @@
 
     & > svg { inline-size: 1em; block-size: 1em; flex: 0 0 auto; }
   }
-  :where(.tag[data-ui-state="off"]) {
+  :where(.tag[data-ui-state="off"], .tag[aria-disabled="true"]) {
     --bg: 0.1; --fg: -0.4; --surface-chroma: 0;
     border: 1px solid var(--border);
   }
-  :where(.tag[aria-disabled="true"])   { --bg: 0.05; --fg: -0.6; border-color: var(--border); }
 
   /* ── avatar ────────────────────────────────────────────────────────
      A square monogram / icon / image chip. Sized in lh so it scales with
@@ -2126,14 +2125,14 @@
      on/off TOGGLE prefer aria-pressed). Max-contrast ink via --fg:-1 — pushes ink
      to the NEUTRAL contrast pole (not the chroma pole), so it reads in either bank
      and doesn't depend on the focus hue being vivid (which fails on small tags).
-     Plus a focus-coloured border and a no-shift focus OUTLINE ring (outline, not
-     border, so toggling shifts no layout). Reads on bordered (tag, input) and
-     borderless (button) elements alike. Lives here, after the components, so it
-     overrides their borders/ink. */
+     The accent is a THICKER border in the focus colour, done as an inset ring on
+     top of the 1px border (border stays 1px → zero layout shift, and it doesn't
+     read as a focus outline). Works on bordered (tag, input) and borderless
+     (button) elements alike. Lives here, after the components, so it overrides. */
   :where([data-ui-state="on"]) {
     --fg: -1;
     border-color: var(--focus);
-    outline: 2px solid var(--focus); outline-offset: 1px;
+    box-shadow: inset 0 0 0 1px var(--focus);
   }
 
   /* frosted surface — re-tint the engine's resolved surface translucent and
