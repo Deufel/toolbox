@@ -140,7 +140,7 @@
     --_p: clamp(0, var(--_bgs), 1);
     --_tint: calc(var(--surface-chroma) * var(--c-tint));
     --_bg-l: calc(var(--l-base) + var(--_p)*(var(--l-color) - var(--l-base)) + var(--_ne)*(min(var(--l-floor), var(--l-base)) - var(--l-base)));
-    --_bg-c: calc(var(--_tint) + var(--_p)*(var(--c-peak) - var(--_tint)));
+    --_bg-c: calc(var(--_tint) + var(--_p)*(var(--c-peak) - var(--_tint)) + var(--_n)*var(--neg-chroma, 0));
     --_bg: oklch(var(--_bg-l) var(--_bg-c) var(--_h));
 
     --_fg-up: clamp(0, calc((var(--fg-flip) - var(--surf-l)) / 1% * 10), 1);
@@ -380,9 +380,9 @@
     --cfg-dark: 0;
     --c-tint: 0.03;
     --surf-l: var(--_bg-l);
-    --lt-l-base: 98%; --lt-l-floor: 85%; --lt-l-color: 50%; --lt-c-peak: 0.08; --lt-surf-curve: 1; --lt-st-neut: 1;
-    --dk-l-base: 13%; --dk-l-floor: 4%;  --dk-l-color: 70%; --dk-c-peak: 0.13; --dk-surf-curve: 3; --dk-st-neut: 3;
-    --l-base: var(--lt-l-base); --l-floor: var(--lt-l-floor); --l-color: var(--lt-l-color); --c-peak: var(--lt-c-peak); --surf-curve: var(--lt-surf-curve); --st-neut: var(--lt-st-neut);
+    --lt-l-base: 99%; --lt-l-floor: 80%; --lt-l-color: 50%; --lt-c-peak: 0.14; --lt-surf-curve: 1.05; --lt-st-neut: 1; --lt-neg-chroma: 0.008; --lt-fg-flip: 66%;   /* default = Vivid: punchy, wide light */
+    --dk-l-base: 15%; --dk-l-floor: 2%;  --dk-l-color: 70%; --dk-c-peak: 0.17; --dk-surf-curve: 0.8; --dk-st-neut: 3; --dk-neg-chroma: 0.05; --dk-fg-flip: 92%;   /* default = Vivid: dark neutrals separated by CHROMA (near-black L steps are imperceptible) */
+    --l-base: var(--lt-l-base); --l-floor: var(--lt-l-floor); --l-color: var(--lt-l-color); --c-peak: var(--lt-c-peak); --surf-curve: var(--lt-surf-curve); --st-neut: var(--lt-st-neut); --neg-chroma: var(--lt-neg-chroma);
     --fg-flip: var(--lt-fg-flip, 60%);   /* contrast-flip point — bank-sourced (--lt-/--dk-fg-flip), default 60% in both banks */
 
     /* type foundations — rem-valued, so plain (not registrable). Default = the
@@ -428,12 +428,12 @@
      with attribute/class selectors); kept verbatim identical — change both. */
   @media (prefers-color-scheme: dark) {
     :root:not([data-ui-theme]):not(.light):not(.dark) { color-scheme: dark; --cfg-dark: 1;
-      --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut); --fg-flip: var(--dk-fg-flip, 60%); }
+      --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut); --neg-chroma: var(--dk-neg-chroma); --fg-flip: var(--dk-fg-flip, 60%); }
   }
   [data-ui-theme="dark"], .dark { color-scheme: dark; --cfg-dark: 1;
-    --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut); --fg-flip: var(--dk-fg-flip, 60%); }
+    --l-base: var(--dk-l-base); --l-floor: var(--dk-l-floor); --l-color: var(--dk-l-color); --c-peak: var(--dk-c-peak); --surf-curve: var(--dk-surf-curve); --st-neut: var(--dk-st-neut); --neg-chroma: var(--dk-neg-chroma); --fg-flip: var(--dk-fg-flip, 60%); }
   [data-ui-theme="light"], .light { color-scheme: light; --cfg-dark: 0;
-    --l-base: var(--lt-l-base); --l-floor: var(--lt-l-floor); --l-color: var(--lt-l-color); --c-peak: var(--lt-c-peak); --surf-curve: var(--lt-surf-curve); --st-neut: var(--lt-st-neut); --fg-flip: var(--lt-fg-flip, 60%); }
+    --l-base: var(--lt-l-base); --l-floor: var(--lt-l-floor); --l-color: var(--lt-l-color); --c-peak: var(--lt-c-peak); --surf-curve: var(--lt-surf-curve); --st-neut: var(--lt-st-neut); --neg-chroma: var(--lt-neg-chroma); --fg-flip: var(--lt-fg-flip, 60%); }
 
   /* ── size switch — reconfigures the scale shape (base + ratio) ── */
   /* sm/md/lg: dense SaaS sizes. Each is a real fluid range on NAMED intervals, so
@@ -1429,6 +1429,17 @@
      text causes zero layout shift. Everything below nests under the label
      so rules target by structure. Validation rides aria-invalid; a green
      "valid" cue is just the .suc helper (no ARIA backing to justify a state). */
+  /* ── form ─────────────────────────────────────────────────────────
+     A bare <form> reads as a bounded card: one 1px engine border (which is
+     lighter than its own surface in dark), so the whole form separates from
+     the page even where near-black tonal steps are imperceptible. Inputs
+     inside are deliberately left alone — tonal separation only, no border. */
+  :where(form) {
+    border: 1px solid var(--border);
+    border-radius: var(--cfg-radius);
+    padding: calc(0.5 * 1lh) 0.7em;
+  }
+
   :where(form, [role="form"]) :where(label):has(> input, > select, > textarea):not(:has(> input:is([type="checkbox"], [type="radio"]))) {
     display: grid;
     grid-template-columns: auto 1fr;          /* label | feedback, both left, packed */
@@ -2053,21 +2064,22 @@
     &:hover  { translate: 0 -2px; }
     &:active { translate: 0 0; }
   }
-  /* 1 · content-first — only the glyph/label + a tiny drop-shadow that HUGS them (the
-        filter follows the SVG + text alpha, not a box). Fill, rim, and blur are absent at
-        rest and fade in on hover — a backing only when you reach for it. */
+  /* 1 · content-first — only the glyph/label at rest: no shadow, no box (a resting drop-shadow
+        read as distracting on dark). Fill, rim, and blur are absent at rest and fade in on
+        hover — a backing only when you reach for it. */
   .fab-1 {
+    --fg: var(--_sem-ink, 1);                         /* content-first: ink at full chroma even at rest */
     background-color: oklch(var(--_bg-l) var(--_bg-c) var(--_h) / calc(var(--state) * 0.5));
     border-color: oklch(calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * 16%) 0.12 var(--_h) / calc(var(--state) * 0.75));
     -webkit-backdrop-filter: blur(calc(var(--state) * 0.7lh));
     backdrop-filter: blur(calc(var(--state) * 0.7lh));
-    filter: drop-shadow(0 1px 2px oklch(0 0 0 / 0.55));
   }
   /* 2 · frost pill — persistent glass + a restrained neutral elevation shadow */
   .fab-2 {
     background-color: oklch(var(--_bg-l) var(--_bg-c) var(--_h) / clamp(0.24, calc(0.32 + var(--state) * 0.5), 0.62));
     border: 1px solid oklch(calc(var(--surf-l) + (var(--cfg-dark) * 2 - 1) * 16%) 0.12 var(--_h) / clamp(0.4, calc(0.5 + var(--state) * 0.4), 0.9));
-    box-shadow: 0 0.3lh 1lh oklch(0 0 0 / 0.26);
+    box-shadow: 0 0.3lh 1lh oklch(0 0 0 / calc(0.26 * (1 - var(--cfg-dark)))),
+                0 0.3lh 1.1lh oklch(var(--l-color) 0 0 / calc(0.10 * var(--cfg-dark)));
     -webkit-backdrop-filter: blur(0.7lh) saturate(1.5);
     backdrop-filter: blur(0.7lh) saturate(1.5);
   }
@@ -2226,9 +2238,15 @@
   .pg-aside       { --bg: -0.3; padding: 0.25lh; } 
   .pg-footer      { --bg:  0.03; padding: 0.25lh; }
   :where(.pg-main, .pg-navigation, .pg-aside, .pg-toolbar) { overscroll-behavior: none; }
-  [data-ui-skin="material"]{ --lt-c-peak:0.14; --dk-c-peak:0.14; --c-tint:0.05; --cfg-radius:16px; --cfg-btn-weight:500;
+  [data-ui-skin="material"]{ --lt-c-peak:0.15; --dk-c-peak:0.15; --hue:288;
+    --dk-l-base:21%; --dk-l-floor:5%; --dk-surf-curve:0.9; --dk-neg-chroma:0.050; --lt-l-base:99%; --lt-l-floor:87%; --lt-surf-curve:1.05; --lt-neg-chroma:0.018;   /* Elevated — the colourful one: violet tint in BOTH neutral ramps */
+    --cfg-wght-base:380; --cfg-wght-step:78; --cfg-wght-max:760;
+    --c-tint:0.05; --cfg-radius:16px; --cfg-btn-weight:500;
     --font-ui:"Roboto",system-ui,sans-serif; --font-display:"Roboto",sans-serif; --font-mono:"Roboto Mono",ui-monospace,monospace; font-family:var(--font-ui); }
-  [data-ui-skin="carbon"]{ --lt-c-peak:0.16; --dk-c-peak:0.16; --c-tint:0.006; --cfg-radius:0px; --cfg-btn-weight:400;
+  [data-ui-skin="carbon"]{ --lt-c-peak:0.16; --dk-c-peak:0.12;
+    --dk-l-base:25%; --dk-l-floor:3%; --dk-surf-curve:0.95; --dk-neg-chroma:0; --lt-l-base:98%; --lt-l-floor:81%; --lt-surf-curve:1; --lt-neg-chroma:0;   /* Carbon — purely neutral: lift dark base HIGH (25%) for legible L steps, calmer dark accents */
+    --cfg-wght-base:400; --cfg-wght-step:84; --cfg-wght-max:680;
+    --c-tint:0.006; --cfg-radius:0px; --cfg-btn-weight:500;
     --font-ui:"IBM Plex Sans",system-ui,sans-serif; --font-display:"IBM Plex Sans",sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,monospace; font-family:var(--font-ui); }
   [data-ui-skin="tw"]{ --lt-c-peak:0.15; --dk-c-peak:0.15; --c-tint:0.012; --cfg-radius:8px; --cfg-btn-weight:600;
     --font-ui:"Inter",system-ui,sans-serif; --font-display:"Inter",sans-serif; --font-mono:"JetBrains Mono",ui-monospace,monospace; font-family:var(--font-ui); }
@@ -2239,7 +2257,12 @@
      survives a nested data-ui-theme and stays correct per bank at any depth.
      Opt in with data-ui-skin="vivid" on <html> or any subtree; nothing changes
      unless set (non-vivid falls back to 0.08/0.07 peak, 60% flip). */
-  [data-ui-skin="vivid"] { --lt-c-peak: 0.14; --dk-c-peak: 0.16; --lt-fg-flip: 66%; --dk-fg-flip: 92%; }
+  [data-ui-skin="vivid"] { --cfg-wght-base:440; --cfg-wght-step:105; --cfg-wght-max:880; --cfg-btn-weight:650;   /* Deep — shares the (Vivid) default colour scheme, adds the techy Space Grotesk face */
+    --font-ui:"Space Grotesk",system-ui,sans-serif; --font-display:"Space Grotesk",sans-serif; --font-mono:"Space Mono",ui-monospace,monospace; font-family:var(--font-ui); }
+  [data-ui-skin="luxe"] { --lt-c-peak:0.07; --dk-c-peak:0.10; --hue:45; --c-tint:0.02;
+    --dk-l-base:18%; --dk-l-floor:3%; --dk-surf-curve:0.9; --dk-neg-chroma:0.028; --lt-l-base:98%; --lt-l-floor:84%; --lt-surf-curve:1.15; --lt-neg-chroma:0.005;   /* Luxe — subtle luxury, brighter wider darks, warm tint */
+    --cfg-wght-base:340; --cfg-wght-step:112; --cfg-wght-max:800; --cfg-btn-weight:500; --cfg-radius:10px;
+    --font-ui:"Newsreader",Georgia,serif; --font-display:"Newsreader",Georgia,serif; --font-mono:"JetBrains Mono",ui-monospace,monospace; font-family:var(--font-ui); }
 }
 
 

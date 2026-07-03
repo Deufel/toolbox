@@ -63,6 +63,17 @@ function readColor() {
   });
 }
 
+// Fills the surface-ramp L readouts on the Themes/personalities page.
+function measureThemes() {
+  document.querySelectorAll('.rampbar').forEach((bar) => {
+    bar.querySelectorAll('.rc').forEach((el) => {
+      const l = parseFloat(getComputedStyle(el).getPropertyValue('--_bg-l'));
+      const rl = el.querySelector('.rl');
+      if (rl && !isNaN(l)) rl.textContent = l.toFixed(1) + '%';
+    });
+  });
+}
+
 // Called from each section's data-init after Datastar morphs it in.
 function afterNav(section) {
   const run = () => {
@@ -70,6 +81,7 @@ function afterNav(section) {
     if (section === 'type') measureType();
     if (section === 'controls') measureControls();
     if (section === 'color') readColor();
+    if (section === 'themes') measureThemes();
   };
   requestAnimationFrame(run);
   [120, 400].forEach((d) => setTimeout(run, d));
@@ -82,5 +94,6 @@ function remeasure() { measureType(); measureControls(); }
 window.measureType = measureType;
 window.measureControls = measureControls;
 window.readColor = readColor;
+window.measureThemes = measureThemes;
 window.afterNav = afterNav;
 window.remeasure = remeasure;

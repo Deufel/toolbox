@@ -1,4 +1,4 @@
-<main class="pg-main" id="main" data-init="afterNav('color')" data-signals="{cbg: 0.6, cfg: 0.9, chue: 255, cshift: 0}">
+<main class="pg-main" id="main" data-init="afterNav('color')" data-signals="{cbg: 0.6, cfg: 0.9, chue: 255, cshift: 0, cnegc: 0}">
   <div class="doc-main" style="max-inline-size:62rem; margin-inline:auto; padding:1lh 1em 3lh; display:flex; flex-direction:column; gap:1.2lh">
 
     <header class="column" style="gap: 0.4lh">
@@ -27,7 +27,7 @@
       </div>
 
       <div class="split" style="gap:0.7lh; align-items:stretch">
-        <div class="bg" id="color-swatch" data-style="{'--bg': $cbg, '--fg': $cfg, '--hue': $chue}" style="border-radius:var(--cfg-radius); border:1px solid var(--border); padding:0.7lh 0.8em; min-block-size:11lh; display:flex; flex-direction:column; gap:0.3lh; justify-content:center">
+        <div class="bg" id="color-swatch" data-style="{'--bg': $cbg, '--fg': $cfg, '--hue': $chue, '--neg-chroma': $cnegc}" style="border-radius:var(--cfg-radius); border:1px solid var(--border); padding:0.7lh 0.8em; min-block-size:11lh; display:flex; flex-direction:column; gap:0.3lh; justify-content:center">
           <div style="font-size:2.4em; line-height:1; font-weight:650">Aa</div>
           <div>Ink resolves its contrast against this surface automatically — no color picked by hand.</div>
           <div class="row" style="gap:0.5em">
@@ -67,6 +67,25 @@
         <div class="bg" style="--bg:1"><span class="sw-code" style="font-weight:600">1</span></div>
       </div>
       <div class="axis" style="--fg:-0.6; --type:-1"><span>recede ·  quiet</span><span>base</span><span>advance · loud chroma</span></div>
+    </section>
+
+    <section class="column" style="gap:0.5lh">
+      <h2 style="--type:3">Neutral chroma — a tint on the recede axis</h2>
+      <p style="--fg:-0.6; max-inline-size:64ch"><code>--neg-chroma</code> adds a tiny hue tint that <em>grows as a surface recedes</em> (negative <code>--bg</code>), giving the neutral ramp a second separation channel beyond lightness. It's strongest exactly where dark surfaces bottom out and lightness alone stops distinguishing them. Each skin sets its own amount as part of its personality; drag it and switch the header theme to <strong>Dark</strong> to feel it.</p>
+      <div class="row" style="gap:0.6em; max-inline-size:28em">
+        <small style="--fg:-0.7; flex:0 0 auto">--neg-chroma</small>
+        <input type="range" min="0" max="0.06" step="0.002" data-bind:cnegc style="flex:1 1 auto">
+        <code style="display:inline-block; min-inline-size:3.6em; text-align:end; white-space:nowrap; font-variant-numeric:tabular-nums; flex:0 0 auto" data-text="$cnegc"></code>
+      </div>
+      <div class="ramp" data-style="{'--neg-chroma': $cnegc}">
+        <div class="bg" style="--bg:0"><span class="sw-code" style="font-weight:600">0</span></div>
+        <div class="bg" style="--bg:-0.2"><span class="sw-code" style="font-weight:600">-0.2</span></div>
+        <div class="bg" style="--bg:-0.4"><span class="sw-code" style="font-weight:600">-0.4</span></div>
+        <div class="bg" style="--bg:-0.6"><span class="sw-code" style="font-weight:600">-0.6</span></div>
+        <div class="bg" style="--bg:-0.8"><span class="sw-code" style="font-weight:600">-0.8</span></div>
+        <div class="bg" style="--bg:-1"><span class="sw-code" style="font-weight:600">-1</span></div>
+      </div>
+      <div class="axis" style="--fg:-0.6; --type:-1"><span>base</span><span>recede →</span><span>deepest · most tint</span></div>
     </section>
 
     <section class="column" style="gap:0.5lh">

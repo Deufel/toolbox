@@ -60,6 +60,22 @@ body { margin: 0; }
 .comp-grid pre { margin: 0; }
 @media (max-width: 760px) { .comp-grid { grid-template-columns: 1fr; } }
 
+/* ============ themes / personalities ============ */
+.rampbar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; border-radius: 7px; overflow: hidden; border: 1px solid var(--border); }
+.rc { padding: 0.4lh 0.1em; display: flex; flex-direction: column; align-items: stretch; gap: 0.15lh; min-inline-size: 0; }
+.fgrow { display: flex; justify-content: center; gap: 0.2em; }
+.fgrow span { --type: -2; font-weight: 700; line-height: 1.1; }
+.tpanel { padding: 0.6lh 0.7em; border-radius: var(--cfg-radius); display: flex; flex-direction: column; gap: 0.5lh; }
+.tmini { padding: 0.35lh; border-radius: 8px; display: flex; flex-direction: column; gap: 0.25lh; }
+.tmini > div { padding: 0.2lh 0.5em; border-radius: 6px; font-family: var(--font-mono); --type: -1; }
+.pcard { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7lh; align-items: start; }
+.typescale { display: flex; align-items: baseline; gap: 0.5em; flex-wrap: wrap; }
+.ink { display: flex; align-items: baseline; gap: 0.35em; }
+.ink span { font-weight: 700; --type: 1; }
+.sem2x2 { display: grid; grid-template-columns: repeat(2, auto); gap: 0.3em; }
+.tsub { --fg: -0.55; --type: -2; font-family: var(--font-mono); }
+@media (max-width: 760px) { .pcard { grid-template-columns: 1fr; } }
+
 /* ============ demos gallery ============ */
 .demogrid { display: flex; flex-wrap: wrap; gap: 1lh; }
 .democard { inline-size: 20rem; flex: 1 1 18rem; max-inline-size: 24rem; }
