@@ -1,7 +1,13 @@
 // v1.3 🎨 highlight.js — Custom Highlight API syntax highlighting
 // Pattern: <pre><code class="language">…</code></pre>
 // Languages registered: css, html, python, javascript, go, sqlite
-// By: Michael Deufel 
+// By: Michael Deufel
+
+if (typeof window !== 'undefined' && window.__highlightLoaded) {
+  /* already evaluated in this realm — the helmet <script> can re-run on
+     re-render/hot-reload; a second top-level `const` would throw. No-op. */
+} else {
+if (typeof window !== 'undefined') window.__highlightLoaded = true;
 
 const CSS_LANG = [
   ['css-comment',     /\/\*[\s\S]*?\*\//g],
@@ -48,7 +54,7 @@ const PYTHON_LANG = [
   ['python-keyword',    new RegExp(`\\b(?:${PY_KEYWORDS})\\b`, 'g')],
   ['python-builtin',    new RegExp(`\\b(?:${PY_BUILTINS})\\b`, 'g')],
   ['python-number',     /\b(?:0[xX][\da-fA-F_]+|0[oO][0-7_]+|0[bB][01_]+|\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d+)?)\b/g],
-  ['python-operator',   /->|:=|==|!=|<=|>=|\*\*|\/\/|<<|>>|[+\-*\/%@<>=&|^~]/g],
+  ['python-operator',   /->|:=|==|!=|<=|>=|\*\*|\/\/|<<|>>|[+\-*\/%<>=&|^~]/g],
   ['python-punctuation', /[{}()[\],;]/g],
 ];
 
@@ -239,8 +245,13 @@ function highlightAll(root = document) {
   }
 }
 
+// Expose for dynamically-rendered content (the docs render after DOMContentLoaded).
+if (typeof window !== 'undefined') window.highlightAll = highlightAll;
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => highlightAll());
 } else {
   highlightAll();
 }
+
+}  // end idempotent load guard
