@@ -1,0 +1,33 @@
+# system.css
+
+> A single small CSS file that dresses plain, mostly class-free HTML as a complete design system. It is unusual in two ways worth understanding before reading the rest: color is expressed as a **signed position on two axes** (not named colors), and **type drives everything** (sizing, spacing, and control heights are all derived from one per-element step). Bare native elements — `<button>`, `<table>`, `<details>`, `<label>` in a `<form>` — are already components.
+
+This file documents the system for automated tools and assistants. The authoritative, heavily-commented source is `system.css` itself.
+
+## Core concepts
+
+- **Color is a position, not a palette.** Every element declares `--bg` (its surface) and `--fg` (its ink) as signed numbers, roughly -1…+1. `--bg: 0` is the base surface; negative recedes toward the floor (darker in light theme / deeper in dark), positive advances toward the chromatic peak. `--fg` negative is neutral ink (more negative = higher contrast, capped near 96% lightness, never pure white), positive is chromatic ink. The engine resolves actual OKLCH lightness/chroma against whatever surface an element lands on, in whatever theme and hue are live — so contrast stays correct automatically. `--hue` (0–360) sets the family; there are no hard-coded colors.
+- **Type is the system.** One per-element step, `--type` (h1≈5 … body=0 … small=-1 … micro=-2), drives font-size (fluid, one modular ratio interpolated between a phone and a desktop base), line-height, letter-spacing, and optical weight. Spacing is a fraction of the line (`calc(0.25 * 1lh)`) and control padding is in `em`, so layouts breathe with the type. A single shared control height (`--_control-h`, resolved per control from its own unfloored size) keeps buttons, inputs, selects, and avatars the exact same height at any `--type`.
+- **Layered architecture.** Rules live in explicit `@layer`s (reset → styleAPI → classAPI.* → project), so specificity never fights; utilities and theme islands just win by layer order.
+- **Themes & config.** `data-ui-theme="light|dark"` (or `.light`/`.dark` islands) swaps the color bank; `data-ui-size="sm|md|lg|xl"` reconfigures the type scale; `data-ui-motion="off|on|debug"` scales every transition via `--cfg-motion`. Key config tokens: `--cfg-radius`, `--cfg-ratio`, `--hue`, and the `--lt-*`/`--dk-*` bank sources.
+
+## Components & utilities
+
+- **Buttons:** bare `<button>`; `.pri` (solid) / `.sec` (frosted glass) emphasis; `.btn` puts the same treatment on an `<a href>` for real link semantics; `.btn-touch` for 44px targets; `.button-group` for connected toggles. State rides real ARIA (`aria-pressed`, `aria-current`).
+- **Surfaces:** `.card` / `.Card` (brighter border) / `.surface` / `.Surface`; semantic tints `.suc .inf .wrn .dgr`.
+- **Layout helpers:** `.page` app shell, `.row` / `.column` / `.spread` / `.flank`, `.grid` / `.stack` / `.track`; responsive utilities `.mobile/.tablet/.desktop` (viewport) and `.small/.medium/.large` (container) and `.fine/.coarse` (pointer).
+- **Overlays:** `.drawer`, `.modal`, `.menu`, `.hud`; disclosure via native `<details>`; tabs via `.tabs-underline`; nav via `.nav-item` / `.nav-icon`; plus tables, forms/fieldsets, avatars, tags, alerts, progress/meter/range, blockquote, and FABs (`.fab-1/2/3`).
+- **View transitions:** motion helpers over the View Transitions API — set `data-vt="fade|slide-left|slide-right|scale"` on `<html>` before `document.startViewTransition(update)`; duration is `--cfg-motion`-gated.
+
+## Usage
+
+```html
+<link rel="stylesheet" href="system.css">
+<html data-ui-theme="dark" data-ui-size="md" data-ui-motion="on" style="--hue: 258">
+```
+Then write plain semantic HTML; theme per element with `--bg` / `--fg` / `--hue` / `--type`.
+
+## Docs (this site)
+
+- The docs are a single shell (`index.html`) that loads section documents at runtime: `section-type` (type & control heights), `section-color` (the color engine), `section-layers`, `section-layout`, `section-components`, `section-transitions`, `section-demos`. Full standalone demos: `demo-dashboard`, `demo-calendar`, `demo-marketing`.
+- Serve over http(s); it uses `fetch` for its sections, so `file://` will not load them.

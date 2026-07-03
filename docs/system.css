@@ -101,7 +101,7 @@
   :where(textarea) { resize: vertical; }
   :where(fieldset) { margin: 0; padding: 0; border: 0; min-inline-size: 0; }  /* min-inline-size:0 → flex children can shrink */
   :where(legend) { padding: 0; }
-  :where(button, [role="button"], label, summary, input[type="file"]::file-selector-button) { cursor: pointer; }
+  :where(button, [role="button"], label, summary, input[type="file"]::file-selector-button, .btn) { cursor: pointer; }
   :where(:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
   :where(a) { color: inherit; text-decoration: none; }
   :where(ul, ol):where([role="list"]) { list-style: none; padding: 0; }
@@ -169,7 +169,7 @@
   [data-ui-theme], .light, .dark { background-color: var(--_bg); --surf-l: var(--_bg-l); --surf-bg: var(--bg); }
 
   /* interactive elements are state islands; reset, then own pointer state */
-  :where(button, a, [role="button"], summary, .clickable, .hoverable):not([disabled]):not([aria-disabled="true"]) {
+  :where(button, a, [role="button"], summary, .clickable, .hoverable, .btn):not([disabled]):not([aria-disabled="true"]) {
     --state: 0;
     &:hover  { --state: var(--st-hover); }
     &:active { --state: calc(-2 * var(--st-hover)); }
@@ -381,7 +381,7 @@
     --c-tint: 0.03;
     --surf-l: var(--_bg-l);
     --lt-l-base: 98%; --lt-l-floor: 85%; --lt-l-color: 50%; --lt-c-peak: 0.08; --lt-surf-curve: 1; --lt-st-neut: 1;
-    --dk-l-base: 24%; --dk-l-floor: 6%;  --dk-l-color: 69%; --dk-c-peak: 0.07; --dk-surf-curve: 3; --dk-st-neut: 3;
+    --dk-l-base: 13%; --dk-l-floor: 4%;  --dk-l-color: 70%; --dk-c-peak: 0.13; --dk-surf-curve: 3; --dk-st-neut: 3;
     --l-base: var(--lt-l-base); --l-floor: var(--lt-l-floor); --l-color: var(--lt-l-color); --c-peak: var(--lt-c-peak); --surf-curve: var(--lt-surf-curve); --st-neut: var(--lt-st-neut);
     --fg-flip: var(--lt-fg-flip, 60%);   /* contrast-flip point — bank-sourced (--lt-/--dk-fg-flip), default 60% in both banks */
 
@@ -397,7 +397,7 @@
     --cfg-wght-base: 400; --cfg-wght-step: 90; --cfg-wght-max: 850;
 
     /* geometry & fonts */
-    --cfg-radius: 6px;                                  /* 0 sharp … ~16px soft; 4–10 typical */
+    --cfg-radius: 9px;                                  /* 0 sharp … ~16px soft; 4–10 typical */
 
     /* semantic hues — one home; .suc/.inf/.wrn/.dgr helpers + state rules consume these */
     --hue-suc: 145;   /* success */
@@ -806,8 +806,15 @@
      Shared height: a button locks its block-size to --_control-h (the ONE control height,
      resolved per --type), so button / field / select / avatar all match exactly at every step.
      Width still hugs content; min- (not fixed) lets .btn-touch raise it and long labels grow.
-     Finger targets are opt-in via .btn-touch. */
-  :where(button) {
+     Finger targets are opt-in via .btn-touch.
+
+     .btn — the same recipe on a non-<button>. Put it on an <a href> (or any
+     element) to get the full button surface, ink, height and shapes with real
+     link semantics (middle-click, open-in-new-tab, right-click copy). It joins
+     every rule below via :where(button, .btn); hover/active come free on <a>
+     (a is a state island already) — on a non-anchor add .clickable for state. */
+  :where(button, .btn) {
+    text-decoration: none;                           /* .btn on an <a>: drop the underline */
     --lift: 0.2;                                     /* the default's ONLY surface decision: a relative step above the host — no pinned --bg, so a button keeps its contrast on any surface. .pri/.sec opt out and pin an absolute --bg. */
     --fg: var(--_sem-ink, -0.85);                    /* resting ink; a semantic lock flips --_sem-ink to 1, committing the ink to the chroma pole */
     display: inline-flex; align-items: center; justify-content: center;
@@ -830,14 +837,14 @@
      the HOST's --surf-l so its label contrasts what shows through, not its own
      faint fill. (.pri is :not(.sec), so it paints here and re-targets ink to
      its loud surface — that's how the label goes light.) */
-  :where(button):not(.sec) { background-color: var(--_bg); --surf-l: var(--_bg-l); }
+  :where(button, .btn):not(.sec) { background-color: var(--_bg); --surf-l: var(--_bg-l); }
 
   @media (pointer: coarse) {
     /* Buttons never trigger iOS focus-zoom — you don't type in them — so they
        take NO 16px font floor. Flooring an lh-sized box is exactly what bloated
        them; without it they size from the base type scale (now ~16px at md, so
        already touch-comfortable). The glyph just steps up to match the nav dock. */
-    :where(button) > svg { inline-size: 1.25em; block-size: 1.25em; }
+    :where(button, .btn) > svg { inline-size: 1.25em; block-size: 1.25em; }
   }
 
 
@@ -845,21 +852,21 @@
      rides real ARIA). Mirrors the nav-item/nav-icon live paint. Covers filter
      toggles, mute/bold/pin buttons, etc. The "live in a set" accent (no ARIA
      home) is data-ui-state="on" — defined once in classAPI.utility. */
-  :where(button[aria-pressed="true"]) { --lift: 0.55; --fg: 1; }
+  :where(button[aria-pressed="true"], .btn[aria-pressed="true"]) { --lift: 0.55; --fg: 1; }
 
 
   /* icon-only: an accessible label + svg, no caption → square.
      keyed on [aria-label] because :only-child can't see the text node
      in <button><svg/>label</button>, and an icon-only button needs the
      label anyway. svg + text (no aria-label) falls through to inline. */
-  :where(button[aria-label]:has(> svg):not(:has(> small))) {
+  :where(button[aria-label]:has(> svg):not(:has(> small)), .btn[aria-label]:has(> svg):not(:has(> small))) {
     min-block-size: var(--_control-h); min-inline-size: var(--_control-h); padding: 0; aspect-ratio: 1;
   }
 
   /* dock button: svg + <small> → icon over a tiny caption. Explicit caps on BOTH axes (not
      aspect-ratio, which let the caption bully the width). Icon shrinks and rides the top so a
      real ~12-char label fits below; anything longer ellipsises rather than growing the box. */
-  :where(button:has(> svg):has(> small)) {
+  :where(button:has(> svg):has(> small), .btn:has(> svg):has(> small)) {
     flex-direction: column; justify-content: flex-start; gap: 0.1em;
     inline-size: 6.8em; block-size: 3.4em;             /* the caps — width fits a real ~12ch caption */
     padding: 0.4em 0.3em 0.3em; overflow: hidden;
@@ -874,7 +881,7 @@
      IS the tap target; no invisible hit-slop to silently overlap a neighbour). Reach
      for it in toolbars / nav / app chrome where an icon gets tapped. 44px is the lone
      literal here (WCAG 2.5.5 target); promote to a token if a context needs another. */
-  :where(button).btn-touch {
+  :where(button, .btn).btn-touch {
     min-block-size:  max(44px, var(--_control-h));
     min-inline-size: max(44px, var(--_control-h));
     aspect-ratio: 1; padding: 0;
@@ -2206,7 +2213,7 @@
   /* disabled keeps its drained ink even though components now declare --fg: this 0,1,1
      selector beats the component reads and the .pri/.sec literals. --surface-chroma:0 /
      not-allowed / no-hover already come from the reset + colour layers. */
-  button:disabled, button[aria-disabled="true"] { --fg: -0.3; }
+  button:disabled, button[aria-disabled="true"], .btn[aria-disabled="true"] { --fg: -0.3; }
 
   .pg-banner      { --bg:  0.4; padding: 0.25lh; }
   .pg-header      { --bg: -0.8; padding: 0.25lh; }

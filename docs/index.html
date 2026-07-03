@@ -23,7 +23,7 @@
 </style>
 </helmet>
 
-<div class="page centered" style="--hue: {{ pageHue }}" data-ui-theme="{{ pageTheme }}" data-ui-size="{{ pageSize }}" data-ui-skin="{{ pageSkin }}" data-ui-motion="{{ pageMotion }}">
+<div class="page {{ pageWidthClass }}" style="--hue: {{ pageHue }}" data-ui-theme="{{ pageTheme }}" data-ui-size="{{ pageSize }}" data-ui-skin="{{ pageSkin }}" data-ui-motion="{{ pageMotion }}">
 
   <header class="pg-header spread">
     <div class="brand"><span class="brand-dot"></span> system.css <span class="tag" style="--type:-2">docs</span></div>
@@ -52,6 +52,10 @@
         <button aria-pressed="{{ isMotionOn }}" onClick="{{ goMotionOn }}">On</button>
         <button aria-pressed="{{ isMotionDebug }}" onClick="{{ goMotionDebug }}">Debug</button>
       </div>
+      <div class="button-group" role="group" aria-label="Width">
+        <button aria-pressed="{{ isCentered }}" onClick="{{ goCentered }}">Centered</button>
+        <button aria-pressed="{{ isFull }}" onClick="{{ goFull }}">Full</button>
+      </div>
       <div class="button-group" role="group" aria-label="Theme">
         <button aria-pressed="{{ isLight }}" onClick="{{ goLight }}">Light</button>
         <button aria-pressed="{{ isDark }}" onClick="{{ goDark }}">Dark</button>
@@ -69,6 +73,7 @@
     <a class="nav-item clickable" onClick="{{ go.layers }}" aria-current="{{ ac.layers }}"><span>The layer spine</span></a>
     <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block: 0.4lh 0.2lh">LAYOUT</small>
     <a class="nav-item clickable" onClick="{{ go.layout }}" aria-current="{{ ac.layout }}"><span>Page &amp; helpers</span></a>
+    <a class="nav-item clickable" onClick="{{ go.transitions }}" aria-current="{{ ac.transitions }}"><span>View transitions</span></a>
     <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block: 0.4lh 0.2lh">COMPONENTS</small>
     <a class="nav-item clickable" onClick="{{ go.components }}" aria-current="{{ ac.components }}"><span>Overview</span></a>
     <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block: 0.4lh 0.2lh">DEMOS</small>
@@ -81,6 +86,7 @@
     <sc-if value="{{ isColor }}" hint-placeholder-val="{{ false }}"><dc-import name="section-color" hint-size="100%,100%"></dc-import></sc-if>
     <sc-if value="{{ isLayers }}" hint-placeholder-val="{{ false }}"><dc-import name="section-layers" hint-size="100%,100%"></dc-import></sc-if>
     <sc-if value="{{ isLayout }}" hint-placeholder-val="{{ false }}"><dc-import name="section-layout" hint-size="100%,100%"></dc-import></sc-if>
+    <sc-if value="{{ isTransitions }}" hint-placeholder-val="{{ false }}"><dc-import name="section-transitions" hint-size="100%,100%"></dc-import></sc-if>
     <sc-if value="{{ isComponents }}" hint-placeholder-val="{{ false }}"><dc-import name="section-components" hint-size="100%,100%"></dc-import></sc-if>
     <sc-if value="{{ isDemos }}" hint-placeholder-val="{{ false }}"><dc-import name="section-demos" hint-size="100%,100%"></dc-import></sc-if>
   </main>
@@ -95,7 +101,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { pageHue: 255, pageTheme: "light", pageSize: "md", pageSkin: "", pageMotion: "on", section: "color" };
+  state = { pageHue: 255, pageTheme: "light", pageSize: "md", pageSkin: "", pageMotion: "on", pageWidth: "centered", section: "color" };
 
   files = {
     type: "section-type",
@@ -103,12 +109,13 @@ class Component extends DCLogic {
     color: "section-color",
     layers: "section-layers",
     layout: "section-layout",
+    transitions: "section-transitions",
     components: "section-components",
     demos: "section-demos",
   };
   labels = {
     type: "How type works", controls: "Control heights", color: "The engine",
-    layers: "The layer spine", layout: "Page & helpers", components: "Components", demos: "Full pages",
+    layers: "The layer spine", layout: "Page & helpers", transitions: "View transitions", components: "Components", demos: "Full pages",
   };
 
   // The VT pseudo-elements live on :root (<html>), but the header writes
@@ -128,7 +135,7 @@ class Component extends DCLogic {
     }));
   }
 
-  order = ["type", "controls", "color", "layers", "layout", "components", "demos"];
+  order = ["type", "controls", "color", "layers", "layout", "transitions", "components", "demos"];
 
   go(key) {
     return () => {
@@ -139,17 +146,23 @@ class Component extends DCLogic {
 
   renderVals() {
     const s = this.state.section;
-    const keys = ["type", "controls", "color", "layers", "layout", "components", "demos"];
+    const keys = ["type", "controls", "color", "layers", "layout", "transitions", "components", "demos"];
     const go = {}, ac = {};
     keys.forEach((k) => { go[k] = this.go(k); ac[k] = (s === k ? "page" : "false"); });
     return {
       ...this.state,
       go, ac,
+      pageWidthClass: this.state.pageWidth === "full" ? "" : "centered",
+      isCentered: this.state.pageWidth === "centered",
+      isFull: this.state.pageWidth === "full",
+      goCentered: () => this.vt(() => this.setState({ pageWidth: "centered" }), "fade"),
+      goFull: () => this.vt(() => this.setState({ pageWidth: "full" }), "fade"),
       isType: s === "type",
       isControls: s === "controls",
       isColor: s === "color",
       isLayers: s === "layers",
       isLayout: s === "layout",
+      isTransitions: s === "transitions",
       isComponents: s === "components",
       isDemos: s === "demos",
       sectionFile: this.files[s] || "section-color",

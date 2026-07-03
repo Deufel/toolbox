@@ -37,11 +37,13 @@
       <!-- BUTTON -->
       <section class="comp" id="button">
         <div class="spread" style="align-items:baseline"><h2 style="--type:3">Button</h2><code>&lt;button&gt;</code></div>
-        <p style="--fg:-0.6">Bare <code>&lt;button&gt;</code> is the component; it matches field height at every <code>--type</code>. Emphasis via <code>.pri</code> / <code>.sec</code>; shape auto-detects from content.</p>
+        <p style="--fg:-0.6">Bare <code>&lt;button&gt;</code> is the component; it matches field height at every <code>--type</code>. Emphasis via <code>.pri</code> / <code>.sec</code>; shape auto-detects from content. Need real link semantics (middle-click, open-in-new-tab)? Put <code>.btn</code> on an <code>&lt;a href&gt;</code> — same surface, ink, height and shapes.</p>
         <div class="comp-demo">
           <button>Default</button>
           <button class="pri">Primary</button>
           <button class="sec">Secondary</button>
+          <a class="btn" href="#button">Link as button</a>
+          <a class="btn pri" href="#button">Primary link</a>
           <button aria-label="More"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
           <button aria-pressed="true">Toggle</button>
           <div class="button-group" role="group" aria-label="View">
@@ -55,6 +57,7 @@
             <tbody>
               <tr><td><code>.pri</code></td><td>Primary — full-blast surface + max ink</td></tr>
               <tr><td><code>.sec</code></td><td>Secondary — frosted glass</td></tr>
+              <tr><td><code>.btn</code> on <code>&lt;a&gt;</code></td><td>Button surface with true link semantics</td></tr>
               <tr><td><code>[aria-pressed]</code></td><td>Toggle on/off paint</td></tr>
               <tr><td><code>[aria-label]</code> + <code>svg</code></td><td>Square icon button</td></tr>
               <tr><td><code>.btn-touch</code></td><td>44px finger target</td></tr>
