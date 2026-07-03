@@ -381,7 +381,7 @@
     --c-tint: 0.03;
     --surf-l: var(--_bg-l);
     --lt-l-base: 99%; --lt-l-floor: 80%; --lt-l-color: 50%; --lt-c-peak: 0.14; --lt-surf-curve: 1.05; --lt-st-neut: 1; --lt-neg-chroma: 0.008; --lt-fg-flip: 66%;   /* default = Vivid: punchy, wide light */
-    --dk-l-base: 15%; --dk-l-floor: 2%;  --dk-l-color: 70%; --dk-c-peak: 0.17; --dk-surf-curve: 0.8; --dk-st-neut: 3; --dk-neg-chroma: 0.05; --dk-fg-flip: 92%;   /* default = Vivid: dark neutrals separated by CHROMA (near-black L steps are imperceptible) */
+    --dk-l-base: 22%; --dk-l-floor: 5%;  --dk-l-color: 70%; --dk-c-peak: 0.17; --dk-surf-curve: 0.9; --dk-st-neut: 3; --dk-neg-chroma: 0.05; --dk-fg-flip: 92%;   /* default dark: lifted base + wide range + chroma so EVERY neutral surface step is visible (near-black L steps are not) */
     --l-base: var(--lt-l-base); --l-floor: var(--lt-l-floor); --l-color: var(--lt-l-color); --c-peak: var(--lt-c-peak); --surf-curve: var(--lt-surf-curve); --st-neut: var(--lt-st-neut); --neg-chroma: var(--lt-neg-chroma);
     --fg-flip: var(--lt-fg-flip, 60%);   /* contrast-flip point — bank-sourced (--lt-/--dk-fg-flip), default 60% in both banks */
 
@@ -405,9 +405,9 @@
     --hue-wrn: 75;    /* warning */
     --hue-dgr: 25;    /* danger  */
 
-    --font-ui:      -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    --font-mono:    ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --font-ui:      "Hanken Grotesk", system-ui, sans-serif;
+    --font-mono:    "Spline Sans Mono", ui-monospace, monospace;
+    --font-display: "Hanken Grotesk", system-ui, sans-serif;
 
     color-scheme: light-dark;
   }

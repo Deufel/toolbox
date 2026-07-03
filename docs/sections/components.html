@@ -83,6 +83,50 @@
         </div>
       </section>
 
+      <!-- CODE -->
+      <section class="comp" id="code">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Code</h2><code>&lt;code&gt; · &lt;pre&gt;</code></div>
+        <p style="--fg:-0.6">Inline <code>&lt;code&gt;</code> is a quiet monospace chip; <code>&lt;pre&gt;&lt;code&gt;</code> is the full listing (syntax-highlit by the docs' highlight pass). Both paint from the engine surface, so they tint with the theme.</p>
+        <div class="comp-demo" style="flex-direction:column; align-items:stretch; gap:0.6lh">
+          <p style="--fg:-0.7">Give a panel a surface with <code>--bg</code> and ink with <code>--fg</code>.</p>
+          <pre><code class="css">.panel { --bg: -0.3; }
+:where(.tag) { --bg: 0.16; --fg: var(--_sem-ink, -0.85); }</code></pre>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>element</th><th>use</th></tr></thead>
+            <tbody>
+              <tr><td><code>&lt;code&gt;</code></td><td>Inline token — quiet mono chip</td></tr>
+              <tr><td><code>&lt;pre&gt;&lt;code&gt;</code></td><td>Block listing; <code>class="css/html/js"</code> hints the highlighter</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">Use &lt;code&gt;--bg&lt;/code&gt; inline.
+&lt;pre&gt;&lt;code class="css"&gt;.x { --bg: 0; }&lt;/code&gt;&lt;/pre&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- KBD -->
+      <section class="comp" id="kbd">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Keyboard</h2><code>&lt;kbd&gt;</code></div>
+        <p style="--fg:-0.6">A <code>&lt;kbd&gt;</code> renders a physical keycap — a lifted surface with a hint of depth on its bottom edge. Chain them for combos, or drop one beside a nav item / menu row to advertise its shortcut.</p>
+        <div class="comp-demo">
+          <div class="row" style="gap:0.5em; align-items:center"><kbd>⌘</kbd><kbd>K</kbd><small style="--fg:-0.6">command palette</small></div>
+          <div class="row" style="gap:0.5em; align-items:center"><kbd>Ctrl</kbd>+<kbd>S</kbd><small style="--fg:-0.6">save</small></div>
+          <div class="row" style="gap:0.5em; align-items:center"><kbd>G</kbd><small style="--fg:-0.6">then</small><kbd>D</kbd><small style="--fg:-0.6">go to dashboard</small></div>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>&lt;kbd&gt;</code></td><td>One keycap; a hint of <code>border-block-end</code> depth</td></tr>
+              <tr><td>chained</td><td>Combos — <code>⌘</code> <code>K</code>, or “G then D” sequences</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;kbd&gt;⌘&lt;/kbd&gt;&lt;kbd&gt;K&lt;/kbd&gt;
+&lt;a class="nav-item"&gt;…&lt;span&gt;Search&lt;/span&gt;&lt;kbd&gt;/&lt;/kbd&gt;&lt;/a&gt;</code></pre>
+        </div>
+      </section>
+
       <!-- ALERT -->
       <section class="comp" id="alert">
         <div class="spread" style="align-items:baseline"><h2 style="--type:3">Alert</h2><code>.alert</code></div>
@@ -396,9 +440,9 @@
         <p style="--fg:-0.6">Two shapes on an <code>&lt;a&gt;</code> or <code>&lt;button&gt;</code>: an inline row (icon · label · trailing tag) and a square icon-over-caption. State rides ARIA — <code>aria-current="page"</code> or <code>aria-pressed</code>.</p>
         <div class="comp-demo" style="gap:1em">
           <div class="column" style="gap:0.1lh; inline-size:14em; --bg:0; padding:0.3lh; border:1px solid var(--border); border-radius:var(--cfg-radius)">
-            <a class="nav-item" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></a>
+            <a class="nav-item" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span><kbd style="margin-inline-start:auto">D</kbd></a>
             <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.5 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.5"/></svg><span>Inbox</span><span class="tag">12</span></a>
-            <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.9 1.5V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9"/></svg><span>Settings</span></a>
+            <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.9 1.5V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9"/></svg><span>Settings</span><kbd style="margin-inline-start:auto">S</kbd></a>
           </div>
           <div class="row" style="gap:0.4em; --bg:0; padding:0.3lh; border:1px solid var(--border); border-radius:var(--cfg-radius); align-self:start">
             <a class="nav-icon" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><small>Home</small></a>

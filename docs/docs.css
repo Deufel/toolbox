@@ -64,7 +64,7 @@ body { margin: 0; }
 .rampbar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; border-radius: 7px; overflow: hidden; border: 1px solid var(--border); }
 .rc { padding: 0.4lh 0.1em; display: flex; flex-direction: column; align-items: stretch; gap: 0.15lh; min-inline-size: 0; }
 .fgrow { display: flex; justify-content: center; gap: 0.2em; }
-.fgrow span { --type: -2; font-weight: 700; line-height: 1.1; }
+.fgrow span { --type: -1; line-height: 1.1; }
 .tpanel { padding: 0.6lh 0.7em; border-radius: var(--cfg-radius); display: flex; flex-direction: column; gap: 0.5lh; }
 .tmini { padding: 0.35lh; border-radius: 8px; display: flex; flex-direction: column; gap: 0.25lh; }
 .tmini > div { padding: 0.2lh 0.5em; border-radius: 6px; font-family: var(--font-mono); --type: -1; }
