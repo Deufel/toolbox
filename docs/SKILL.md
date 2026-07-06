@@ -109,7 +109,7 @@ State rides ARIA — do not invent state classes.
 | `.suc .inf .wrn .dgr` | success · info · warning · danger — hue-locked, immune to `--hue-shift`. |
 | `[aria-pressed="true"]` | Toggle on (button / nav). |
 | `[aria-current="page"]` | Current destination. |
-| `data-ui-state="on" / "off"` | Server-rendered "live in a set" accent / greyed. |
+| `data-ui-state="on" / "off"` | Live-in-a-set accent / greyed. General — any element: `off` desaturates + dims a whole region (`.tag` keeps its own recipe). |
 | `[aria-invalid]` `[required]` `[disabled]` | Field danger · asterisk · drained. |
 
 ## Layout

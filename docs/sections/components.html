@@ -48,7 +48,7 @@
       <!-- TAG -->
       <section class="comp" id="tag">
         <div class="spread" style="align-items:baseline"><h2 style="--type:3">Tag</h2><code>.tag</code></div>
-        <p style="--fg:-0.6">A dense label at <code>--type:-2</code> (updated). Semantic hues + a server-rendered state; optional leading/trailing <code>svg</code>.</p>
+        <p style="--fg:-0.6">A dense label at <code>--type:-2</code> (updated). Semantic hues + a server-rendered state; optional leading/trailing <code>svg</code>. The <code>data-ui-state</code> accents shown here are <em>general</em> — see the note below.</p>
         <div class="comp-demo">
           <span class="tag">Default</span>
           <span class="tag suc" data-ui-state="on">Live</span>
@@ -80,6 +80,9 @@
           <pre><code class="html">&lt;span class="tag"&gt;Label&lt;/span&gt;
 &lt;span class="tag suc" data-ui-state="on"&gt;Live&lt;/span&gt;
 &lt;span class="tag" data-ui-state="off"&gt;Offline&lt;/span&gt;</code></pre>
+        </div>
+        <div class="note" style="--bg:-0.4; padding:0.5lh 0.8em; border-radius:var(--radius); margin-block-start:0.4lh">
+          <p style="--fg:-0.6; --type:-1"><strong style="--fg:0.2">Generalized (recent).</strong> <code>data-ui-state="on"/"off"</code> are no longer tag-only — they now apply to <em>any</em> element. <code>on</code> paints the focus-ring accent (a live-in-a-set marker); <code>off</code> desaturates <em>and</em> dims (<code>grayscale(1) opacity(0.5)</code>) so a whole region can recede while its neighbours stay lit. <code>.tag</code> keeps its own bespoke <code>off</code> recipe (neutral fill, no filter). Drive both from one server signal to build a “spotlight” edit mode — mark editable regions <code>on</code>, everything else <code>off</code>. Note a CSS <code>filter</code> traps its subtree, so tag each sibling region rather than filtering one shared ancestor.</p>
         </div>
       </section>
 
@@ -407,7 +410,7 @@
       <!-- TABLE -->
       <section class="comp" id="table">
         <div class="spread" style="align-items:baseline"><h2 style="--type:3">Table</h2><code>&lt;table&gt;</code></div>
-        <p style="--fg:-0.6">Bare <code>&lt;table&gt;</code> — booktabs aesthetic: no body rules, two vibrant lines (under head, at foot). Add <code>.num</code> to numeric cells. Every API table on this page is one.</p>
+        <p style="--fg:-0.6">Bare <code>&lt;table&gt;</code> — booktabs aesthetic: no body rules, two vibrant lines (under head, at foot). Add <code>.num</code> to numeric cells. Cells default to <code>--type:-1</code> — the table owns its density, so you never set type per-cell. Every API table on this page is one.</p>
         <div class="comp-demo" style="align-items:stretch">
           <table style="flex:1 1 100%">
             <caption>Benchmark accuracy</caption>
@@ -425,6 +428,7 @@
               <tr><td><code>.num</code></td><td>Right-align + tabular figures</td></tr>
               <tr><td><code>&lt;caption&gt;</code></td><td>Small figure label above</td></tr>
               <tr><td><code>.table-scroll</code></td><td>Height-capped viewport, sticky head</td></tr>
+              <tr><td><code>--table-type</code></td><td>Shifts the whole table's density (default <code>-1</code>); inherits to cells — no per-cell type</td></tr>
             </tbody>
           </table>
           <pre><code class="html">&lt;table&gt;
