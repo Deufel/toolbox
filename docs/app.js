@@ -96,9 +96,6 @@ function remeasure() { measureType(); measureControls(); }
 // badge it. The display guard must collapse every one to `none`, whatever layout
 // classes it carries — otherwise the invisible closed panel overlays its trigger.
 function checkPopovers() {
-  document.querySelectorAll('[popover].menu').forEach((pop) => {
-    if (!pop.__plWired) { pop.__plWired = true; pop.addEventListener('toggle', () => setTimeout(checkPopovers, 30)); }
-  });
   document.querySelectorAll('[data-pop-check]').forEach((badge) => {
     const pop = document.getElementById(badge.getAttribute('data-pop-check'));
     if (!pop) return;
