@@ -82,6 +82,7 @@ function afterNav(section) {
     if (section === 'controls') measureControls();
     if (section === 'color') readColor();
     if (section === 'themes') measureThemes();
+    if (section === 'popover-lab') checkPopovers();
   };
   requestAnimationFrame(run);
   [120, 400].forEach((d) => setTimeout(run, d));
@@ -91,9 +92,26 @@ function afterNav(section) {
 // Re-measure when the density switch (S/M/L) changes the live scale.
 function remeasure() { measureType(); measureControls(); }
 
+// Popover composition lab: read each .menu[popover]'s CLOSED computed display and
+// badge it. The display guard must collapse every one to `none`, whatever layout
+// classes it carries — otherwise the invisible closed panel overlays its trigger.
+function checkPopovers() {
+  document.querySelectorAll('[popover].menu').forEach((pop) => {
+    if (!pop.__plWired) { pop.__plWired = true; pop.addEventListener('toggle', () => setTimeout(checkPopovers, 30)); }
+  });
+  document.querySelectorAll('[data-pop-check]').forEach((badge) => {
+    const pop = document.getElementById(badge.getAttribute('data-pop-check'));
+    if (!pop) return;
+    const disp = getComputedStyle(pop).display;
+    if (pop.matches(':popover-open')) { badge.textContent = 'open · ' + disp; badge.className = 'tag inf'; }
+    else { const ok = disp === 'none'; badge.textContent = 'closed · ' + disp + (ok ? ' ✓' : ' ✗'); badge.className = 'tag ' + (ok ? 'suc' : 'dgr'); }
+  });
+}
+
 window.measureType = measureType;
 window.measureControls = measureControls;
 window.readColor = readColor;
 window.measureThemes = measureThemes;
+window.checkPopovers = checkPopovers;
 window.afterNav = afterNav;
 window.remeasure = remeasure;
