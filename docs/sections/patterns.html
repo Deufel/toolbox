@@ -1,0 +1,210 @@
+<main class="pg-main" id="main" data-init="afterNav('patterns')">
+<div class="doc">
+
+      <header class="column" style="gap: 0.4lh; padding-block-end: 0.4lh">
+        <span class="tag inf" style="align-self:start">patterns</span>
+        <h1 style="--type: 6">Patterns</h1>
+        <p style="--type:1; --fg:-0.7; max-inline-size: 54ch">Compositions of the primitives — no new CSS, no new class. Each is bare elements arranged by the rules already shown; reach for these before hand-rolling layout.</p>
+      </header>
+
+      <!-- MODAL FORM -->
+      <section class="comp" id="modal-form">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Modal form</h2><code>&lt;form popover class="menu"&gt;</code></div>
+        <p style="--fg:-0.6; max-inline-size:66ch">The <code>&lt;form&gt;</code> itself is the popover — <code>.menu.glass</code>, no wrapper. A <code>.spread</code> title-and-close header, fields on the form, and a single-row <code>&lt;fieldset&gt;</code> footer. Radio <code>.tabs</code> bound to a Datastar signal swap the field groups and the primary's label follows the mode — <strong>try the tabs</strong>:</p>
+
+        <div class="comp-demo" style="align-items:stretch">
+          <!-- live: the glass form rendered in flow so the frost reads over the copy behind -->
+          <div class="bg" style="--bg:-0.3; position:relative; overflow:hidden; flex:1 1 100%; border-radius:var(--cfg-radius); padding:1.1lh 0.9em; display:flex; justify-content:center">
+            <div aria-hidden="true" class="column" style="position:absolute; inset:0; padding:0.7lh 0.9em; gap:0.3lh; --fg:-0.8; pointer-events:none">
+              <div style="--type:3; --fg:-0.7">Fall Community Cleanup</div>
+              <div style="--type:0">Sat, Oct 18 · 9:00 AM – 1:00 PM · Riverside Park</div>
+              <div style="--type:-0.5; max-inline-size:34em">Volunteers gather at the north pavilion. Gloves and bags provided. Bring water and sturdy shoes; sign-in opens at 8:30 AM near the main lot.</div>
+            </div>
+
+            <form class="menu glass column" data-signals="{mode: 'create'}" data-on:submit__prevent="void 0"
+                  style="position:static; opacity:1; translate:none; margin:0; inline-size:26rem; max-inline-size:100%; padding:0.45lh 0.55em; gap:0.5lh; --glass-alpha:0.7; --glass-blur:0.9lh; --bg:0.06">
+
+              <!-- header: title + close -->
+              <div class="spread" style="align-items:center">
+                <h3 style="--type:2; margin:0">Organization</h3>
+                <button type="button" aria-label="Close" class="sec" style="--bg:0.04">
+                  <svg viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+              </div>
+
+              <!-- tabs bound to $mode -->
+              <div role="group" class="tabs" aria-label="Organization mode" style="align-self:stretch">
+                <label><input type="radio" name="mode" value="link" data-bind="mode"><span>Link existing</span></label>
+                <label><input type="radio" name="mode" value="create" data-bind="mode"><span>Create new</span></label>
+              </div>
+
+              <!-- LINK fields -->
+              <div class="column" style="gap:0.5lh; display:none" data-show="$mode === 'link'">
+                <label><span>Existing organization</span><small></small>
+                  <select><option>— None —</option><option>City of DeKalb</option><option>Riverside Coalition</option></select>
+                </label>
+              </div>
+
+              <!-- CREATE fields -->
+              <div class="column" style="gap:0.5lh" data-show="$mode === 'create'">
+                <fieldset>
+                  <label style="--row-width:2"><span>Name</span><small></small><input placeholder="Northside Athletics"></label>
+                  <label style="--row-width:2"><span>Website</span><small></small><input placeholder="example.gov"></label>
+                  <label style="--row-width:3"><span>Description</span><small></small><input placeholder="Short summary"></label>
+                </fieldset>
+                <fieldset>
+                  <label style="--row-width:3"><span>Address</span><small></small><input placeholder="1600 Amphitheatre Pkwy"></label>
+                  <label style="--row-width:2"><span>City</span><small></small><input placeholder="Mountain View"></label>
+                  <label><span>State</span><small></small><input placeholder="CA"></label>
+                  <label style="--row-width:2"><span>ZIP</span><small></small><input placeholder="94043"></label>
+                </fieldset>
+              </div>
+
+              <!-- footer: one row; primary label follows the mode -->
+              <fieldset>
+                <button type="button" class="sec">Cancel</button>
+                <button type="submit" class="pri suc" data-text="$mode === 'link' ? 'Link' : 'Create &amp; link'">Create &amp; link</button>
+              </fieldset>
+
+            </form>
+          </div>
+        </div>
+
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>part</th><th>rule</th></tr></thead>
+            <tbody>
+              <tr><td>shell</td><td><code>&lt;form popover class="menu glass"&gt;</code> — the form <em>is</em> the popover</td></tr>
+              <tr><td>header</td><td><code>.spread</code> — <code>&lt;h3&gt;</code> title left, close right</td></tr>
+              <tr><td>close</td><td><code>&lt;button type="button" aria-label="Close"&gt;</code> + X (won't submit)</td></tr>
+              <tr><td>body</td><td>fields on the form; pack dense rows with <code>&lt;fieldset&gt;</code> + <code>--row-width</code></td></tr>
+              <tr><td>tabs</td><td><code>data-bind</code> radios + <code>data-show</code> field groups (never nested <code>&lt;form&gt;</code>)</td></tr>
+              <tr><td>footer</td><td>one <code>&lt;fieldset&gt;</code> → every action on a single row</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;button popovertarget="m"&gt;Add&lt;/button&gt;
+
+&lt;!-- the form IS the popover — no wrapper --&gt;
+&lt;form id="m" popover class="menu glass column"
+      style="padding:0.45lh 0.55em"
+      data-signals="{mode: 'create'}"&gt;
+
+  &lt;div class="spread"&gt;
+    &lt;h3&gt;Organization&lt;/h3&gt;
+    &lt;button type="button" aria-label="Close" class="sec"
+            popovertarget="m" popovertargetaction="hide"&gt;&lt;svg&gt;…&lt;/svg&gt;&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;div role="group" class="tabs" aria-label="Organization mode"&gt;
+    &lt;label&gt;&lt;input type="radio" name="mode" value="link"   data-bind="mode"&gt;&lt;span&gt;Link existing&lt;/span&gt;&lt;/label&gt;
+    &lt;label&gt;&lt;input type="radio" name="mode" value="create" data-bind="mode"&gt;&lt;span&gt;Create new&lt;/span&gt;&lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div data-show="$mode === 'create'"&gt;              &lt;!-- toggle divs, not forms --&gt;
+    &lt;fieldset&gt;
+      &lt;label style="--row-width:2"&gt;&lt;span&gt;Name&lt;/span&gt;…&lt;input&gt;&lt;/label&gt;
+      &lt;label style="--row-width:2"&gt;&lt;span&gt;Website&lt;/span&gt;…&lt;input&gt;&lt;/label&gt;
+    &lt;/fieldset&gt;
+  &lt;/div&gt;
+
+  &lt;fieldset&gt;                                       &lt;!-- footer: all actions, one row --&gt;
+    &lt;button type="button" class="sec"
+            popovertarget="m" popovertargetaction="hide"&gt;Cancel&lt;/button&gt;
+    &lt;button type="submit" class="pri suc"
+            data-text="$mode === 'link' ? 'Link' : 'Create &amp;amp; link'"&gt;&lt;/button&gt;
+  &lt;/fieldset&gt;
+
+&lt;/form&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- HEADER RULE -->
+      <section class="comp" id="modal-header">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Header — <code>.spread</code>, not <code>.split</code></h2><code>title · close</code></div>
+        <p style="--fg:-0.6; max-inline-size:66ch"><code>.spread</code> keeps both children their natural size and pushes them to the edges — the title hugs the left, the close button stays square on the right. <code>.split</code> forces two equal halves, stretching the icon button into a giant block.</p>
+        <div class="comp-demo" style="align-items:stretch">
+          <div class="column" style="flex:1 1 20em; gap:0.2lh">
+            <small class="suc" style="--fg:1">✓ good — .spread</small>
+            <div class="card" style="padding:0.5lh 0.7em">
+              <div class="spread" style="align-items:center">
+                <h3 style="--type:2; margin:0">Organization</h3>
+                <button aria-label="Close" class="sec" style="--bg:0.04"><svg viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+              </div>
+            </div>
+          </div>
+          <div class="column" style="flex:1 1 20em; gap:0.2lh">
+            <small class="dgr" style="--fg:1">✗ .split stretches the button</small>
+            <div class="card" style="padding:0.5lh 0.7em">
+              <div class="split" style="align-items:center">
+                <h3 style="--type:2; margin:0">Organization</h3>
+                <button aria-label="Close" class="sec" style="--bg:0.04"><svg viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>class</th><th>effect</th></tr></thead>
+            <tbody>
+              <tr><td><code>.spread</code></td><td>Space-between; children keep natural width ✓</td></tr>
+              <tr><td><code>.split</code></td><td>Two equal halves — stretches the icon button ✗</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;div class="spread"&gt;
+  &lt;h3&gt;Organization&lt;/h3&gt;
+  &lt;button aria-label="Close" class="sec"&gt;&lt;svg&gt;…&lt;/svg&gt;&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- FOOTER RULE -->
+      <section class="comp" id="modal-footer">
+        <div class="spread" style="align-items:baseline"><h2 style="--type:3">Footer — one row</h2><code>&lt;fieldset&gt;</code></div>
+        <p style="--fg:-0.6; max-inline-size:66ch">Wrap every action in a single <code>&lt;fieldset&gt;</code>: the fields row rule puts them side by side, each taking an equal <code>--row-width</code> share. One compact row keeps the whole form visible — no full-width button stack pushing content off small screens. Weight the primary wider with <code>--row-width</code>.</p>
+        <div class="comp-demo" style="flex-direction:column; align-items:stretch">
+          <div class="bg" style="--bg:-0.3; border-radius:var(--cfg-radius); padding:0.9lh 0.9em; display:flex; flex-direction:column; gap:0.7lh">
+            <fieldset style="inline-size:100%">
+              <button type="button" class="sec">Cancel</button>
+              <button type="button" class="pri suc">Save</button>
+            </fieldset>
+            <fieldset style="inline-size:100%">
+              <button type="button" class="sec">Back</button>
+              <button type="button">Skip</button>
+              <button type="button" class="pri suc">Continue</button>
+            </fieldset>
+            <fieldset style="inline-size:100%">
+              <button type="button" class="sec" style="--row-width:1">Cancel</button>
+              <button type="button" class="pri suc" style="--row-width:2">Create &amp; link</button>
+            </fieldset>
+          </div>
+        </div>
+        <div class="comp-grid">
+          <table>
+            <thead><tr><th>token</th><th>effect</th></tr></thead>
+            <tbody>
+              <tr><td><code>&lt;fieldset&gt;</code></td><td>All buttons onto one wrapping row</td></tr>
+              <tr><td><code>--row-width</code></td><td>A button's share of the row (default 1 = equal)</td></tr>
+              <tr><td>order</td><td>Secondary first, primary last (right)</td></tr>
+            </tbody>
+          </table>
+          <pre><code class="html">&lt;!-- equal split --&gt;
+&lt;fieldset&gt;
+  &lt;button type="button" class="sec"&gt;Cancel&lt;/button&gt;
+  &lt;button type="submit" class="pri suc"&gt;Save&lt;/button&gt;
+&lt;/fieldset&gt;
+
+&lt;!-- primary weighted wider --&gt;
+&lt;fieldset&gt;
+  &lt;button class="sec" style="--row-width:1"&gt;Cancel&lt;/button&gt;
+  &lt;button class="pri suc" style="--row-width:2"&gt;Create &amp;amp; link&lt;/button&gt;
+&lt;/fieldset&gt;</code></pre>
+        </div>
+      </section>
+
+      <footer class="column" style="gap:0.3lh; --fg:-0.6; padding-block-start:0.6lh">
+        <hr>
+        <p style="--type:-0.5">The shell is interchangeable — put <code>popover</code> on the form to anchor it under a trigger, or make it a <code>&lt;dialog class="modal"&gt;</code> to center on a scrim; <code>.glass</code> is optional either way. The <strong>title + close</strong> header and <strong>single-row footer</strong> stay constant.</p>
+      </footer>
+
+</div>
+</main>
