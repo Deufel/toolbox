@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"
-  data-signals="{hue: 255, theme: 'light', size: 'md', skin: '', motion: 'on', width: 'centered', color: '2', radius: '', font: '', invert: '', section: 'type'}"
+  data-signals="{hue: 255, theme: 'light', size: 'md', skin: '', motion: 'on', width: 'centered', color: '2', radius: '', font: '', invert: '', section: 'type', zoom: 100}"
   data-attr:data-ui-theme="$theme"
   data-attr:data-ui-size="$size"
   data-attr:data-ui-skin="$skin"
@@ -25,9 +25,9 @@
 </head>
 <body>
 
-<div class="page" data-class:centered="$width === 'centered'">
+<div class="page" data-class:centered="$width === 'centered'" data-style="{'--scale': $zoom / 100}">
 
-  <header class="pg-header spread">
+  <header class="pg-header spread" style="--scale:1">
     <div class="brand"><span class="brand-dot"></span> system.css <span class="tag" style="--type:-2">docs</span></div>
     <div class="row" style="gap: 0.7em">
       <div class="row" style="gap: 0.35em">
@@ -48,6 +48,11 @@
         <button data-attr:aria-pressed="$size === 'md' ? 'true' : 'false'" data-on:click="$size = 'md'">M</button>
         <button data-attr:aria-pressed="$size === 'lg' ? 'true' : 'false'" data-on:click="$size = 'lg'">L</button>
       </div>
+      <div class="button-group" role="group" aria-label="Zoom">
+        <button aria-label="Zoom out" data-on:click="$zoom = Math.max(50, $zoom - 10)">−</button>
+        <button data-on:click="$zoom = 100" data-text="$zoom + '%'" style="min-inline-size:3.6em"></button>
+        <button aria-label="Zoom in" data-on:click="$zoom = Math.min(200, $zoom + 10)">+</button>
+      </div>
       <div class="button-group" role="group" aria-label="Motion">
         <button data-attr:aria-pressed="$motion === 'off' ? 'true' : 'false'" data-on:click="$motion = 'off'">Off</button>
         <button data-attr:aria-pressed="$motion === 'on' ? 'true' : 'false'" data-on:click="$motion = 'on'">On</button>
@@ -64,7 +69,7 @@
     </div>
   </header>
 
-  <nav class="pg-navigation column" style="gap: 0.1lh; padding: 0.4lh 0.35em">
+  <nav class="pg-navigation column" style="gap: 0.1lh; padding: 0.4lh 0.35em; --scale:1">
     <small style="--fg:-0.55; --type:-2; padding-inline:0.6em; margin-block-end:0.2lh">TYPE</small>
     <a class="nav-item clickable" data-attr:aria-current="$section === 'type' ? 'page' : 'false'" data-on:click="$section = 'type'; @get('sections/type.html')"><span>How type works</span></a>
     <a class="nav-item clickable" data-attr:aria-current="$section === 'controls' ? 'page' : 'false'" data-on:click="$section = 'controls'; @get('sections/controls.html')"><span>Control heights</span></a>

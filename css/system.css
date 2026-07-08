@@ -2192,6 +2192,15 @@
    wins — don't set display inline on a gated element.)
    ════════════════════════════════════════════════════════════════════ */
 @layer classAPI.media{
+  /* Popover display is the browser's job (UA: [popover]:not(:popover-open){display:none}),
+     but author CSS beats the UA sheet, so .menu's own display:flex — or a layout class
+     like .column/.row stacked on it — overrides that and leaves the CLOSED panel laid
+     out, where it can sit over its trigger and eat the opening click. Re-assert the
+     collapse here in the last layer: one central guard that wins over the layout layer,
+     so popovers can carry any composition class without per-class guards or a bare-wrapper
+     rule. Scoped to [popover] so in-flow .menu specimens are untouched. */
+  :where(.menu[popover]):not(:popover-open) { display: none }
+
   .mobile, .tablet, .desktop           { display: none }
   @media (width < 768px)               { .mobile  { display: revert-layer } }
   @media (768px <= width < 1024px)     { .tablet  { display: revert-layer } }
